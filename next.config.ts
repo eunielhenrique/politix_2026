@@ -5,7 +5,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   async rewrites() {
     return {
-      beforeFiles: [{ source: "/", destination: "/politix-standalone.html" }],
+      beforeFiles: [{ source: "/", destination: "/Politix.dc.html" }],
       afterFiles: [],
       fallback: [],
     };
