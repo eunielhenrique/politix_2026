@@ -31,7 +31,7 @@ export default function Sidebar({
   const w = collapsed ? 64 : 232;
   const days =
     electionDate != null
-      ? Math.max(0, Math.ceil((+new Date(electionDate) - Date.now()) / 86400000))
+      ? Math.max(0, Math.ceil((+new Date(electionDate + "T00:00:00") - Date.now()) / 86400000))
       : null;
 
   return (
@@ -44,45 +44,37 @@ export default function Sidebar({
         top: 0,
         display: "flex",
         flexDirection: "column",
-        background: "var(--color-background-200)",
+        background: "var(--color-background)",
         borderRight: "1px solid var(--color-border)",
         transition: "width .2s var(--ease-bar)",
         overflow: "hidden",
       }}
     >
-      {/* topo: marca + recolher */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 14px", height: 58 }}>
-        <div style={{ color: "var(--color-foreground)", flexShrink: 0 }}>
-          <Icon name="panel" size={20} />
-        </div>
+      {/* marca */}
+      <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "18px 16px 14px", height: 58 }}>
+        <span style={{ color: "var(--color-foreground)", flexShrink: 0, display: "flex" }}><Icon name="spark" size={17} /></span>
         {!collapsed && (
-          <span className="mono" style={{ fontSize: 15, fontWeight: 700, letterSpacing: ".14em", flex: 1 }}>
-            POLITIX
-          </span>
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 17, fontWeight: 600, letterSpacing: "-.2px", flex: 1 }}>Politix</span>
         )}
         <button
           onClick={toggle}
           aria-label={collapsed ? "Expandir" : "Recolher"}
-          style={{
-            display: "flex",
-            background: "none",
-            border: "none",
-            color: "var(--color-muted-foreground)",
-            cursor: "pointer",
-            padding: 2,
-            transform: collapsed ? "rotate(180deg)" : "none",
-            transition: "transform .2s",
-          }}
+          style={{ display: "flex", background: "none", border: "none", color: "var(--color-gray-700)", cursor: "pointer", padding: 2, transform: collapsed ? "rotate(180deg)" : "none", transition: "transform .2s" }}
         >
-          <Icon name="chevron" size={18} />
+          <Icon name="chevron" size={17} />
         </button>
       </div>
 
+      {!collapsed && (
+        <div style={{ padding: "6px 18px 4px", fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 500, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--color-gray-600)" }}>
+          Assessoria
+        </div>
+      )}
+
       {/* nav */}
-      <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "6px 8px", flex: 1 }}>
+      <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "4px 10px", flex: 1 }}>
         {ASSESSOR_NAV.map((item) => {
-          const active =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+          const active = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.href}
@@ -92,54 +84,49 @@ export default function Sidebar({
                 display: "flex",
                 alignItems: "center",
                 gap: 11,
-                padding: collapsed ? "9px 0" : "9px 10px",
+                padding: collapsed ? "10px 0" : "9px 10px",
                 justifyContent: collapsed ? "center" : "flex-start",
-                borderRadius: "var(--radius-md)",
-                color: active ? "var(--color-foreground)" : "var(--color-muted-foreground)",
-                background: active ? "var(--color-muted)" : "transparent",
-                border: active ? "1px solid var(--color-border)" : "1px solid transparent",
+                borderRadius: "var(--radius-sm)",
+                color: active ? "var(--color-foreground)" : "var(--color-gray-800)",
+                background: active ? "var(--color-background-200)" : "transparent",
                 fontSize: 13.5,
-                fontWeight: active ? 600 : 500,
+                fontWeight: 500,
                 whiteSpace: "nowrap",
               }}
             >
-              <Icon name={item.icon} size={18} style={{ flexShrink: 0 }} />
+              <Icon name={item.icon} size={17} style={{ flexShrink: 0, color: active ? "var(--color-foreground)" : "var(--color-gray-700)" }} />
               {!collapsed && <span>{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* card Eleição (somente leitura) */}
+      {/* card Eleição */}
       {!collapsed && days != null && (
-        <div style={{ margin: "0 12px 10px", padding: "10px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-background-100)" }}>
-          <div className="mono" style={{ fontSize: 9.5, textTransform: "uppercase", letterSpacing: ".1em", color: "var(--color-muted-foreground)" }}>
-            Eleição
-          </div>
-          <div className="tnum" style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>
+        <div style={{ margin: "0 14px 10px", padding: "10px 12px", border: "1px solid var(--color-border)", borderRadius: "var(--radius-sm)", background: "var(--color-background-100)" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9.5, letterSpacing: "1.2px", textTransform: "uppercase", color: "var(--color-gray-600)" }}>Eleição</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2, fontVariantNumeric: "tabular-nums" }}>
             {new Date(electionDate + "T00:00:00").toLocaleDateString("pt-BR")}
           </div>
-          <div className="mono tnum" style={{ fontSize: 10.5, color: "var(--color-highlight)", marginTop: 1 }}>
-            faltam {days} dias
-          </div>
+          <div style={{ fontSize: 10.5, color: "var(--color-gray-700)", marginTop: 1, fontVariantNumeric: "tabular-nums" }}>faltam {days} dias</div>
         </div>
       )}
 
-      {/* rodapé: avatar + engrenagem */}
-      <div style={{ borderTop: "1px solid var(--color-border)", padding: "10px 12px", display: "flex", alignItems: "center", gap: 10, justifyContent: collapsed ? "center" : "space-between" }}>
+      {/* rodapé */}
+      <div style={{ borderTop: "1px solid var(--color-border)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, justifyContent: collapsed ? "center" : "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-          <div style={{ width: 28, height: 28, borderRadius: "var(--radius-full)", background: "var(--color-muted)", border: "1px solid var(--color-border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--color-muted-foreground)" }}>
+          <div style={{ width: 30, height: 30, borderRadius: "var(--radius-sm)", background: "var(--color-gray-300)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 500, color: "var(--color-foreground)" }}>
             {(tenantName || "P").slice(0, 1).toUpperCase()}
           </div>
           {!collapsed && (
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{tenantName}</div>
-              <div className="mono" style={{ fontSize: 10, color: "var(--color-muted-foreground)" }}>Assessoria</div>
+              <div style={{ fontSize: 12.5, fontWeight: 500 }}>Assessoria</div>
+              <div style={{ fontSize: 10.5, color: "var(--color-gray-600)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}>{tenantName}</div>
             </div>
           )}
         </div>
         {!collapsed && (
-          <Link href="/painel/config" title="Configurações" style={{ color: "var(--color-muted-foreground)", display: "flex" }}>
+          <Link href="/painel/config" title="Configurações" style={{ color: "var(--color-gray-700)", display: "flex" }}>
             <Icon name="gear" size={16} />
           </Link>
         )}

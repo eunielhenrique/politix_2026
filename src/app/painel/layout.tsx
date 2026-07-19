@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getMe } from "@/lib/politix/rpc";
 import Sidebar from "@/components/painel/Sidebar";
-import Topbar from "@/components/painel/Topbar";
+import PainelHeader from "@/components/painel/PainelHeader";
 import PolitixIA from "@/components/painel/PolitixIA";
 
 export default async function PainelLayout({ children }: { children: React.ReactNode }) {
@@ -17,8 +17,8 @@ export default async function PainelLayout({ children }: { children: React.React
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--color-background-100)" }}>
       <Sidebar tenantName={tenantName} electionDate={me.election_date} />
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <Topbar tenantName={tenantName} />
-        <div style={{ flex: 1, minWidth: 0 }}>{children}</div>
+        <PainelHeader />
+        <div style={{ flex: 1, minWidth: 0, padding: "16px 28px 44px" }}>{children}</div>
       </div>
       <PolitixIA />
     </div>
