@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getMe, getTenantRanking } from "@/lib/politix/rpc";
 import { campaignCurve, dailyBuckets } from "@/lib/politix/charts";
 import { nf } from "@/lib/politix/format";
+import { buildMapCities } from "@/lib/politix/geo";
+import SPMap from "@/components/painel/SPMap";
 
 const C = 2 * Math.PI * 50; // circunferência do donut (r=50)
 
@@ -46,7 +48,9 @@ export default async function VisaoGeral() {
   const cityCount: Record<string, number> = {};
   lids.forEach((l) => { const c = l.city || "—"; cityCount[c] = (cityCount[c] || 0) + 1; });
   const covered = new Set<string>();
-  ranking.forEach((r) => (r.cities ?? []).forEach((c) => covered.add(c)));
+  const leadersPerCity: Record<string, number> = {};
+  ranking.forEach((r) => (r.cities ?? []).forEach((c) => { covered.add(c); leadersPerCity[c] = (leadersPerCity[c] || 0) + 1; }));
+  const mapCities = buildMapCities(cityCount, leadersPerCity);
   const cities = Object.keys(cityCount).filter((c) => c !== "—");
   const coveredCities = cities.filter((c) => covered.has(c));
   const semLider = cities.filter((c) => !covered.has(c)).sort((a, b) => cityCount[b] - cityCount[a]);
@@ -140,8 +144,8 @@ export default async function VisaoGeral() {
             <span style={mono11}>Cobertura — São Paulo</span>
             <span style={{ fontSize: 11, color: "var(--color-gray-600)" }}>contorno oficial IBGE</span>
           </div>
-          <div style={{ flex: "1 1 auto", minHeight: 300, display: "flex", alignItems: "center", justifyContent: "center", background: "repeating-linear-gradient(-45deg,var(--color-hairline) 0 1px,transparent 1px 7px)" }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: ".08em", color: "var(--color-gray-600)" }}>MAPA IBGE · FASE 4</span>
+          <div style={{ height: 320, minHeight: 0 }}>
+            <SPMap cities={mapCities} height="100%" />
           </div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", padding: "8px 20px 12px", fontSize: 11, color: "var(--color-muted-foreground)" }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ width: 9, height: 9, borderRadius: "var(--radius-sm)", background: "var(--color-gray-1000)" }} />coberto</span>
