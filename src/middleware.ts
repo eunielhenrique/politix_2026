@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // Rotas públicas (não exigem sessão).
 function isPublic(pathname: string) {
   return (
+    pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/auth") ||
     pathname.startsWith("/convite")

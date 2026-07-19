@@ -1,8 +1,15 @@
 import type { NextConfig } from "next";
 
-// NEXT_PUBLIC_* são expostas automaticamente a partir do ambiente
-// (.env.local em dev; variáveis do projeto na Vercel em produção).
-// Não hardcodar chaves aqui.
-const nextConfig: NextConfig = {};
+// Home serve o front original (protótipo compilado, self-contained).
+// O app Next/Supabase segue disponível em /painel, /app, /login para a fase de integração.
+const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      beforeFiles: [{ source: "/", destination: "/politix-standalone.html" }],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
+};
 
 export default nextConfig;
