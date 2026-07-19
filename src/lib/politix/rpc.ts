@@ -90,3 +90,21 @@ export async function bootstrapTenant(
   });
   if (error) throw error;
 }
+
+/** Resolve o líder-alvo do app: o próprio líder, ou (assessor) o 1º do ranking em modo preview. */
+export async function leaderTarget(supabase: SupabaseClient): Promise<{
+  leaderId: string | null;
+  name: string;
+  isPreview: boolean;
+  me: Me | null;
+}> {
+  const me = await getMe(supabase);
+  if (me?.role === "lider" && me.leader_id) {
+    return { leaderId: me.leader_id, name: me.name ?? "Líder", isPreview: false, me };
+  }
+  const ranking = await getTenantRanking(supabase).catch(() => []);
+  if (ranking[0]) {
+    return { leaderId: ranking[0].leader_id, name: ranking[0].name, isPreview: true, me };
+  }
+  return { leaderId: null, name: me?.name ?? "Líder", isPreview: me?.role === "assessor", me };
+}
