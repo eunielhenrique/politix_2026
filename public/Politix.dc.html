@@ -1553,19 +1553,19 @@ class Component extends DCLogic {
     try { const r = await sb.rpc('me'); me = Array.isArray(r.data) ? r.data[0] : r.data; } catch (e) {}
     if (!me || !me.tenant_id) { if (!hasVista) this.setState({ view: 'onboarding' }); this.setState({ remote: { session: true } }); return; }
     const role = me.role;
-    if (!hasVista) this.setState({ view: role === 'assessor' ? 'assessor' : 'leader' });
-    this.setState({ remote: { session: true, role, tenantId: me.tenant_id, leaderId: me.leader_id, tenantName: me.tenant_name, electionDate: me.election_date, leaderName: me.name } });
+    const remote = { session: true, role, tenantId: me.tenant_id, leaderId: me.leader_id, tenantName: me.tenant_name, electionDate: me.election_date, leaderName: me.name };
     try {
       if (role === 'assessor') {
         const rk = await sb.rpc('tenant_ranking');
         const { data: lids } = await sb.from('liderado').select('city, created_at').limit(20000);
-        this.setState(s => ({ remote: { ...s.remote, ranking: rk.data || [], liderados: lids || [] } }));
+        remote.ranking = rk.data || []; remote.liderados = lids || [];
       } else if (me.leader_id) {
         const bd = await sb.rpc('leader_scoreboard', { target: me.leader_id });
         const ser = await sb.rpc('leader_daily_series', { target: me.leader_id, days: 90 });
-        this.setState(s => ({ remote: { ...s.remote, scoreboard: Array.isArray(bd.data) ? bd.data[0] : bd.data, series: ser.data || [] } }));
+        remote.scoreboard = Array.isArray(bd.data) ? bd.data[0] : bd.data; remote.series = ser.data || [];
       }
     } catch (e) {}
+    this.setState({ view: hasVista ? this.state.view : (role === 'assessor' ? 'assessor' : 'leader'), remote });
   }
   mkA(ibge, nome, lat, lng, c, i, p, lideres, liderados, ritmo, top) {
     const h = arr => arr.map(([cargo, ano, votos]) => ({ cargo, ano, votos }));
