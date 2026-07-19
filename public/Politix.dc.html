@@ -1854,9 +1854,21 @@ class Component extends DCLogic {
       { nome: 'Fátima Rocha', cidade: 'Zona Leste', zap: '(11) 99444-5566', quando: 'ontem' },
     ];
     const recentes = [...st.extraRecentes, ...baseRecentes].slice(0, 5).map(r => ({ ...r, ini: r.nome.split(' ').map(p => p[0]).slice(0, 2).join('') }));
-    const submitCadastro = () => {
+    const submitCadastro = async () => {
       const d = st.fZap.replace(/\D/g, '');
       if (!st.fNome.trim() || d.length < 10) { set({ cadMsg: 'Preencha nome e um WhatsApp válido (DDD + número).', cadTipo: 'warn' }); return; }
+      const sb = this._pxClient();
+      if (sb && st.remote && st.remote.leaderId) {
+        const { error } = await sb.from('liderado').insert({ tenant_id: st.remote.tenantId, leader_id: st.remote.leaderId, name: st.fNome.trim(), whatsapp: d, city: (st.fCidade || '').split(' — ')[0] || null });
+        if (error) {
+          const dup = error.code === '23505' || /duplicate|unique/i.test(error.message || '');
+          set({ cadMsg: dup ? 'Esse WhatsApp já está na campanha. Cada número conta uma vez — o voto continua garantido, só não soma de novo.' : ('Não consegui cadastrar: ' + error.message), cadTipo: dup ? 'err' : 'warn' });
+          return;
+        }
+        set({ extraRecentes: [{ nome: st.fNome.trim(), cidade: (st.fCidade || '').split(' — ')[0], zap: this.fmtZap(st.fZap), quando: 'agora' }, ...st.extraRecentes], fNome: '', fZap: '', cadMsg: `${st.fNome.trim().split(' ')[0]} entrou na sua rede. +1 no placar!`, cadTipo: 'ok' });
+        const ses = await sb.auth.getSession(); this._pxLoad(ses.data.session);
+        return;
+      }
       if (this.zaps.has(d)) { set({ cadMsg: `Esse WhatsApp já está na campanha (cadastrado por outro líder). Cada número conta uma vez — o voto continua garantido, só não soma de novo.`, cadTipo: 'err' }); return; }
       this.zaps.add(d);
       set({ extraRecentes: [{ nome: st.fNome.trim(), cidade: st.fCidade.split(' — ')[0], zap: this.fmtZap(st.fZap), quando: 'agora' }, ...st.extraRecentes], fNome: '', fZap: '', cadMsg: `${st.fNome.trim().split(' ')[0]} entrou na sua rede. +1 no placar!`, cadTipo: 'ok' });
@@ -1874,8 +1886,17 @@ class Component extends DCLogic {
       { nome: 'Sueli Martins', cidade: 'Zona Leste', zap: '(11) 99333-…', quando: '15/jul' },
       { nome: 'Carlos Peixoto', cidade: 'Itaquera', zap: '(11) 99888-…', quando: '14/jul' },
     ].map(l => ({ ...l, ini: l.nome.split(' ').map(w => w[0]).slice(0, 2).join('') }));
-    const geraConvite = () => {
+    const geraConvite = async () => {
       if (!st.cNome.trim()) { return; }
+      const sb = this._pxClient();
+      if (sb && st.remote && st.remote.leaderId) {
+        const cts = st.cCidades.split(',').map(s => s.trim()).filter(Boolean);
+        const { data, error } = await sb.rpc('invite_leader', { p_name: st.cNome.trim(), p_whatsapp: st.cZap.replace(/\D/g, ''), p_cities: cts, p_promise: parseInt(st.cPromessa, 10) || 0, p_parent: st.remote.leaderId });
+        const row = Array.isArray(data) ? data[0] : data;
+        if (error || !row) { alert('Não consegui gerar o convite' + (error ? ': ' + error.message : '')); return; }
+        set({ invite: location.host + '/?vista=convite&token=' + row.token, copied: false });
+        return;
+      }
       set({ invite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, copied: false });
     };
     const copy = (text, key) => { try { navigator.clipboard.writeText(text); } catch (e) {} this.setState({ [key]: true }); setTimeout(() => this.setState({ [key]: false }), 1600); };
@@ -1970,7 +1991,7 @@ class Component extends DCLogic {
     };
     // ---- ranking de cidades ----
     const maxTeto = Math.max(...this.anchorsData.map(a => consolidadoPot[a.ibge]));
-    const cidadesRank = this.anchorsData.map(a => {
+    const _cidMock = this.anchorsData.map(a => {
       const pot = consolidadoPot[a.ibge];
       const lid = a.rede.liderados, nl = a.rede.lideres;
       const convN = pot > 0 ? lid / pot * 1000 : 0;
@@ -1989,6 +2010,17 @@ class Component extends DCLogic {
       };
     }).filter(c => this.fltMatch(st.cidFRegiao, this.raDe(c.nome)))
       .sort((a, b) => b.pot - a.pot).map((c, i) => ({ ...c, pos: String(i + 1) }));
+    const cidadesRank = AR ? (function () {
+      const cc = {}; (st.remote.liderados || []).forEach(l => { const c = l.city || '—'; cc[c] = (cc[c] || 0) + 1; });
+      const lpc = {}; AR.forEach(r => (r.cities || []).forEach(c => lpc[c] = (lpc[c] || 0) + 1));
+      const maxLid = Math.max(1, ...Object.values(cc));
+      return Object.entries(cc).filter(([c]) => c !== '—').map(([nome, lid]) => {
+        const nl = lpc[nome] || 0;
+        const status = nl === 0 ? 'priorizar' : lid >= maxLid * 0.4 ? 'coberto' : 'parcial';
+        const tone = status === 'coberto' ? okC : status === 'parcial' ? warnC : errC;
+        return { nome, pot: lid, potF: '—', lid, lidF: lid.toLocaleString('pt-BR'), lideres: String(nl), conv: '—', convCor: 'var(--color-gray-600)', convW: '0%', tetoW: Math.round(lid / maxLid * 100) + '%', status: { coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[status], stBg: tone[0], stFg: tone[1], onClick: () => set({ aTab: 'mapa' }) };
+      }).sort((a, b) => b.lid - a.lid).map((c, i) => ({ ...c, pos: String(i + 1) }));
+    })() : _cidMock;
     const cidMedal = ['#ededed', '#878787', '#666666'];
     const cidPodio = [1, 0, 2].filter(ci => cidadesRank[ci]).map(ci => {
       const c = cidadesRank[ci]; const first = ci === 0;
@@ -2444,13 +2476,32 @@ class Component extends DCLogic {
       obCidades: st.obCidades, onObCidades: (e) => set({ obCidades: e.target.value }),
       obPromessa: st.obPromessa, onObPromessa: (e) => set({ obPromessa: e.target.value }),
       hasObErro: !!st.obErro, obErro: st.obErro,
-      ativarLideranca: () => {
+      ativarLideranca: async () => {
         if (!st.obNome.trim()) return set({ obErro: 'Falta o seu nome completo.' });
         if (st.obZap.replace(/\D/g, '').length < 10) return set({ obErro: 'Confira o WhatsApp — precisa do DDD.' });
         if (!st.obCidades.trim()) return set({ obErro: 'Diga em quais cidades você atua.' });
+        const sb = this._pxClient();
+        const token = typeof location !== 'undefined' && new URLSearchParams(location.search).get('token');
+        if (sb && token) {
+          const ses = await sb.auth.getSession();
+          if (!ses.data.session) { alert('Faça login com seu e-mail primeiro; depois volte neste link para ativar.'); this.nav('login'); return; }
+          const { error } = await sb.rpc('accept_invite', { p_token: token });
+          if (error) return set({ obErro: 'Não consegui ativar: ' + error.message });
+          location.href = location.origin + '/';
+          return;
+        }
         this.nav('leader');
       },
-      goAssessor: () => this.nav('assessor'),
+      goAssessor: async () => {
+        const sb = this._pxClient();
+        if (!sb) { this.nav('assessor'); return; }
+        const ses = await sb.auth.getSession();
+        if (!ses.data.session) { alert('Faça login com seu e-mail primeiro para criar a campanha.'); this.nav('login'); return; }
+        const nome = prompt('Nome da campanha:', 'Minha campanha 2026'); if (!nome || !nome.trim()) return;
+        const { error } = await sb.rpc('bootstrap_tenant', { p_name: nome.trim(), p_election_date: st.electionDate || '2026-10-04' });
+        if (error) { alert('Erro: ' + error.message); return; }
+        location.href = location.origin + '/';
+      },
       goOnboarding: (e) => { if (e && e.preventDefault) e.preventDefault(); this.nav('onboarding'); },
       email: st.email, onEmail: (e) => set({ email: e.target.value }),
       electionDate: st.electionDate, onDate: (e) => set({ electionDate: e.target.value }),
@@ -2510,7 +2561,18 @@ class Component extends DCLogic {
       // assessor
       kpis, ranking, semLider, citiesJson: JSON.stringify(cities),
       ...vgVals,
-      geraConviteAssessor: () => set({ aInvite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, aCopied: false }),
+      geraConviteAssessor: async () => {
+        const sb = this._pxClient();
+        if (!(sb && st.remote && st.remote.role === 'assessor')) { set({ aInvite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, aCopied: false }); return; }
+        const nome = prompt('Nome do líder a convidar:'); if (!nome || !nome.trim()) return;
+        const zap = (prompt('WhatsApp do líder (com DDD):') || '').replace(/\D/g, '');
+        const cid = (prompt('Cidades (separadas por vírgula):') || '');
+        const prom = parseInt(prompt('Promessa de votos:') || '0', 10) || 0;
+        const { data, error } = await sb.rpc('invite_leader', { p_name: nome.trim(), p_whatsapp: zap, p_cities: cid.split(',').map(s => s.trim()).filter(Boolean), p_promise: prom, p_parent: null });
+        const row = Array.isArray(data) ? data[0] : data;
+        if (error || !row) { alert('Erro ao gerar convite' + (error ? ': ' + error.message : '')); return; }
+        this.setState({ aInvite: location.host + '/?vista=convite&token=' + row.token, aCopied: false });
+      },
       hasAInvite: !!st.aInvite, aInviteLink: st.aInvite, copyAInvite: () => copy('https://' + st.aInvite, 'aCopied'), aCopyLabel: st.aCopied ? 'Copiado ✓' : 'Copiar',
     };
   }
