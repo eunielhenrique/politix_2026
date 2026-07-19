@@ -667,7 +667,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <circle cx="{{ vgHojeX }}" cy="{{ vgHojeY }}" r="4" style="fill:var(--color-foreground);stroke:var(--color-background)" stroke-width="1.5"></circle>
               <circle cx="{{ vgProjX }}" cy="{{ vgProjY }}" r="3.5" fill="none" stroke="#666666" stroke-width="1.6"></circle>
             </svg>
-            <span style="position:absolute;right:3%;top:{{ vgMetaTop }};font-size:10.5px;font-weight:500;color:var(--color-muted-foreground)">Meta 2.400</span>
+            <span style="position:absolute;right:3%;top:{{ vgMetaTop }};font-size:10.5px;font-weight:500;color:var(--color-muted-foreground)">{{ vgMetaLabel }}</span>
             <span style="position:absolute;right:1%;top:{{ vgProjTop }};font-size:11px;font-weight:600;color:{{ vgProjCor }}">{{ vgProjVal }}</span>
           </div>
           <div style="display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--color-muted-foreground)">
@@ -2161,7 +2161,7 @@ class Component extends DCLogic {
         ? `Conversão forte (${dl.porMil}/mil do teto). ${dl.nome.split(' ')[0]} é candidato(a) natural a ganhar mais cidades ou formar sub-líderes.`
         : `Ritmo saudável, mas a região comporta mais: o potencial da família aqui é ${this.potNivel(dl.potRef)} e a conversão está em ${dl.porMil}/mil. Sub-líderes novos acelerariam o ramo.`,
     };
-    const cities = [
+    const _citiesMock = [
       { nome: 'São Paulo', lat: -23.55, lng: -46.63, status: 'parcial', statusLabel: 'Parcial', potencial: 370600, lideres: 3, cadastros: 472, labelDy: -12 },
       { nome: 'Santana de Parnaíba', lat: -23.444, lng: -46.918, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 132700, lideres: 0, cadastros: 0, labelAnchor: 'end', labelDx: -10, labelDy: -6 },
       { nome: 'Barueri', lat: -23.51, lng: -46.876, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 48900, lideres: 0, cadastros: 12, label: false },
@@ -2180,20 +2180,43 @@ class Component extends DCLogic {
       { nome: 'Piracicaba', lat: -22.72, lng: -47.65, status: 'parcial', statusLabel: 'Parcial', potencial: 10900, lideres: 1, cadastros: 38, labelAnchor: 'end', labelDx: -9 },
       { nome: 'Pres. Prudente', lat: -22.13, lng: -51.39, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 10300, lideres: 0, cadastros: 0 },
     ];
+    const _COORD = { 'São Paulo': [-46.633, -23.55], 'Guarulhos': [-46.533, -23.454], 'Osasco': [-46.792, -23.532], 'Barueri': [-46.876, -23.51], 'Santo André': [-46.538, -23.663], 'São Bernardo do Campo': [-46.565, -23.694], 'São Caetano do Sul': [-46.564, -23.618], 'Diadema': [-46.62, -23.686], 'Mauá': [-46.461, -23.667], 'Campinas': [-47.061, -22.905], 'Sorocaba': [-47.458, -23.501], 'Jundiaí': [-46.884, -23.186], 'Santos': [-46.333, -23.96], 'São José dos Campos': [-45.887, -23.179], 'Ribeirão Preto': [-47.81, -21.177], 'São José do Rio Preto': [-49.379, -20.812], 'Bauru': [-49.06, -22.314], 'Piracicaba': [-47.649, -22.725], 'Presidente Prudente': [-51.388, -22.126], 'Santana de Parnaíba': [-46.918, -23.444], 'Cotia': [-46.919, -23.604], 'Carapicuíba': [-46.836, -23.522], 'Taboão da Serra': [-46.758, -23.626], 'Mogi das Cruzes': [-46.188, -23.522] };
+    const cities = (AR && st.remote.liderados) ? (function () {
+      const cc = {}; st.remote.liderados.forEach(l => { const c = l.city || '—'; cc[c] = (cc[c] || 0) + 1; });
+      const lpc = {}; AR.forEach(r => (r.cities || []).forEach(c => lpc[c] = (lpc[c] || 0) + 1));
+      const cov = Object.entries(cc).filter(([c]) => (lpc[c] || 0) > 0).map(([, n]) => n).sort((a, b) => a - b);
+      const med = cov.length ? cov[Math.floor(cov.length / 2)] : 0;
+      return Object.entries(cc).filter(([c]) => _COORD[c]).map(([c, cad]) => {
+        const nl = lpc[c] || 0;
+        const status = nl === 0 ? 'priorizar' : cad >= med ? 'coberto' : 'parcial';
+        return { nome: c, lng: _COORD[c][0], lat: _COORD[c][1], status, statusLabel: { coberto: 'Coberto', parcial: 'Parcial', priorizar: 'Priorizar — sem líder' }[status], potencial: 0, lideres: nl, cadastros: cad };
+      }).sort((a, b) => b.cadastros - a.cadastros);
+    })() : _citiesMock;
     // ---- gráficos da visão geral ----
-    const vgMeta = 2400, vgReal = 1318;
-    const vgAdds = Array.from({ length: 30 }, (_, i) => 18 + Math.round(((i * 48271 % 97) / 97) * 26 + (i > 22 ? 8 : 0)));
+    const _lids = (AR && st.remote.liderados) || null;
+    const vgMeta = AR ? AR.reduce((a, r) => a + (r.meta || 0), 0) : 2400;
+    const vgReal = _lids ? _lids.length : 1318;
+    let vgAdds;
+    if (_lids) {
+      const _DAY = 86400000, _now = Date.now(), _s0 = _now - 29 * _DAY;
+      vgAdds = new Array(30).fill(0);
+      _lids.forEach(l => { const i2 = Math.floor((new Date(l.created_at).getTime() - _s0) / _DAY); if (i2 >= 0 && i2 < 30) vgAdds[i2]++; });
+      if (vgAdds.every(x => x === 0)) vgAdds = vgAdds.map(() => 0);
+    } else {
+      vgAdds = Array.from({ length: 30 }, (_, i) => 18 + Math.round(((i * 48271 % 97) / 97) * 26 + (i > 22 ? 8 : 0)));
+    }
     const vgSum = vgAdds.reduce((a, b) => a + b, 0);
     let vgAcc = vgReal - vgSum;
     const vgCum = vgAdds.map(a => (vgAcc += a));
     const vgRate = Math.round(vgAdds.slice(-7).reduce((a, b) => a + b, 0) / 7);
-    const vgProjN = vgReal + vgRate * dias;
-    const vgMaxY = Math.max(vgMeta, vgProjN) * 1.08;
-    const vgTotal = 29 + dias;
+    const vgProjN = vgReal + vgRate * diasEl;
+    const vgMaxY = Math.max(vgMeta, vgProjN, 1) * 1.08;
+    const vgTotal = 29 + diasEl;
     const vgX = d => 16 + d / vgTotal * 608, vgY = v => 228 - v / vgMaxY * 200;
     const vgPts = vgCum.map((v, i) => `${vgX(i).toFixed(1)},${vgY(v).toFixed(1)}`);
-    const vgMaxAdd = Math.max(...vgAdds);
+    const vgMaxAdd = Math.max(1, ...vgAdds);
     const vgVals = {
+      vgMetaLabel: 'Meta ' + vgMeta.toLocaleString('pt-BR'),
       vgLine: 'M' + vgPts.join(' L'),
       vgArea: 'M' + vgPts.join(' L') + ` L${vgX(29).toFixed(1)},228 L16,228 Z`,
       vgProj: `M${vgX(29).toFixed(1)},${vgY(vgReal).toFixed(1)} L${vgX(vgTotal).toFixed(1)},${vgY(vgProjN).toFixed(1)}`,
@@ -2212,20 +2235,21 @@ class Component extends DCLogic {
       .map(a => ({ nome: a.nome, pot: this.potNivel(consolidadoPot[a.ibge]) }));
     // donut de cobertura das praças com teto relevante
     const vgStatusDe = a => { const lid = a.rede.liderados, conv = consolidadoPot[a.ibge] > 0 ? lid / consolidadoPot[a.ibge] * 1000 : 0; return lid >= 80 && conv >= 2 ? 'coberto' : lid >= 25 ? 'parcial' : 'priorizar'; };
-    const vgPr = this.anchorsData.filter(a => consolidadoPot[a.ibge] >= 15000);
     const vgCnt = { coberto: 0, parcial: 0, priorizar: 0 };
-    vgPr.forEach(a => vgCnt[vgStatusDe(a)]++);
+    let vgPrLen;
+    if (AR) { cities.forEach(c => vgCnt[c.status]++); vgPrLen = cities.length || 1; }
+    else { const _vgPr = this.anchorsData.filter(a => consolidadoPot[a.ibge] >= 15000); _vgPr.forEach(a => vgCnt[vgStatusDe(a)]++); vgPrLen = _vgPr.length; }
     const vgC = 2 * Math.PI * 50;
     let vgOff = 0;
     const vgSegs = [['coberto', 'var(--color-foreground)', 'Cobertas'], ['parcial', '#454545', 'Abaixo do potencial'], ['priorizar', 'var(--color-accent)', 'Priorizar (sem rede)']].map(([k, cor, label]) => {
-      const frac = vgCnt[k] / vgPr.length, len = frac * vgC;
+      const frac = vgCnt[k] / vgPrLen, len = frac * vgC;
       const seg = { cor, label, n: String(vgCnt[k]), dash: `${Math.max(len - 2, 0).toFixed(1)} ${(vgC - len + 2).toFixed(1)}`, off: (-vgOff).toFixed(1) };
       vgOff += len; return seg;
     });
     const vgGap = semLider[0] || { nome: '—', pot: '—' };
     Object.assign(vgVals, {
-      vgDonut: vgSegs, vgDonutLeg: vgSegs, vgDonutTotal: String(vgPr.length),
-      vgDonutPct: Math.round(vgCnt.coberto / vgPr.length * 100) + '%',
+      vgDonut: vgSegs, vgDonutLeg: vgSegs, vgDonutTotal: String(vgPrLen),
+      vgDonutPct: Math.round(vgCnt.coberto / vgPrLen * 100) + '%',
       vgGapCidade: vgGap.nome, vgGapPot: vgGap.pot,
     });
     // ---- tela Mapa Rede × Família ----
