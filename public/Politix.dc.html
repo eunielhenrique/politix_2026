@@ -926,7 +926,13 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <sc-if value="{{ cfgConvites }}" hint-placeholder-val="{{ false }}">
             <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:20px 22px">
               <div style="font-size:14px;font-weight:600;margin-bottom:4px">Convidar líder</div>
-            <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.55;margin:0 0 14px">Gere um link de convite e envie pelo WhatsApp. Quem ativar entra na árvore como líder de primeiro nível da campanha.</p>
+            <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.55;margin:0 0 14px">Preencha os dados do líder e gere o link — envie pelo WhatsApp. Quem ativar entra na árvore como líder de primeiro nível da campanha.</p>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;max-width:420px">
+              <input type="text" placeholder="Nome do líder" value="{{ aCN }}" onChange="{{ onACN }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none" style-focus="border-color:var(--color-gray-500)">
+              <input type="tel" placeholder="WhatsApp — (11) 9…" value="{{ aCZ }}" onChange="{{ onACZ }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
+              <input type="text" placeholder="Cidades (separe por vírgula)" value="{{ aCC }}" onChange="{{ onACC }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none" style-focus="border-color:var(--color-gray-500)">
+              <input type="number" placeholder="Promessa de votos" value="{{ aCP }}" onChange="{{ onACP }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
+            </div>
             <button onClick="{{ geraConviteAssessor }}" style="height:38px;padding:0 18px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer" style-active="background:#ffffff">Gerar link de convite</button>
             <sc-if value="{{ hasAInvite }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);margin-top:12px">
@@ -1500,7 +1506,7 @@ class Component extends DCLogic {
     cNome: '', cZap: '', cCidades: '', cPromessa: '', invite: null, copied: false,
     obNome: '', obZap: '', obCidades: 'Campinas, Jundiaí', obPromessa: '40', obErro: null,
     pFoto: null, pNome: 'Marcos Tavares', pZap: '(11) 98765-4321', pEmail: 'marcos@exemplo.com.br', pCidades: 'Zona Leste — São Paulo, Itaquera', pPromessa: '300', pPend: null, pMsg: null,
-    aInvite: null, aCopied: false,
+    aInvite: null, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '',
     electionDate: '2026-10-04',
     aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
@@ -2461,14 +2467,14 @@ class Component extends DCLogic {
       ...grupoVals,
       isDark,
       shellNav,
-      showShell: !(typeof location !== 'undefined' && new URLSearchParams(location.search).has('vista')),
+      showShell: false,
       isLogin: st.view === 'login', isOnboarding: st.view === 'onboarding', isConvite: st.view === 'convite', isLeader: st.view === 'leader', isAssessor: st.view === 'assessor',
       goLeader: (e) => {
         if (e && e.preventDefault) e.preventDefault();
         const sb = this._pxClient();
         const em = (st.email || '').trim();
         if (!sb || !em) { alert('Digite o seu e-mail para receber o link de acesso.'); return; }
-        sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: window.location.origin } })
+        sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: window.location.href } })
           .then(({ error }) => alert(error ? ('Não consegui enviar o link: ' + error.message) : ('Link de acesso enviado para ' + em + '. Abra o e-mail e clique para entrar.')));
       },
       obNome: st.obNome, onObNome: (e) => set({ obNome: e.target.value, obErro: null }),
@@ -2561,17 +2567,18 @@ class Component extends DCLogic {
       // assessor
       kpis, ranking, semLider, citiesJson: JSON.stringify(cities),
       ...vgVals,
+      aCN: st.aCN, onACN: (e) => set({ aCN: e.target.value }),
+      aCZ: st.aCZ, onACZ: (e) => set({ aCZ: e.target.value }),
+      aCC: st.aCC, onACC: (e) => set({ aCC: e.target.value }),
+      aCP: st.aCP, onACP: (e) => set({ aCP: e.target.value }),
       geraConviteAssessor: async () => {
         const sb = this._pxClient();
         if (!(sb && st.remote && st.remote.role === 'assessor')) { set({ aInvite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, aCopied: false }); return; }
-        const nome = prompt('Nome do líder a convidar:'); if (!nome || !nome.trim()) return;
-        const zap = (prompt('WhatsApp do líder (com DDD):') || '').replace(/\D/g, '');
-        const cid = (prompt('Cidades (separadas por vírgula):') || '');
-        const prom = parseInt(prompt('Promessa de votos:') || '0', 10) || 0;
-        const { data, error } = await sb.rpc('invite_leader', { p_name: nome.trim(), p_whatsapp: zap, p_cities: cid.split(',').map(s => s.trim()).filter(Boolean), p_promise: prom, p_parent: null });
+        if (!st.aCN.trim() || st.aCZ.replace(/\D/g, '').length < 10) { alert('Preencha ao menos nome e WhatsApp (com DDD) do líder.'); return; }
+        const { data, error } = await sb.rpc('invite_leader', { p_name: st.aCN.trim(), p_whatsapp: st.aCZ.replace(/\D/g, ''), p_cities: st.aCC.split(',').map(s => s.trim()).filter(Boolean), p_promise: parseInt(st.aCP, 10) || 0, p_parent: null });
         const row = Array.isArray(data) ? data[0] : data;
         if (error || !row) { alert('Erro ao gerar convite' + (error ? ': ' + error.message : '')); return; }
-        this.setState({ aInvite: location.host + '/?vista=convite&token=' + row.token, aCopied: false });
+        this.setState({ aInvite: location.host + '/?vista=convite&token=' + row.token, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '' });
       },
       hasAInvite: !!st.aInvite, aInviteLink: st.aInvite, copyAInvite: () => copy('https://' + st.aInvite, 'aCopied'), aCopyLabel: st.aCopied ? 'Copiado ✓' : 'Copiar',
     };
