@@ -40,7 +40,8 @@ Deno.serve(async (req: Request) => {
       try { const r = await evo("/group/inviteInfo/" + inst + "?inviteCode=" + code); const j = await r.json(); return r.ok ? { nome: j.subject || null, jid: j.id || null, membros: j.size || 0 } : {}; } catch { return {}; }
     };
 
-    const { action, inviteLink, code, to, text } = await req.json();
+    const body = await req.json();
+    const { action, inviteLink, code, to, text } = body;
 
     // ---- assessor conecta o número da campanha ----
     if (action === "connect") {
@@ -103,6 +104,32 @@ Deno.serve(async (req: Request) => {
       if (me.role !== "assessor") return json({ error: "Apenas o assessor envia." }, 403);
       if (!to || !text) return json({ error: "faltou destino/texto." }, 400);
       const r = await evo("/message/sendText/" + inst, { method: "POST", body: JSON.stringify({ number: to, text }) });
+      const j = await r.json().catch(() => ({}));
+      return json({ ok: r.ok, result: j });
+    }
+
+    // ---- assessor envia imagem / vídeo / documento (media = base64 sem prefixo) ----
+    if (action === "sendMedia") {
+      if (me.role !== "assessor") return json({ error: "Apenas o assessor envia." }, 403);
+      if (!to || !body.media) return json({ error: "faltou destino/mídia." }, 400);
+      const payload: Record<string, unknown> = {
+        number: to,
+        mediatype: body.mediatype || "document", // image | video | document
+        media: body.media,
+        fileName: body.fileName || "arquivo",
+      };
+      if (body.mimetype) payload.mimetype = body.mimetype;
+      if (body.caption) payload.caption = body.caption;
+      const r = await evo("/message/sendMedia/" + inst, { method: "POST", body: JSON.stringify(payload) });
+      const j = await r.json().catch(() => ({}));
+      return json({ ok: r.ok, result: j });
+    }
+
+    // ---- assessor envia áudio de voz (PTT) — audio = base64 sem prefixo ----
+    if (action === "sendAudio") {
+      if (me.role !== "assessor") return json({ error: "Apenas o assessor envia." }, 403);
+      if (!to || !body.audio) return json({ error: "faltou destino/áudio." }, 400);
+      const r = await evo("/message/sendWhatsAppAudio/" + inst, { method: "POST", body: JSON.stringify({ number: to, audio: body.audio }) });
       const j = await r.json().catch(() => ({}));
       return json({ ok: r.ok, result: j });
     }

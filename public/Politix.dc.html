@@ -2274,6 +2274,29 @@ class Component extends DCLogic {
       this.setState({ grpExtra: extra, grpInput: '', grpNota: st.grpBc ? `Enviado para ${alvos.length} grupo(s).` : null });
       return true;
     };
+    // envio real de mídia/áudio (kind: image|video|document|audio). media = base64 sem prefixo.
+    const grpDeliverMedia = async (kind, media, fileName, mimetype, caption, echo) => {
+      const alvos = st.grpBc ? (st.grpBcSel.length ? st.grpBcSel : []) : (gSel ? [gSel.id] : []);
+      if (!alvos.length) { set({ grpNota: 'Selecione ao menos um grupo na lista para enviar.' }); return false; }
+      if (_realJoined) {
+        this.setState({ grpNota: 'Enviando…' });
+        let ok = 0;
+        for (const jid of alvos) {
+          const r = kind === 'audio'
+            ? await this._pxWpp('sendAudio', { to: jid, audio: media })
+            : await this._pxWpp('sendMedia', { to: jid, mediatype: kind, media, fileName, mimetype, caption: caption || '' });
+          if (r && r.ok) ok++;
+        }
+        const extra = { ...this.state.grpExtra };
+        alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto: echo, quando: 'agora' }]; });
+        this.setState({ grpExtra: extra, grpNota: ok ? `Enviado para ${ok} de ${alvos.length} grupo(s) no WhatsApp.` : 'Falha ao enviar. Verifique a conexão do WhatsApp.' });
+        return ok > 0;
+      }
+      const extra = { ...st.grpExtra };
+      alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto: echo, quando: 'agora' }]; });
+      this.setState({ grpExtra: extra, grpNota: st.grpBc ? `Enviado para ${alvos.length} grupo(s).` : null });
+      return true;
+    };
     const enviarGrp = () => {
       const t = st.grpInput.trim();
       if (!t) return;
@@ -2327,23 +2350,46 @@ class Component extends DCLogic {
       grpRec: st.grpRec, grpRecT: `0:${String(st.grpRecS).padStart(2, '0')}`,
       grpRecLabel: st.grpRec ? 'Parar e enviar áudio' : 'Gravar áudio',
       grpRecCor: st.grpRec ? 'var(--color-highlight)' : 'var(--color-gray-600)',
-      grpRecToggle: () => {
+      grpRecToggle: async () => {
         if (!st.grpRec) {
-          this._recI = setInterval(() => this.setState(s => ({ grpRecS: s.grpRecS + 1 })), 1000);
-          set({ grpRec: true, grpRecS: 0 });
+          try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { set({ grpNota: 'Este navegador não permite gravar áudio.' }); return; }
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mime = (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) ? 'audio/webm;codecs=opus'
+              : (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) ? 'audio/ogg;codecs=opus' : '';
+            const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+            this._recChunks = [];
+            rec.ondataavailable = (ev) => { if (ev.data && ev.data.size) this._recChunks.push(ev.data); };
+            rec.onstop = () => {
+              try { stream.getTracks().forEach(t => t.stop()); } catch (_) {}
+              if (this._recAbort) { this._recAbort = false; return; }
+              const blob = new Blob(this._recChunks, { type: mime || 'audio/webm' });
+              const rd = new FileReader();
+              rd.onload = () => {
+                const b64 = String(rd.result).split(',')[1] || '';
+                const dur = `0:${String(Math.max(this.state.grpRecS, 1)).padStart(2, '0')}`;
+                grpDeliverMedia('audio', b64, 'audio.ogg', mime || 'audio/webm', '', `🎤 Áudio · ${dur}`);
+                this.setState({ grpRec: false, grpRecS: 0 });
+              };
+              rd.readAsDataURL(blob);
+            };
+            this._rec = rec; rec.start();
+            this._recI = setInterval(() => this.setState(s => ({ grpRecS: s.grpRecS + 1 })), 1000);
+            set({ grpRec: true, grpRecS: 0 });
+          } catch (err) { set({ grpNota: 'Não consegui acessar o microfone — permita o acesso no navegador.' }); }
         } else {
           clearInterval(this._recI);
-          const dur = `0:${String(Math.max(st.grpRecS, 1)).padStart(2, '0')}`;
-          if (grpDeliver(`Mensagem de áudio · ${dur}`)) set({ grpRec: false, grpRecS: 0 }); else set({ grpRec: false, grpRecS: 0 });
+          if (this._rec && this._rec.state !== 'inactive') this._rec.stop();
+          else set({ grpRec: false, grpRecS: 0 });
         }
       },
-      grpRecCancel: () => { clearInterval(this._recI); set({ grpRec: false, grpRecS: 0 }); },
+      grpRecCancel: () => { clearInterval(this._recI); this._recAbort = true; try { if (this._rec && this._rec.state !== 'inactive') this._rec.stop(); } catch (_) {} set({ grpRec: false, grpRecS: 0 }); },
       grpDocRef: (this._grpDocRef = this._grpDocRef || React.createRef()),
       grpMidiaRef: (this._grpMidiaRef = this._grpMidiaRef || React.createRef()),
       grpAnexoDoc: () => this._grpDocRef.current && this._grpDocRef.current.click(),
       grpAnexoMidia: () => this._grpMidiaRef.current && this._grpMidiaRef.current.click(),
-      onGrpFileDoc: (e) => { const f = e.target.files && e.target.files[0]; if (f) grpDeliver(`Documento: ${f.name}`); e.target.value = ''; },
-      onGrpFileMidia: (e) => { const f = e.target.files && e.target.files[0]; if (f) grpDeliver(`${f.type.startsWith('video') ? 'Vídeo' : 'Imagem'}: ${f.name}`); e.target.value = ''; },
+      onGrpFileDoc: (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { const b64 = String(rd.result).split(',')[1] || ''; grpDeliverMedia('document', b64, f.name, f.type || 'application/octet-stream', '', `📄 ${f.name}`); }; rd.readAsDataURL(f); e.target.value = ''; },
+      onGrpFileMidia: (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; const isVid = (f.type || '').startsWith('video'); const rd = new FileReader(); rd.onload = () => { const b64 = String(rd.result).split(',')[1] || ''; grpDeliverMedia(isVid ? 'video' : 'image', b64, f.name, f.type || (isVid ? 'video/mp4' : 'image/jpeg'), (st.grpInput || '').trim(), `${isVid ? '🎬' : '📷'} ${f.name}`); }; rd.readAsDataURL(f); e.target.value = ''; },
       hasGrpNota: !!st.grpNota, grpNota: st.grpNota,
       gSelNome: gSel ? gSel.nome : '', gSelMeta: gSel ? `${gSel.lider} · ${gSel.cidade} · ${gSel.membros} membros` : '',
       gSelIni: gSel ? gSel.nome.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() : '',
