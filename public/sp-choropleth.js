@@ -85,10 +85,10 @@
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
       rows.forEach(r => {
-        // território da família = índice de penetração ≥ 12; cobertura pela rede real de líderes
-        if (r.indice < 12) r.status = 'neutro';
+        // só é foco quem tem potencial médio/alto da família (índice ≥ 18); abaixo disso = neutro (baixo/nenhum voto)
+        if (r.indice < 18) r.status = 'neutro';
         else r.status = r.liderados >= 80 ? 'coberto' : r.liderados >= 25 ? 'parcial' : 'priorizar';
-        r.statusLabel = { neutro: 'Fora do reduto', coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[r.status];
+        r.statusLabel = { neutro: 'Potencial baixo', coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[r.status];
       });
       return { rows, maxPot, fonte };
     }
