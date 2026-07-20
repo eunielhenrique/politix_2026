@@ -46,7 +46,7 @@
         this._proj = proj;
         this._feats = mesh.features.map(f => {
           const code = String(f.properties.codarea);
-          return { code, nome: nameByCode[code] || ('Município ' + code), d: path(f), b: path.bounds(f) };
+          return { code, nome: nameByCode[code] || ('Município ' + code), d: path(f), b: path.bounds(f), c: path.centroid(f) };
         });
         this.render();
       } catch (e) {
@@ -79,8 +79,9 @@
         const indice = a && typeof a.indice === 'number' ? a.indice : 0; // penetração da família (0–100)
         const liderados = a ? a.rede.liderados : 0;
         const lideres = a ? a.rede.lideres : 0;
+        const pend = a && a.rede.pend ? a.rede.pend : 0;
         const liderJan = liderados;
-        return { ...ft, a, pot, indice, historico, liderados, lideres, liderJan, ritmo: a ? a.rede.ritmo : 0 };
+        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, ritmo: a ? a.rede.ritmo : 0 };
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
       rows.forEach(r => {
@@ -108,7 +109,7 @@
       const hi = rows.filter(r => r.status !== 'neutro');
       const score = r => r.indice * (1 - Math.min(r.liderados / 150, 1));
       const top = hi.slice().sort((a, b) => b.indice - a.indice).map(r => ({
-        ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice,
+        ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
         liderados: r.liderados, lideres: r.lideres, ritmo: r.ritmo,
         historico: r.historico.slice().sort((a, b) => b.votos - a.votos),
         topLideres: (r.a && r.a.topLideres) || [], fonte,
@@ -133,19 +134,26 @@
         .on('mouseleave', function () { self.hideTip(); d3.select(this).attr('stroke-width', 0.4); })
         .on('click', (ev, r) => {
           window.dispatchEvent(new CustomEvent('politix:muni', { detail: {
-            ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice,
+            ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
             lideres: r.lideres, liderados: r.liderados, ritmo: r.ritmo,
             historico: r.historico.sort((a, b) => b.votos - a.votos),
             topLideres: (r.a && r.a.topLideres) || [], fonte,
           } }));
         });
       if (layer !== 'historico') {
-        const pins = rows.filter(r => r.a && r.liderJan > 0);
+        const pins = rows.filter(r => r.c && (r.liderJan > 0 || r.pend > 0));
         const pg = g.append('g').attr('pointer-events', 'none');
         pins.forEach(r => {
-          const [x, y] = this._proj([r.a.lng, r.a.lat]);
-          pg.append('circle').attr('cx', x).attr('cy', y).attr('r', Math.min(3 + Math.sqrt(r.liderJan) * 0.55, 16))
-            .attr('fill', P.pin).attr('fill-opacity', 0.85).attr('stroke', P.pinRing).attr('stroke-width', 1.2);
+          const [x, y] = r.c;
+          if (!isFinite(x) || !isFinite(y)) return;
+          if (r.liderJan > 0) {
+            pg.append('circle').attr('cx', x).attr('cy', y).attr('r', Math.min(3 + Math.sqrt(r.liderJan) * 0.55, 16))
+              .attr('fill', P.pin).attr('fill-opacity', 0.85).attr('stroke', P.pinRing).attr('stroke-width', 1.2);
+          } else {
+            // líder convidado (pendente) — pin oco tracejado, ainda sem liderados
+            pg.append('circle').attr('cx', x).attr('cy', y).attr('r', 5)
+              .attr('fill', 'none').attr('stroke', '#ffb224').attr('stroke-width', 1.6).attr('stroke-dasharray', '2.5,2.5');
+          }
         });
       }
       const zoom = d3.zoom().scaleExtent([1, 14]).on('zoom', ev => { this._zt = ev.transform; g.attr('transform', ev.transform); });
@@ -183,12 +191,13 @@
       const porMilF = porMil.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
       let verdict, vc;
       if (r.status === 'neutro') { verdict = 'Histórico baixo da família aqui — prioridade baixa'; vc = 'var(--mutedsoft,#93939f)'; }
+      else if (r.liderados === 0 && r.pend > 0) { verdict = `${r.pend} líder(es) convidado(s) — aguardando ativar (pendente)`; vc = '#b06a12'; }
       else if (r.liderados === 0) { const nv = r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'; verdict = `NÃO coberta — nenhum líder ativo. Potencial ${nv} descoberto`; vc = r.indice >= 40 ? '#c23b3b' : r.indice >= 18 ? '#b06a12' : 'var(--mutedsoft,#93939f)'; }
       else if (r.status === 'coberto') { verdict = `Coberta e no ritmo do potencial (${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#2f9e64'; }
       else { verdict = `Coberta, mas ABAIXO do potencial (cobrindo ${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#b06a12'; }
       t.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${r.nome}</div>
 <div style="color:var(--color-muted-foreground,#878787)">Potencial da família (${fl}): <b style="color:var(--color-foreground,#ededed)">${r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'} · índice ${r.indice}</b></div>
-<div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)</div>
+<div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)${r.pend ? ' · <b style="color:#ffb224">' + r.pend + ' pendente(s)</b>' : ''}</div>
 <div style="margin-top:3px;font-weight:600;color:${vc}">${verdict}</div>`;
       t.style.display = 'block';
       const x = ev.clientX - rect.left + 14, y = ev.clientY - rect.top + 10;
