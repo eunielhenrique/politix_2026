@@ -187,7 +187,7 @@
       else if (r.status === 'coberto') { verdict = `Coberta e no ritmo do potencial (${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#2f9e64'; }
       else { verdict = `Coberta, mas ABAIXO do potencial (cobrindo ${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#b06a12'; }
       t.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${r.nome}</div>
-<div style="color:var(--color-muted-foreground,#878787)">Potencial da família (${fl}): <b style="color:var(--color-foreground,#ededed)">${r.pot >= 60000 ? 'alto' : r.pot >= 15000 ? 'médio' : 'baixo'} · índice ${Math.max(1, Math.min(99, Math.round(r.pot / 1500)))}</b></div>
+<div style="color:var(--color-muted-foreground,#878787)">Penetração da família (${fl}): <b style="color:var(--color-foreground,#ededed)">${r.indice >= 45 ? 'alta' : r.indice >= 18 ? 'média' : 'baixa'} · índice ${r.indice}</b></div>
 <div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)</div>
 <div style="margin-top:3px;font-weight:600;color:${vc}">${verdict}</div>`;
       t.style.display = 'block';
