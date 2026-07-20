@@ -1744,22 +1744,10 @@ class Component extends DCLogic {
   potIdx(pot) { return Math.max(1, Math.min(99, Math.round(pot / 1500))); }
   potNivel(pot) { return pot >= 60000 ? 'alto' : pot >= 15000 ? 'médio' : 'baixo'; }
   aiResponde(q, ctx) {
-    const t = q.toLowerCase();
-    if (ctx === 'assessor') {
-      if (/par(ad|ou|aram)|sem ritmo|inativ|vera|edson|paulo/.test(t)) return 'Três líderes estão sem ritmo agora:\n• Vera Matos — Guarulhos, parada há 12 dias (148/350)\n• Paulo Cesarino — Piracicaba, 9 dias (38/150)\n• Edson Lima — Santos, 8 dias (93/200)\nGuarulhos é o caso mais grave: teto alto da família e o grupo dela está com só 8% de ativos. Sugiro contato direto hoje — quer que eu rascunhe a mensagem?';
-      if (/camila|talento|promov/.test(t)) return 'A Camila Duarte (Osasco) é o destaque: o ramo dela cresce 2,3× mais rápido que o da líder acima (Vera Matos) e já está em 87% da promessa com ritmo de 4,1/dia. Recomendo promover: dar cidades próprias a ela tende a acelerar o rollup da região metropolitana.';
-      if (/cidade|priorizar|mapa|potencial|teto|cobertura/.test(t)) return 'Cruzando o histórico da família com a rede atual, as maiores oportunidades são cidades com teto alto e pouca ou nenhuma cobertura:\n• Ribeirão Preto — convite do Luiz Antunes pendente há 5 dias\n• Bauru — convite enviado ontem (Sandra Melo)\n• S. J. do Rio Preto — sem líder\nAbra o Mapa Rede › camada Cobertura para ver os pins em amarelo.';
-      if (/meta|proje|placar|resum|como est/.test(t)) return 'Placar geral: a rede está em ~55% da meta somada. No ritmo atual dos últimos 7 dias, a projeção fica ligeiramente abaixo da meta em 04/10 — o gargalo são os 3 líderes parados, que representam 700 votos de promessa. Reativar a Vera sozinha recupera metade do gap.';
-      if (/convite|convid/.test(t)) return 'Para convidar um novo líder: Configurações › Convites › "Gerar link de convite" e envie pelo WhatsApp. Há 3 convites pendentes — o mais antigo (Luiz Antunes, Ribeirão Preto) está parado há 5 dias; vale reenviar.';
-      if (/grupo|whats/.test(t)) return 'Os grupos com pior engajamento em 7 dias são: Guarulhos — rede Vera (8% ativos) e Santos — litoral (6%). O de Osasco está voando (52%). Você pode escrever como Assessoria direto no módulo Grupos.';
-      return 'Estou lendo os dados ao vivo: placar, ranking, mapa, grupos e convites. Posso responder coisas como "quem parou?", "quais cidades priorizar?", "vamos bater a meta?" ou "como está o grupo de Guarulhos?".';
-    }
-    if (/meta|proje|placar|vou bater/.test(t)) return 'Você está em 187 de 300 votos (62%). No seu ritmo de 7 dias, a projeção é de 234 até a eleição — dá para virar: com 2 cadastros a mais por dia você cruza os 300 antes de 04/10.';
-    if (/par(ad|ou|aram)|neide|rede/.test(t)) return 'Na sua rede, a Neide Campos (Itaquera) está sem cadastros há 9 dias. Um "oi, como posso ajudar?" costuma resolver — quer o atalho do WhatsApp dela?';
-    if (/ritmo|hoje/.test(t)) return 'Seu ritmo está em 1,7 cadastros/dia (últimos 7 dias) e hoje você já fez +14 — seu melhor dia do mês. Manter 2/dia garante a meta com folga.';
-    if (/cadastr|lista|contato/.test(t)) return 'Dica: na aba Cadastrar › "Vários de uma vez" você cola uma lista inteira do bloco de notas ou envia um .txt/.csv. Eu confiro duplicados automaticamente — ninguém conta duas vezes.';
-    if (/selo|streak|ranking/.test(t)) return 'Você está com streak de 5 dias e a 1 selo de virar Top da cidade na Zona Leste. O ranking positivo só sobe — cobrança pesada não chega até você. 😉'.replace(' 😉', '');
-    return 'Oi! Eu acompanho seu placar em tempo real. Pergunte "vou bater a meta?", "quem da minha rede parou?" ou "como cadastrar uma lista de contatos".';
+    // Fallback usado só se a Politix IA (Gemini) não responder — sem dados inventados.
+    return ctx === 'assessor'
+      ? 'Não consegui falar com a Politix IA agora. Tente de novo em instantes — eu leio placar, ranking, mapa e grupos da campanha ao vivo.'
+      : 'Não consegui responder agora. Tente de novo em instantes.';
   }
   aiVals(st, set, ctx) {
     const msgs = ctx === 'assessor' ? st.aiMsgsA : st.aiMsgsL;
@@ -1782,8 +1770,8 @@ class Component extends DCLogic {
     const chipsA = ['Quem parou?', 'Quais cidades priorizar?', 'Vamos bater a meta?'];
     const chipsL = ['Vou bater a meta?', 'Quem da minha rede parou?', 'Como subir uma lista?'];
     const abertura = ctx === 'assessor'
-      ? 'Bom dia! Li os dados de hoje: 3 líderes sem ritmo (Vera, Paulo, Edson), a Camila crescendo 2,3× e Ribeirão Preto ainda sem cobertura. Por onde começamos?'
-      : 'Boas-vindas! Hoje você já fez +14 cadastros — seu melhor dia. Quer ver o que falta para a meta?';
+      ? 'Oi! Eu leio os dados da campanha em tempo real — placar, ranking, mapa e grupos. Pergunte "quem parou?", "quais cidades priorizar?" ou "vamos bater a meta?".'
+      : 'Boas-vindas! Eu acompanho seu placar em tempo real. Quer ver o que falta para a meta?';
     return {
       aiOpen: ctx === 'assessor' ? st.aiOpenA : st.aiOpenL,
       aiToggle: () => set(ctx === 'assessor' ? { aiOpenA: !st.aiOpenA } : { aiOpenL: !st.aiOpenL }),
@@ -2508,8 +2496,8 @@ class Component extends DCLogic {
     const vgMaxAdd = Math.max(1, ...vgAdds);
     const _tal = (AR && AR.length) ? [...AR].sort((a, b) => Number(b.rate_7d || 0) - Number(a.rate_7d || 0))[0] : null;
     const vgVals = {
-      talentoTit: _tal ? ('Destaque da rede: ' + _tal.name) : 'Detecção de talento: promova Camila Duarte',
-      talentoTxt: _tal ? (_tal.name + ' está com ' + Math.round(_tal.pct || 0) + '% da meta e o maior ritmo da rede (' + Number(_tal.rate_7d || 0).toFixed(1).replace('.', ',') + '/dia). Considere apoiar o ramo com mais cidades e sub-líderes.') : 'O ramo dela cresce 2,3× mais rápido que o do líder acima (Vera Matos, Guarulhos). Considere dar cidades próprias a ela.',
+      talentoTit: _tal ? ('Destaque da rede: ' + _tal.name) : 'Sua rede está começando',
+      talentoTxt: _tal ? (_tal.name + ' está com ' + Math.round(_tal.pct || 0) + '% da meta e o maior ritmo da rede (' + Number(_tal.rate_7d || 0).toFixed(1).replace('.', ',') + '/dia). Considere apoiar o ramo com mais cidades e sub-líderes.') : 'Convide os primeiros líderes pelo painel (Configurações › Convidar líder). Assim que houver cadastros, o destaque da rede aparece aqui automaticamente.',
       vgMetaLabel: 'Meta ' + vgMeta.toLocaleString('pt-BR'),
       vgLine: 'M' + vgPts.join(' L'),
       vgArea: 'M' + vgPts.join(' L') + ` L${vgX(29).toFixed(1)},228 L16,228 Z`,
