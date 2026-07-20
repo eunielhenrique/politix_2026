@@ -1217,15 +1217,14 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </sc-for>
               </div>
               </sc-if>
-              <span style="width:1px;height:20px;background:var(--color-border)"></span>
-              <div style="display:flex;align-items:center;gap:4px">
-                <button onClick="{{ mapZoomIn }}" title="Aproximar" style="width:30px;height:28px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:17px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1">+</button>
-                <button onClick="{{ mapZoomOut }}" title="Afastar" style="width:30px;height:28px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:17px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1">−</button>
-                <button onClick="{{ mapCenter }}" title="Centralizar o mapa" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="3.4"></circle></svg>
-                  <span>Centralizar</span>
-                </button>
-              </div>
+            </div>
+            <div style="position:absolute;bottom:12px;right:{{ mapCtlRight }};z-index:6;display:flex;gap:6px;align-items:center">
+              <button onClick="{{ mapCenter }}" title="Centralizar o mapa" style="height:34px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(0,0,0,.12)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="3.4"></circle></svg>
+                <span>Centralizar</span>
+              </button>
+              <button onClick="{{ mapZoomOut }}" title="Afastar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">−</button>
+              <button onClick="{{ mapZoomIn }}" title="Aproximar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">+</button>
             </div>
             <div style="{{ mapKpiStyle }}">
               <div style="display:flex;gap:18px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.08)">
@@ -2640,6 +2639,7 @@ class Component extends DCLogic {
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(Component.RA15.indexOf(rn)) : ''; })(),
+      mapCtlRight: (isMob || st.mapListHidden) ? '12px' : '344px',
       mapZoomIn: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'in' } })),
       mapZoomOut: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'out' } })),
       mapCenter: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'reset' } })),
