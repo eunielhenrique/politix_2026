@@ -76,20 +76,18 @@
             pot += hh.votos; historico.push({ membro: MEMBRO_L[m], cargo: hh.cargo, ano: hh.ano, votos: hh.votos });
           }));
         } else pot = Math.round(this.synthPot(ft.code, membros) * (ano === 'todos' ? 1 : (ANO_SYNTH[ano] || 0.3)));
+        const indice = a && typeof a.indice === 'number' ? a.indice : 0; // penetração da família (0–100)
         const liderados = a ? a.rede.liderados : 0;
         const lideres = a ? a.rede.lideres : 0;
         const liderJan = liderados;
-        return { ...ft, a, pot, historico, liderados, lideres, liderJan, ritmo: a ? a.rede.ritmo : 0 };
+        return { ...ft, a, pot, indice, historico, liderados, lideres, liderJan, ritmo: a ? a.rede.ritmo : 0 };
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
-      const thr = 0.045 * maxPot;
       rows.forEach(r => {
-        if (r.pot < thr) r.status = 'neutro';
-        else {
-          const cov = r.liderados * 100 / r.pot;
-          r.status = (cov >= 0.2 && r.liderados >= 80) ? 'coberto' : r.liderados >= 25 ? 'parcial' : 'priorizar';
-        }
-        r.statusLabel = { neutro: 'Neutro (histórico baixo)', coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[r.status];
+        // território da família = índice de penetração ≥ 12; cobertura pela rede real de líderes
+        if (r.indice < 12) r.status = 'neutro';
+        else r.status = r.liderados >= 80 ? 'coberto' : r.liderados >= 25 ? 'parcial' : 'priorizar';
+        r.statusLabel = { neutro: 'Fora do reduto', coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[r.status];
       });
       return { rows, maxPot, fonte };
     }
@@ -102,15 +100,15 @@
       const maxLid = Math.max(...rows.map(r => r.liderJan), 1);
       const seq = d3.interpolateRgbBasis(P.seq);
       const fill = r => {
-        if (layer === 'historico') return seq(Math.sqrt(r.pot / maxPot));
+        if (layer === 'historico') return seq(r.indice / 100);
         if (layer === 'rede') return r.liderJan > 0 ? seq(0.25 + 0.75 * Math.sqrt(r.liderJan / maxLid)) : P.neutro;
         return P[r.status];
       };
       // stats + live ranked list
       const hi = rows.filter(r => r.status !== 'neutro');
-      const score = r => r.pot * (1 - Math.min(r.liderados / 150, 1));
+      const score = r => r.indice * (1 - Math.min(r.liderados / 150, 1));
       const top = hi.slice().sort((a, b) => score(b) - score(a)).slice(0, 9).map(r => ({
-        ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot,
+        ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice,
         liderados: r.liderados, lideres: r.lideres, ritmo: r.ritmo,
         historico: r.historico.slice().sort((a, b) => b.votos - a.votos),
         topLideres: (r.a && r.a.topLideres) || [], fonte,
@@ -135,7 +133,7 @@
         .on('mouseleave', function () { self.hideTip(); d3.select(this).attr('stroke-width', 0.4); })
         .on('click', (ev, r) => {
           window.dispatchEvent(new CustomEvent('politix:muni', { detail: {
-            ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot,
+            ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice,
             lideres: r.lideres, liderados: r.liderados, ritmo: r.ritmo,
             historico: r.historico.sort((a, b) => b.votos - a.votos),
             topLideres: (r.a && r.a.topLideres) || [], fonte,
