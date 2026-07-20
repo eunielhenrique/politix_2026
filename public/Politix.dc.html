@@ -1279,8 +1279,11 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px;font-size:12px">
                       <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Força da família aqui</span><span style="font-weight:600;color:{{ muniForcaCor }}">{{ muniForca }}</span></div>
                       <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Tendência da região</span><span style="font-weight:600;color:{{ muniTrendCor }}">{{ muniTrend }}</span></div>
-                      <sc-if value="{{ hasMuniCand }}" hint-placeholder-val="{{ false }}">
-                        <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Votos do candidato ({{ muniCandAno }})</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ muniCandVotos }}</span></div>
+                      <sc-if value="{{ hasMuniVotos }}" hint-placeholder-val="{{ false }}">
+                        <div style="color:var(--color-muted-foreground);margin-top:3px;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Votos da família (2022)</div>
+                        <sc-for list="{{ muniVotos }}" as="mv" hint-placeholder-count="3">
+                          <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">{{ mv.label }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ mv.votos }}</span></div>
+                        </sc-for>
                       </sc-if>
                     </div>
                     <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--color-gray-200);font-size:12px;line-height:1.55;color:var(--color-foreground)">{{ muniLeitura }}</div>
@@ -2683,7 +2686,7 @@ class Component extends DCLogic {
       mapFRegiaoSel: this.fltSelVal(st.mapFRegiao), onMapFRegiao: (e) => set({ mapFRegiao: [e.target.value], muni: null }),
       muniNome: mu ? mu.nome : '', muniStatusLabel: mu ? mu.statusLabel : '', muniStBg: stTone[0], muniStFg: stTone[1],
       ...(() => {
-        if (!mu) return { muniBest: '', muniTrend: '', muniTrendCor: '', muniPresenca: '', muniForca: '', muniForcaCor: '', muniLeitura: '', hasMuniCand: false, muniCandAno: '', muniCandVotos: '' };
+        if (!mu) return { muniBest: '', muniTrend: '', muniTrendCor: '', muniPresenca: '', muniForca: '', muniForcaCor: '', muniLeitura: '', hasMuniCand: false, muniCandAno: '', muniCandVotos: '', hasMuniVotos: false, muniVotos: [] };
         const h = mu.historico || [];
         const cand = h.filter(x => /Wesley/.test(x.membro)).sort((a, b) => b.ano - a.ano)[0] || null;
         const best = h.length ? h.reduce((a, b) => b.votos > a.votos ? b : a) : null;
@@ -2708,6 +2711,8 @@ class Component extends DCLogic {
           muniBest: best ? `${best.membro.split(' (')[0]} — ${best.cargo} ${best.ano} (${fMil(best.votos)})` : 'referência estimada da base histórica',
           muniTrend: trend, muniTrendCor: trendCor,
           hasMuniCand: !!cand, muniCandAno: cand ? `última eleição · ${cand.ano}` : '', muniCandVotos: cand ? fmtN(cand.votos) : '',
+          hasMuniVotos: h.length > 0,
+          muniVotos: [...h].sort((a, b) => (/Wesley/.test(a.membro) ? 0 : /Elvis/.test(a.membro) ? 1 : 2) - (/Wesley/.test(b.membro) ? 0 : /Elvis/.test(b.membro) ? 1 : 2)).map(x => ({ label: `${x.membro.split(' ')[0]} · ${x.cargo} ${x.ano}`, votos: fmtN(x.votos) })),
           muniPresenca: h.length ? `${h.length} campanha${h.length > 1 ? 's' : ''} · ${anos.join(', ')}` : 'sem campanha direta aqui',
           muniForca: ['baixa', 'média', 'alta'][forcaN], muniForcaCor: ['var(--color-muted-foreground)', 'var(--color-gray-1000)', 'var(--color-accent)'][forcaN],
           muniLeitura: mu.status === 'priorizar'
