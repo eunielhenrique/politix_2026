@@ -26,7 +26,7 @@
   const fmt = n => n.toLocaleString('pt-BR');
 
   class SPChoropleth extends HTMLElement {
-    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors']; }
+    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'sel-ra']; }
     connectedCallback() {
       if (this._init) return; this._init = true;
       this.style.display = 'block'; this.style.position = 'relative';
@@ -81,7 +81,7 @@
         const lideres = a ? a.rede.lideres : 0;
         const pend = a && a.rede.pend ? a.rede.pend : 0;
         const liderJan = liderados;
-        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, ritmo: a ? a.rede.ritmo : 0 };
+        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, ra: a && a.ra != null ? a.ra : null, ritmo: a ? a.rede.ritmo : 0 };
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
       rows.forEach(r => {
@@ -98,6 +98,9 @@
       const theme = this.getAttribute('theme') === 'light' ? 'light' : 'dark';
       const P = PAL[theme];
       const { rows, maxPot, fonte } = this.values();
+      const selRaAttr = this.getAttribute('sel-ra');
+      const selRa = (selRaAttr == null || selRaAttr === '') ? -1 : parseInt(selRaAttr, 10);
+      const scoped = selRa >= 0 ? rows.filter(r => r.ra === selRa) : rows; // RA selecionada
       const maxLid = Math.max(...rows.map(r => r.liderJan), 1);
       const seq = d3.interpolateRgbBasis(P.seq);
       const fill = r => {
@@ -105,8 +108,8 @@
         if (layer === 'rede') return r.liderJan > 0 ? seq(0.25 + 0.75 * Math.sqrt(r.liderJan / maxLid)) : P.neutro;
         return P[r.status];
       };
-      // stats + live ranked list
-      const hi = rows.filter(r => r.status !== 'neutro');
+      // stats + live ranked list (escopados pela RA quando selecionada)
+      const hi = scoped.filter(r => r.status !== 'neutro');
       const score = r => r.indice * (1 - Math.min(r.liderados / 150, 1));
       const top = hi.slice().sort((a, b) => b.indice - a.indice).map(r => ({
         ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
@@ -118,8 +121,8 @@
         priorizadas: hi.filter(r => r.status === 'priorizar').length,
         parciais: hi.filter(r => r.status === 'parcial').length,
         cobertas: hi.filter(r => r.status === 'coberto').length,
-        totalHist: rows.reduce((s, r) => s + r.pot, 0),
-        totalLiderados: rows.reduce((s, r) => s + r.liderJan, 0),
+        totalHist: scoped.reduce((s, r) => s + r.pot, 0),
+        totalLiderados: scoped.reduce((s, r) => s + r.liderJan, 0),
         top,
       } }));
       const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', '100%').style('display', 'block').style('font-family', '"Geist Mono",monospace');
@@ -128,6 +131,7 @@
       g.selectAll('path').data(rows).join('path')
         .attr('d', r => r.d)
         .attr('fill', r => fill(r))
+        .attr('fill-opacity', r => (selRa >= 0 && r.ra !== selRa) ? 0.08 : 1)
         .attr('stroke', P.line).attr('stroke-width', 0.4)
         .style('cursor', 'pointer')
         .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })
@@ -141,7 +145,7 @@
           } }));
         });
       if (layer !== 'historico') {
-        const pins = rows.filter(r => r.c && (r.liderados > 0 || r.lideres > 0 || r.pend > 0));
+        const pins = rows.filter(r => r.c && (r.liderados > 0 || r.lideres > 0 || r.pend > 0) && (selRa < 0 || r.ra === selRa));
         const pg = g.append('g').attr('pointer-events', 'none');
         pins.forEach(r => {
           const [x, y] = r.c;
@@ -162,6 +166,20 @@
       this.innerHTML = '';
       this.appendChild(svg.node());
       if (this._zt) svg.call(zoom.transform, this._zt);
+      // zoom automático pra RA selecionada (só quando a RA muda)
+      if (selRa !== this._lastSelRa) {
+        this._lastSelRa = selRa;
+        if (selRa >= 0) {
+          const bs = scoped.map(r => r.b).filter(Boolean);
+          if (bs.length) {
+            const x0 = Math.min(...bs.map(b => b[0][0])), y0 = Math.min(...bs.map(b => b[0][1]));
+            const x1 = Math.max(...bs.map(b => b[1][0])), y1 = Math.max(...bs.map(b => b[1][1]));
+            const k = Math.min(14, 0.9 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001));
+            const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
+            this._zt = t; svg.transition().duration(500).call(zoom.transform, t);
+          }
+        } else if (this._zt) { this._zt = d3.zoomIdentity; svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity); }
+      }
       // toolbar
       const bar = document.createElement('div');
       bar.style.cssText = `position:absolute;bottom:12px;right:${window.innerWidth < 900 ? (window.innerWidth > window.innerHeight ? '296px' : '12px') : '344px'};display:flex;gap:6px;z-index:5`;
