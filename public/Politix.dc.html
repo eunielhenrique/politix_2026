@@ -1244,7 +1244,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <span style="width:8px;height:8px;border-radius:var(--radius-sm);background:var(--color-gray-1000);animation:pxPulse 1.6s ease-in-out infinite"></span>
                     <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">PAINEL AO VIVO</span>
                   </div>
-                  <div style="font-size:11px;color:var(--color-gray-600);margin-bottom:8px">prioridade de investimento · {{ fonteLabelSel }}</div>
+                  <div style="font-size:11px;color:var(--color-gray-600);margin-bottom:8px">{{ livePanelSub }}</div>
                   <sc-if value="{{ liveEmpty }}" hint-placeholder-val="{{ true }}">
                     <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5;margin:8px 0 0">{{ liveEmptyText }}</p>
                   </sc-if>
@@ -2621,6 +2621,7 @@ class Component extends DCLogic {
       fonteSel: st.mapFonte, onFonte: (e) => { const f = e.target.value; set({ mapFonte: f, mapAno: (anosPorMembro[f] || []).includes(st.mapAno) ? st.mapAno : 'todos' }); },
       fonteOpts: Object.keys(fonteLabels).map(v => ({ v, l: fonteLabels[v] })),
       fonteLabelSel: fonteLabels[st.mapFonte],
+      livePanelSub: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? (rn + ' · cidades por índice') : ('prioridade de investimento · ' + fonteLabels[st.mapFonte]); })(),
       mapLayer: st.mapLayer, mapFonte: st.mapFonte, mapAno: st.mapAno, themeName: isDark ? 'dark' : 'light',
       toggleTema: () => set({ temaOverride: isDark ? 'claro' : 'escuro' }),
       temaIcon: isDark ? 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4' : 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z',
