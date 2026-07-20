@@ -1012,6 +1012,43 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
 
       <sc-if value="{{ aTabGrupos }}" hint-placeholder-val="{{ false }}">
         <div data-screen-label="Grupos" style="display:grid;grid-template-columns:{{ grpGridCols }};gap:16px;align-items:start">
+          <div style="grid-column:1 / -1;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:16px 18px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="width:9px;height:9px;border-radius:var(--radius-full);background:{{ wppDot }}"></span>
+              <span style="font-size:14px;font-weight:600">WhatsApp da campanha</span>
+              <span style="font-size:12px;color:var(--color-muted-foreground)">{{ wppStatusLabel }}</span>
+              <div style="flex:1"></div>
+              <button onClick="{{ wppConnectClick }}" style="height:34px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer">{{ wppBtnLabel }}</button>
+            </div>
+            <sc-if value="{{ wppMsg }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-top:8px">{{ wppMsgText }}</div>
+            </sc-if>
+            <sc-if value="{{ wppShowQr }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:14px">
+                <img src="{{ wppQr }}" alt="QR de conexão do WhatsApp" style="width:200px;height:200px;border-radius:8px;background:#fff;padding:8px;flex-shrink:0">
+                <div style="font-size:13px;color:var(--color-muted-foreground);max-width:340px;line-height:1.55">No seu celular: WhatsApp › <b style="color:var(--color-foreground)">Aparelhos conectados</b> › <b style="color:var(--color-foreground)">Conectar aparelho</b> e aponte para este QR. Assim que ler, a conexão aparece aqui sozinha.</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ wppShowGroups }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:14px">
+                <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground);margin-bottom:8px">Grupos do seu WhatsApp</div>
+                <div style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow:auto">
+                  <sc-for list="{{ wppGroups }}" as="wg" hint-placeholder-count="3">
+                    <div onClick="{{ wg.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid {{ wg.bd }};border-radius:var(--radius-sm);background:var(--color-background-100);cursor:pointer">
+                      <span style="flex:1;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ wg.nome }}</span>
+                      <span style="font-size:11px;color:var(--color-gray-600);white-space:nowrap">{{ wg.membros }} membros</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ wppHasSel }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:12px">
+                    <textarea value="{{ wppText }}" onChange="{{ onWppText }}" placeholder="Mensagem para {{ wppSelNome }} — enviada como Assessoria" style="width:100%;min-height:80px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-family:var(--font-sans);font-size:13.5px;line-height:1.5;outline:none;resize:vertical"></textarea>
+                    <button onClick="{{ wppSendClick }}" style="height:38px;padding:0 18px;margin-top:8px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer">Enviar como Assessoria</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
           <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden">
             <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-bottom:1px solid var(--color-gray-200)">
@@ -1507,6 +1544,7 @@ class Component extends DCLogic {
     obNome: '', obZap: '', obCidades: 'Campinas, Jundiaí', obPromessa: '40', obErro: null,
     pFoto: null, pNome: 'Marcos Tavares', pZap: '(11) 98765-4321', pEmail: 'marcos@exemplo.com.br', pCidades: 'Zona Leste — São Paulo, Itaquera', pPromessa: '300', pPend: null, pMsg: null,
     aInvite: null, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '',
+    wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null,
     electionDate: '2026-10-04',
     aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
@@ -1572,6 +1610,7 @@ class Component extends DCLogic {
       }
     } catch (e) {}
     this.setState({ view: hasVista ? this.state.view : (role === 'assessor' ? 'assessor' : 'leader'), remote });
+    if (role === 'assessor') this._wppCheck();
   }
   _pxAiContext(ctxType) {
     const r = this.state.remote;
@@ -1595,6 +1634,41 @@ class Component extends DCLogic {
       return `Líder: ${r.leaderName}. Meta ${s.meta}, realizado ${s.realizado} (${Math.round(s.pct || 0)}%), ritmo ${Number(s.rate_7d || 0).toFixed(1)}/dia, projeção ${s.projected} votos, faltam ${s.days_left} dias para a eleição.`;
     }
     return '(dados ainda carregando)';
+  }
+  async _pxWpp(action, body) {
+    const sb = this._pxClient(); if (!sb) return { error: 'sem cliente' };
+    const { data, error } = await sb.functions.invoke('wpp', { body: { action, ...(body || {}) } });
+    return error ? { error: error.message } : (data || {});
+  }
+  async wppConnect() {
+    this.setState({ wppState: 'connecting', wppQr: null, wppMsg: null });
+    const r = await this._pxWpp('connect');
+    if (r && r.qr) { this.setState({ wppQr: r.qr }); this._wppPoll(); }
+    else this.setState({ wppState: 'off', wppMsg: r && r.error ? r.error : 'Não consegui gerar o QR.' });
+  }
+  _wppPoll() {
+    clearTimeout(this._wppT);
+    const tick = async () => {
+      const s = await this._pxWpp('status');
+      if (s && s.connected) { this.setState({ wppState: 'connected', wppQr: null }); this.wppLoadGroups(); return; }
+      this._wppT = setTimeout(tick, 3000);
+    };
+    this._wppT = setTimeout(tick, 3000);
+  }
+  async _wppCheck() {
+    const s = await this._pxWpp('status');
+    if (s && s.connected) { this.setState({ wppState: 'connected' }); this.wppLoadGroups(); }
+  }
+  async wppLoadGroups() {
+    const r = await this._pxWpp('groups');
+    if (r && Array.isArray(r.groups)) this.setState({ wppGroups: r.groups });
+  }
+  async wppSend() {
+    const st = this.state;
+    if (!st.wppSel || !st.wppText.trim()) return;
+    this.setState({ wppMsg: 'Enviando…' });
+    const r = await this._pxWpp('send', { to: st.wppSel.jid, text: st.wppText.trim() });
+    this.setState({ wppMsg: (r && r.ok) ? 'Enviado para ' + st.wppSel.nome + ' ✓' : ('Falhou' + (r && r.error ? ': ' + r.error : '.')), wppText: (r && r.ok) ? '' : st.wppText });
   }
   mkA(ibge, nome, lat, lng, c, i, p, lideres, liderados, ritmo, top) {
     const h = arr => arr.map(([cargo, ano, votos]) => ({ cargo, ano, votos }));
@@ -2145,6 +2219,20 @@ class Component extends DCLogic {
     };
     const grupoVals = {
       aTabGrupos: st.aTab === 'grupos',
+      wppStatusLabel: st.wppState === 'connected' ? 'conectado' : st.wppState === 'connecting' ? 'aguardando leitura do QR…' : 'não conectado',
+      wppDot: st.wppState === 'connected' ? '#3dd68c' : st.wppState === 'connecting' ? 'var(--color-highlight)' : 'var(--color-gray-500)',
+      wppBtnLabel: st.wppState === 'connected' ? 'Reconectar' : (st.wppState === 'connecting' ? 'Gerando QR…' : 'Conectar meu WhatsApp'),
+      wppConnectClick: () => this.wppConnect(),
+      wppShowQr: st.wppState === 'connecting' && !!st.wppQr,
+      wppQr: st.wppQr || '',
+      wppShowGroups: st.wppState === 'connected',
+      wppHasGroups: (st.wppGroups || []).length > 0,
+      wppGroups: (st.wppGroups || []).map(g => ({ nome: g.nome, membros: String(g.membros ?? 0), bd: (st.wppSel && st.wppSel.jid === g.jid) ? 'var(--color-gray-500)' : 'var(--color-border)', onClick: () => this.setState({ wppSel: g, wppMsg: null }) })),
+      wppHasSel: !!st.wppSel,
+      wppSelNome: st.wppSel ? st.wppSel.nome : '',
+      wppText: st.wppText, onWppText: (e) => set({ wppText: e.target.value }),
+      wppSendClick: () => this.wppSend(),
+      wppMsg: !!st.wppMsg, wppMsgText: st.wppMsg || '',
       grpFLiderSel: this.fltSelVal(st.grpFLider), onGrpFLider: (e) => set({ grpFLider: [e.target.value], grpSel: 0 }),
       grpLiderOpts: ['todos', ...new Set(gruposData.map(g => g.lider))].map(v => ({ v, l: v === 'todos' ? 'Todos os líderes' : v })),
       grpFCidadeSel: this.fltSelVal(st.grpFCidade), onGrpFCidade: (e) => set({ grpFCidade: [e.target.value], grpSel: 0 }),
