@@ -175,7 +175,7 @@
           if (bs.length) {
             const x0 = Math.min(...bs.map(b => b[0][0])), y0 = Math.min(...bs.map(b => b[0][1]));
             const x1 = Math.max(...bs.map(b => b[1][0])), y1 = Math.max(...bs.map(b => b[1][1]));
-            const k = Math.min(14, 0.9 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001));
+            const k = Math.min(6, 0.5 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001)); // zoom folgado: mantém o resto do estado visível ao redor
             const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
             this._zt = t; svg.transition().duration(500).call(zoom.transform, t);
           }
