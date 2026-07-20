@@ -1246,7 +1246,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </div>
                   <div style="font-size:11px;color:var(--color-gray-600);margin-bottom:8px">prioridade de investimento · {{ fonteLabelSel }}</div>
                   <sc-if value="{{ liveEmpty }}" hint-placeholder-val="{{ true }}">
-                    <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5;margin:8px 0 0">Carregando o índice de prioridade…</p>
+                    <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5;margin:8px 0 0">{{ liveEmptyText }}</p>
                   </sc-if>
                   <div style="display:flex;flex-direction:column">
                     <sc-for list="{{ liveRows }}" as="lr" hint-placeholder-count="6">
@@ -2672,7 +2672,7 @@ class Component extends DCLogic {
       mapFullIcon: st.mapFull ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
       showDots: st.mapLayer === 'cobertura', showGrad: st.mapLayer !== 'cobertura',
       legendGrad: 'linear-gradient(90deg,#111111,#454545,#ededed)',
-      legendNote: st.mapLayer === 'cobertura' ? 'círculos = liderados cadastrados (tamanho ∝ quantidade)' : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros' : 'intensidade e círculos ∝ liderados cadastrados',
+      legendNote: st.mapLayer === 'cobertura' ? 'cor = potencial da família × cobertura da rede · ○ tracejado = líder convidado (pendente)' : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros' : 'intensidade e círculos ∝ liderados cadastrados',
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
       liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
         const iv = t.indice != null ? t.indice : this.potIdx(t.pot);
@@ -2683,7 +2683,8 @@ class Component extends DCLogic {
           potF: 'índ. ' + iv, lid: fmtN(t.liderados), onClick: () => set({ muni: t }),
         };
       }),
-      liveEmpty: !(ms && ms.top && ms.top.length),
+      liveEmpty: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).length === 0,
+      liveEmptyText: ms ? 'Nenhuma cidade com potencial da família nesta região — a família praticamente não fez voto por aqui em 2022.' : 'Carregando o índice de prioridade…',
       podio, rankingResto, rankingTotal, rankHasMore, cidadesRank: cidResto, cidPodio, cidadesTotal: String(cidadesRank.length),
       regiaoOpts: [{ v: 'todos', l: 'Todas as regiões (15 RAs)' }, ...RA15.map(v => ({ v, l: v }))],
       rankFRegiaoSel: this.fltSelVal(st.rankFRegiao), onRankFRegiao: (e) => set({ rankFRegiao: [e.target.value], selLeader: null, rankVisible: 20 }),

@@ -145,19 +145,18 @@
           } }));
         });
       if (layer !== 'historico') {
-        const pins = rows.filter(r => r.c && (r.liderados > 0 || r.lideres > 0 || r.pend > 0) && (selRa < 0 || r.ra === selRa));
         const pg = g.append('g').attr('pointer-events', 'none');
-        pins.forEach(r => {
+        rows.filter(r => r.c && (selRa < 0 || r.ra === selRa)).forEach(r => {
           const [x, y] = r.c;
           if (!isFinite(x) || !isFinite(y)) return;
-          if (r.liderados > 0 || r.lideres > 0) {
-            // líder ativo — tamanho ∝ liderados (mínimo se ainda sem cadastro)
+          if (r.pend > 0 && r.liderados === 0 && r.lideres === 0) {
+            // líder convidado (pendente) — marcador pequeno tracejado, em qualquer camada
+            pg.append('circle').attr('cx', x).attr('cy', y).attr('r', 4)
+              .attr('fill', 'none').attr('stroke', '#ffb224').attr('stroke-width', 1.6).attr('stroke-dasharray', '2.5,2.5');
+          } else if (layer === 'rede' && r.liderados > 0) {
+            // quantidade de liderados: só na camada "Rede atual" (na Cobertura, a cor da cidade já diz)
             pg.append('circle').attr('cx', x).attr('cy', y).attr('r', Math.min(3 + Math.sqrt(r.liderados) * 0.55, 16))
               .attr('fill', P.pin).attr('fill-opacity', 0.85).attr('stroke', P.pinRing).attr('stroke-width', 1.2);
-          } else {
-            // líder convidado (pendente) — pin oco tracejado, ainda sem ativar
-            pg.append('circle').attr('cx', x).attr('cy', y).attr('r', 5)
-              .attr('fill', 'none').attr('stroke', '#ffb224').attr('stroke-width', 1.6).attr('stroke-dasharray', '2.5,2.5');
           }
         });
       }
