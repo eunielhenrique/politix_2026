@@ -1573,6 +1573,29 @@ class Component extends DCLogic {
     } catch (e) {}
     this.setState({ view: hasVista ? this.state.view : (role === 'assessor' ? 'assessor' : 'leader'), remote });
   }
+  _pxAiContext(ctxType) {
+    const r = this.state.remote;
+    if (!r) return '(sem dados)';
+    if (ctxType === 'assessor' && r.ranking) {
+      const lids = r.liderados || [];
+      const metaTotal = r.ranking.reduce((a, x) => a + (x.meta || 0), 0);
+      const real = lids.length, pct = metaTotal ? Math.round(real / metaTotal * 100) : 0;
+      const parados = r.ranking.filter(x => Number(x.rate_7d || 0) === 0);
+      const top = [...r.ranking].sort((a, b) => Number(b.pct || 0) - Number(a.pct || 0));
+      return [
+        `Campanha: ${r.tenantName}. Eleição: ${r.electionDate}.`,
+        `Meta total (soma das promessas): ${metaTotal}. Realizado (liderados dedup por WhatsApp): ${real}. % da meta: ${pct}%.`,
+        `Total de líderes: ${r.ranking.length}. Sem ritmo (parados 7 dias+): ${parados.length}${parados.length ? ' — ' + parados.map(x => x.name).join(', ') : ''}.`,
+        `Ranking por % da meta:`,
+        ...top.map(x => `- ${x.name} (${(x.cities || []).join(', ') || 'sem cidade'}): ${x.realizado}/${x.meta} = ${Math.round(x.pct || 0)}%, ritmo ${Number(x.rate_7d || 0).toFixed(1)}/dia`),
+      ].join('\n');
+    }
+    if (r.scoreboard) {
+      const s = r.scoreboard;
+      return `Líder: ${r.leaderName}. Meta ${s.meta}, realizado ${s.realizado} (${Math.round(s.pct || 0)}%), ritmo ${Number(s.rate_7d || 0).toFixed(1)}/dia, projeção ${s.projected} votos, faltam ${s.days_left} dias para a eleição.`;
+    }
+    return '(dados ainda carregando)';
+  }
   mkA(ibge, nome, lat, lng, c, i, p, lideres, liderados, ritmo, top) {
     const h = arr => arr.map(([cargo, ano, votos]) => ({ cargo, ano, votos }));
     return { ibge, nome, lat, lng, hist: { candidato: h(c), irmao: h(i), pai: h(p) }, rede: { lideres, liderados, ritmo }, topLideres: top || [] };
@@ -1612,11 +1635,20 @@ class Component extends DCLogic {
   aiVals(st, set, ctx) {
     const msgs = ctx === 'assessor' ? st.aiMsgsA : st.aiMsgsL;
     const key = ctx === 'assessor' ? 'aiMsgsA' : 'aiMsgsL';
-    const ask = (texto) => {
+    const ask = async (texto) => {
       const dele = { de: 'user', texto };
       this.setState(s => ({ [key]: [...(ctx === 'assessor' ? s.aiMsgsA : s.aiMsgsL), dele], aiInput: '', aiTyping: true }));
-      clearTimeout(this._aiT);
-      this._aiT = setTimeout(() => this.setState(s => ({ [key]: [...(ctx === 'assessor' ? s.aiMsgsA : s.aiMsgsL), { de: 'ia', texto: this.aiResponde(texto, ctx) }], aiTyping: false })), 700);
+      const sb = this._pxClient();
+      let resposta;
+      if (sb && this.state.remote && this.state.remote.session) {
+        try {
+          const { data, error } = await sb.functions.invoke('politix-ia', { body: { question: texto, ctx: this._pxAiContext(ctx), ctxType: ctx } });
+          resposta = (!error && data && data.answer) ? data.answer : this.aiResponde(texto, ctx);
+        } catch (e) { resposta = this.aiResponde(texto, ctx); }
+      } else {
+        resposta = this.aiResponde(texto, ctx);
+      }
+      this.setState(s => ({ [key]: [...(ctx === 'assessor' ? s.aiMsgsA : s.aiMsgsL), { de: 'ia', texto: resposta }], aiTyping: false }));
     };
     const chipsA = ['Quem parou?', 'Quais cidades priorizar?', 'Vamos bater a meta?'];
     const chipsL = ['Vou bater a meta?', 'Quem da minha rede parou?', 'Como subir uma lista?'];
