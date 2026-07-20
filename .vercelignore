@@ -2,4 +2,4 @@ design-reference
 .env*
 node_modules
 .next
-supabase
+/supabase
