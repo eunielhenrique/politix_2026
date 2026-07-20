@@ -1031,12 +1031,19 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </sc-if>
             <sc-if value="{{ wppShowGroups }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top:14px">
-                <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground);margin-bottom:8px">Grupos do seu WhatsApp</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                  <span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground)">Grupos de líderes</span>
+                  <div style="flex:1"></div>
+                  <button onClick="{{ wppRefreshClick }}" style="height:30px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer">Buscar grupos</button>
+                </div>
                 <div style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow:auto">
                   <sc-for list="{{ wppGroups }}" as="wg" hint-placeholder-count="3">
                     <div onClick="{{ wg.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid {{ wg.bd }};border-radius:var(--radius-sm);background:var(--color-background-100);cursor:pointer">
-                      <span style="flex:1;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ wg.nome }}</span>
-                      <span style="font-size:11px;color:var(--color-gray-600);white-space:nowrap">{{ wg.membros }} membros</span>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ wg.nome }}</div>
+                        <div style="font-size:11px;color:var(--color-gray-600)">líder: {{ wg.leaderNome }}</div>
+                      </div>
+                      <span style="font-size:11px;color:var(--color-gray-600);white-space:nowrap;flex-shrink:0">{{ wg.membros }} membros</span>
                     </div>
                   </sc-for>
                 </div>
@@ -1660,8 +1667,13 @@ class Component extends DCLogic {
     if (s && s.connected) { this.setState({ wppState: 'connected' }); this.wppLoadGroups(); }
   }
   async wppLoadGroups() {
+    this.setState({ wppMsg: 'Buscando grupos…' });
     const r = await this._pxWpp('groups');
-    if (r && Array.isArray(r.groups)) this.setState({ wppGroups: r.groups });
+    if (r && Array.isArray(r.groups)) {
+      this.setState({ wppGroups: r.groups, wppMsg: r.groups.length ? (r.groups.length + ' grupo(s) de líderes encontrados.') : 'Nenhum grupo casou com os líderes ainda. Confira se o número do líder está no grupo (e é admin).' });
+    } else {
+      this.setState({ wppMsg: 'Não consegui buscar os grupos' + (r && r.error ? ': ' + r.error : '.') });
+    }
   }
   async wppSend() {
     const st = this.state;
@@ -2227,7 +2239,8 @@ class Component extends DCLogic {
       wppQr: st.wppQr || '',
       wppShowGroups: st.wppState === 'connected',
       wppHasGroups: (st.wppGroups || []).length > 0,
-      wppGroups: (st.wppGroups || []).map(g => ({ nome: g.nome, membros: String(g.membros ?? 0), bd: (st.wppSel && st.wppSel.jid === g.jid) ? 'var(--color-gray-500)' : 'var(--color-border)', onClick: () => this.setState({ wppSel: g, wppMsg: null }) })),
+      wppGroups: (st.wppGroups || []).map(g => ({ nome: g.nome, leaderNome: g.leaderNome || '', membros: String(g.membros ?? 0), bd: (st.wppSel && st.wppSel.jid === g.jid) ? 'var(--color-gray-500)' : 'var(--color-border)', onClick: () => this.setState({ wppSel: g, wppMsg: null }) })),
+      wppRefreshClick: () => this.wppLoadGroups(),
       wppHasSel: !!st.wppSel,
       wppSelNome: st.wppSel ? st.wppSel.nome : '',
       wppText: st.wppText, onWppText: (e) => set({ wppText: e.target.value }),

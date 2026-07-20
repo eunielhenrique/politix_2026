@@ -60,16 +60,30 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "groups") {
-      const r = await evo("/group/fetchAllGroups/" + inst + "?getParticipants=false");
+      const r = await evo("/group/fetchAllGroups/" + inst + "?getParticipants=true");
       const j = await r.json().catch(() => ([]));
       const arr = Array.isArray(j) ? j : (j?.groups || []);
-      const groups = arr.map((g: Record<string, unknown>) => ({
-        jid: g.id, nome: g.subject || "(sem nome)", membros: g.size ?? (Array.isArray(g.participants) ? g.participants.length : 0),
-      }));
-      // cacheia em wpp_groups (best-effort, via service role)
+      const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const { data: leaders } = await admin.from("leader").select("id, name, whatsapp, cities").eq("tenant_id", me.tenant_id);
+      // chave tolerante ao 9º dígito: DDD + últimos 8 dígitos
+      const key = (w: string) => { let d = String(w || "").replace(/\D/g, ""); if (d.length > 11 && d.startsWith("55")) d = d.slice(2); return d.length >= 10 ? d.slice(0, 2) + d.slice(-8) : d; };
+      const byKey: Record<string, { id: string; name: string; cities: string[] }> = {};
+      (leaders || []).forEach((l: { id: string; name: string; whatsapp: string; cities: string[] }) => { if (l.whatsapp) byKey[key(l.whatsapp)] = { id: l.id, name: l.name, cities: l.cities || [] }; });
+
+      const groups: Array<{ jid: string; nome: string; membros: number; leaderId: string; leaderNome: string; cities: string[] }> = [];
+      for (const g of arr) {
+        const parts = g.participants || [];
+        let matched: { id: string; name: string; cities: string[] } | null = null;
+        for (const p of parts) {
+          const num = String(p.id || "").split("@")[0];
+          const l = byKey[key(num)];
+          if (l) { matched = l; if (p.admin) break; } // admin encerra; senão segue procurando um admin
+        }
+        // só entra na plataforma se casou com um líder
+        if (matched) groups.push({ jid: g.id, nome: g.subject || "(sem nome)", membros: g.size ?? parts.length, leaderId: matched.id, leaderNome: matched.name, cities: matched.cities });
+      }
       try {
-        const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-        await admin.from("wpp_groups").upsert(groups.map((g) => ({ tenant_id: me.tenant_id, jid: g.jid, nome: g.nome, membros: g.membros })), { onConflict: "tenant_id,jid" });
+        await admin.from("wpp_groups").upsert(groups.map((g) => ({ tenant_id: me.tenant_id, jid: g.jid, nome: g.nome, membros: g.membros, leader_id: g.leaderId })), { onConflict: "tenant_id,jid" });
       } catch (_e) { /* ignore */ }
       return json({ groups });
     }
