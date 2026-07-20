@@ -107,7 +107,7 @@
       // stats + live ranked list
       const hi = rows.filter(r => r.status !== 'neutro');
       const score = r => r.indice * (1 - Math.min(r.liderados / 150, 1));
-      const top = hi.slice().sort((a, b) => score(b) - score(a)).map(r => ({
+      const top = hi.slice().sort((a, b) => b.indice - a.indice).map(r => ({
         ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice,
         liderados: r.liderados, lideres: r.lideres, ritmo: r.ritmo,
         historico: r.historico.slice().sort((a, b) => b.votos - a.votos),
