@@ -112,8 +112,9 @@
       };
       // stats + live ranked list (escopados pela RA quando selecionada)
       const hi = scoped.filter(r => r.status !== 'neutro');
-      const score = r => r.indice * (1 - Math.min(r.liderados / 150, 1));
-      const top = hi.slice().sort((a, b) => b.indice - a.indice).map(r => ({
+      // lista: RA selecionada → TODAS as cidades da região (ranking por índice); sem RA → só as de foco (índice ≥ 18)
+      const listRows = selRa >= 0 ? scoped.filter(r => r.indice > 0) : hi;
+      const top = listRows.slice().sort((a, b) => b.indice - a.indice).map(r => ({
         ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
         liderados: r.liderados, lideres: r.lideres, ritmo: r.ritmo,
         historico: r.historico.slice().sort((a, b) => b.votos - a.votos),
