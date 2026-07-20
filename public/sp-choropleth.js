@@ -183,7 +183,7 @@
       const porMilF = porMil.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
       let verdict, vc;
       if (r.status === 'neutro') { verdict = 'Histórico baixo da família aqui — prioridade baixa'; vc = 'var(--mutedsoft,#93939f)'; }
-      else if (r.liderados === 0) { verdict = 'NÃO coberta — nenhum líder ativo. Alto potencial descoberto'; vc = '#c23b3b'; }
+      else if (r.liderados === 0) { const nv = r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'; verdict = `NÃO coberta — nenhum líder ativo. Potencial ${nv} descoberto`; vc = r.indice >= 40 ? '#c23b3b' : r.indice >= 18 ? '#b06a12' : 'var(--mutedsoft,#93939f)'; }
       else if (r.status === 'coberto') { verdict = `Coberta e no ritmo do potencial (${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#2f9e64'; }
       else { verdict = `Coberta, mas ABAIXO do potencial (cobrindo ${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#b06a12'; }
       t.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${r.nome}</div>
