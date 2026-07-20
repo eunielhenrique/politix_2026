@@ -644,8 +644,8 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         <div style="display:flex;align-items:flex-start;gap:14px;flex:1;min-width:min(100%,320px)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:3px"><path d="M12 14.5a5.25 5.25 0 1 0 0-10.5 5.25 5.25 0 0 0 0 10.5Zm-3.2 1.6L7.5 21.5l4.5-2.6 4.5 2.6-1.3-5.4"></path></svg>
           <div>
-            <div style="font-family:var(--font-sans);font-weight:500;font-size:{{ vgBannerTit }};letter-spacing:-.2px;line-height:1.25">Detecção de talento: promova Camila Duarte</div>
-            <div style="font-size:13px;opacity:.9;margin-top:4px;line-height:1.45">O ramo dela cresce 2,3× mais rápido que o do líder acima (Vera Matos, Guarulhos). Considere dar cidades próprias a ela.</div>
+            <div style="font-family:var(--font-sans);font-weight:500;font-size:{{ vgBannerTit }};letter-spacing:-.2px;line-height:1.25">{{ talentoTit }}</div>
+            <div style="font-size:13px;opacity:.9;margin-top:4px;line-height:1.45">{{ talentoTxt }}</div>
           </div>
         </div>
         <button style="height:38px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer;flex-shrink:0;width:{{ vgBannerBtnW }}">Ver o ramo</button>
@@ -2253,7 +2253,10 @@ class Component extends DCLogic {
     const vgX = d => 16 + d / vgTotal * 608, vgY = v => 228 - v / vgMaxY * 200;
     const vgPts = vgCum.map((v, i) => `${vgX(i).toFixed(1)},${vgY(v).toFixed(1)}`);
     const vgMaxAdd = Math.max(1, ...vgAdds);
+    const _tal = (AR && AR.length) ? [...AR].sort((a, b) => Number(b.rate_7d || 0) - Number(a.rate_7d || 0))[0] : null;
     const vgVals = {
+      talentoTit: _tal ? ('Destaque da rede: ' + _tal.name) : 'Detecção de talento: promova Camila Duarte',
+      talentoTxt: _tal ? (_tal.name + ' está com ' + Math.round(_tal.pct || 0) + '% da meta e o maior ritmo da rede (' + Number(_tal.rate_7d || 0).toFixed(1).replace('.', ',') + '/dia). Considere apoiar o ramo com mais cidades e sub-líderes.') : 'O ramo dela cresce 2,3× mais rápido que o do líder acima (Vera Matos, Guarulhos). Considere dar cidades próprias a ela.',
       vgMetaLabel: 'Meta ' + vgMeta.toLocaleString('pt-BR'),
       vgLine: 'M' + vgPts.join(' L'),
       vgArea: 'M' + vgPts.join(' L') + ` L${vgX(29).toFixed(1)},228 L16,228 Z`,
