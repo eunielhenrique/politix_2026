@@ -1199,6 +1199,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapFullIcon }}"></path></svg>
                 <span>{{ mapFullLabel }}</span>
               </button>
+              <button onClick="{{ toggleMapList }}" title="{{ mapListBtnLabel }}" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
+                <span>{{ mapListBtnLabel }}</span>
+              </button>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}"><span style="width:1px;height:20px;background:var(--color-border)"></span></sc-if>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
               <select value="{{ mapFRegiaoSel }}" onChange="{{ onMapFRegiao }}" style="height:32px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none;max-width:230px">
@@ -2638,13 +2642,16 @@ class Component extends DCLogic {
         ? 'position:relative;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-background)'
         : 'position:relative;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-background);height:calc(100vh - 190px);min-height:620px',
       mapCanvasH: isMob && !st.mapFull ? '42vh' : '100%',
-      livePanelStyle: isMob
+      livePanelStyle: st.mapListHidden ? 'display:none' : (isMob
         ? (st.mapFull
           ? (((st.vw ?? 402) > (st.vh ?? 800))
             ? 'position:absolute;top:10px;right:10px;bottom:10px;width:272px;overflow:auto;z-index:6;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.3)'
             : 'position:absolute;left:0;right:0;bottom:0;max-height:42%;overflow:auto;z-index:6;border-top:1px solid var(--color-border);border-radius:12px 12px 0 0;background:var(--color-background);padding:16px 16px 28px')
           : 'border-top:1px solid var(--color-border);background:var(--color-background);padding:16px')
-        : 'position:absolute;top:12px;right:12px;width:320px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.12)',
+        : 'position:absolute;top:12px;right:12px;width:320px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.12)'),
+      mapListHidden: !!st.mapListHidden,
+      toggleMapList: () => set({ mapListHidden: !st.mapListHidden }),
+      mapListBtnLabel: st.mapListHidden ? 'Mostrar lista' : 'Ocultar lista',
       mapKpiStyle: isMob
         ? (st.mapFull ? 'display:none' : 'padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;align-items:stretch;border-top:1px solid var(--color-gray-200);padding-top:12px')
         : 'position:absolute;left:12px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
