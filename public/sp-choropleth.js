@@ -26,7 +26,7 @@
   const fmt = n => n.toLocaleString('pt-BR');
 
   class SPChoropleth extends HTMLElement {
-    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'sel-ra']; }
+    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra']; }
     connectedCallback() {
       if (this._init) return; this._init = true;
       this.style.display = 'block'; this.style.position = 'relative';
@@ -98,7 +98,7 @@
       const theme = this.getAttribute('theme') === 'light' ? 'light' : 'dark';
       const P = PAL[theme];
       const { rows, maxPot, fonte } = this.values();
-      const selRaAttr = this.getAttribute('sel-ra');
+      const selRaAttr = this.getAttribute('data-sel-ra');
       const selRa = (selRaAttr == null || selRaAttr === '') ? -1 : parseInt(selRaAttr, 10);
       const scoped = selRa >= 0 ? rows.filter(r => r.ra === selRa) : rows; // RA selecionada
       const maxLid = Math.max(...rows.map(r => r.liderJan), 1);
