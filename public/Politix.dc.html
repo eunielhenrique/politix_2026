@@ -465,6 +465,26 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </sc-for>
                 </div>
                 <div style="text-align:center;font-size:12px;color:var(--color-gray-600);padding:12px">+ 92 liderados</div>
+                <div style="margin-top:20px">
+                  <div style="font-size:13px;font-weight:600;margin-bottom:6px">Meus grupos do WhatsApp</div>
+                  <p style="font-size:12px;color:var(--color-muted-foreground);line-height:1.5;margin:0 0 10px">Cole o <b style="color:var(--color-foreground)">link de convite</b> do seu grupo (no WhatsApp: Grupo › Convidar via link › Copiar). A assessoria vê os grupos aqui e pode entrar para acompanhar.</p>
+                  <div style="display:flex;gap:8px">
+                    <input type="text" placeholder="https://chat.whatsapp.com/…" value="{{ lgLink }}" onChange="{{ onLgLink }}" style="flex:1;min-width:0;height:44px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                    <button onClick="{{ wppRegisterClick }}" style="height:44px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Adicionar</button>
+                  </div>
+                  <sc-if value="{{ wppMsg }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:12px;color:var(--color-muted-foreground);margin-top:8px">{{ wppMsgText }}</div>
+                  </sc-if>
+                  <sc-if value="{{ lgHasGroups }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+                      <sc-for list="{{ lgGroups }}" as="lg" hint-placeholder-count="2">
+                        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-200)">
+                          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ lg.nome }}</div><div style="font-size:11px;color:var(--color-gray-600)">{{ lg.membros }} membros · {{ lg.stLabel }}</div></div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
               </div>
             </sc-if>
 
@@ -1032,21 +1052,28 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             <sc-if value="{{ wppShowGroups }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top:14px">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-                  <span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground)">Grupos de líderes</span>
+                  <span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground)">Grupos registrados pelos líderes</span>
                   <div style="flex:1"></div>
-                  <button onClick="{{ wppRefreshClick }}" style="height:30px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer">Buscar grupos</button>
+                  <button onClick="{{ wppRefreshClick }}" style="height:30px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer">Atualizar</button>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow:auto">
+                <sc-if value="{{ wppHasGroups }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto">
                   <sc-for list="{{ wppGroups }}" as="wg" hint-placeholder-count="3">
                     <div onClick="{{ wg.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid {{ wg.bd }};border-radius:var(--radius-sm);background:var(--color-background-100);cursor:pointer">
                       <div style="flex:1;min-width:0">
                         <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ wg.nome }}</div>
-                        <div style="font-size:11px;color:var(--color-gray-600)">líder: {{ wg.leaderNome }}</div>
+                        <div style="font-size:11px;color:var(--color-gray-600)">líder: {{ wg.leaderNome }} · {{ wg.membros }} membros</div>
                       </div>
-                      <span style="font-size:11px;color:var(--color-gray-600);white-space:nowrap;flex-shrink:0">{{ wg.membros }} membros</span>
+                      <span style="font-size:10.5px;color:{{ wg.statusCor }};white-space:nowrap;flex-shrink:0">{{ wg.statusLabel }}</span>
+                      <span style="font-size:11.5px;font-weight:500;color:var(--color-foreground);border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:5px 11px;white-space:nowrap;flex-shrink:0">{{ wg.btnLabel }}</span>
                     </div>
                   </sc-for>
                 </div>
+                </sc-if>
+                <sc-if value="{{ wppHasGroups }}" hint-placeholder-val="{{ false }}"></sc-if>
+                <sc-if value="{{ wppNoGroups }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5">Nenhum grupo ainda. Os líderes registram os grupos deles no app do líder (colando o link de convite). Depois eles aparecem aqui e você pode solicitar entrar.</div>
+                </sc-if>
                 <sc-if value="{{ wppHasSel }}" hint-placeholder-val="{{ false }}">
                   <div style="margin-top:12px">
                     <textarea value="{{ wppText }}" onChange="{{ onWppText }}" placeholder="Mensagem para {{ wppSelNome }} — enviada como Assessoria" style="width:100%;min-height:80px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-family:var(--font-sans);font-size:13.5px;line-height:1.5;outline:none;resize:vertical"></textarea>
@@ -1551,7 +1578,7 @@ class Component extends DCLogic {
     obNome: '', obZap: '', obCidades: 'Campinas, Jundiaí', obPromessa: '40', obErro: null,
     pFoto: null, pNome: 'Marcos Tavares', pZap: '(11) 98765-4321', pEmail: 'marcos@exemplo.com.br', pCidades: 'Zona Leste — São Paulo, Itaquera', pPromessa: '300', pPend: null, pMsg: null,
     aInvite: null, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '',
-    wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null,
+    wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
     aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
@@ -1618,6 +1645,7 @@ class Component extends DCLogic {
     } catch (e) {}
     this.setState({ view: hasVista ? this.state.view : (role === 'assessor' ? 'assessor' : 'leader'), remote });
     if (role === 'assessor') this._wppCheck();
+    else if (me.leader_id) this.wppList();
   }
   _pxAiContext(ctxType) {
     const r = this.state.remote;
@@ -1657,23 +1685,32 @@ class Component extends DCLogic {
     clearTimeout(this._wppT);
     const tick = async () => {
       const s = await this._pxWpp('status');
-      if (s && s.connected) { this.setState({ wppState: 'connected', wppQr: null }); this.wppLoadGroups(); return; }
+      if (s && s.connected) { this.setState({ wppState: 'connected', wppQr: null }); this.wppList(); return; }
       this._wppT = setTimeout(tick, 3000);
     };
     this._wppT = setTimeout(tick, 3000);
   }
   async _wppCheck() {
     const s = await this._pxWpp('status');
-    if (s && s.connected) { this.setState({ wppState: 'connected' }); this.wppLoadGroups(); }
+    if (s && s.connected) { this.setState({ wppState: 'connected' }); this.wppList(); }
   }
-  async wppLoadGroups() {
-    this.setState({ wppMsg: 'Buscando grupos…' });
-    const r = await this._pxWpp('groups');
-    if (r && Array.isArray(r.groups)) {
-      this.setState({ wppGroups: r.groups, wppMsg: r.groups.length ? (r.groups.length + ' grupo(s) de líderes encontrados.') : 'Nenhum grupo casou com os líderes ainda. Confira se o número do líder está no grupo (e é admin).' });
-    } else {
-      this.setState({ wppMsg: 'Não consegui buscar os grupos' + (r && r.error ? ': ' + r.error : '.') });
-    }
+  async wppList() {
+    const r = await this._pxWpp('list');
+    if (r && Array.isArray(r.groups)) this.setState({ wppGroups: r.groups });
+  }
+  async wppJoin(g) {
+    this.setState({ wppMsg: 'Entrando em ' + g.nome + '…' });
+    const r = await this._pxWpp('join', { code: g.code });
+    if (r && r.ok) { this.setState({ wppMsg: 'Entrou em ' + g.nome + ' ✓' }); this.wppList(); }
+    else this.setState({ wppMsg: 'Não consegui entrar' + (r && r.error ? ': ' + r.error : '.') });
+  }
+  async wppRegister() {
+    const st = this.state;
+    if (!st.lgLink || !st.lgLink.trim()) return;
+    this.setState({ wppMsg: 'Registrando…' });
+    const r = await this._pxWpp('register', { inviteLink: st.lgLink.trim() });
+    if (r && r.ok) { this.setState({ lgLink: '', wppMsg: 'Grupo registrado' + (r.nome ? ': ' + r.nome : '') + ' ✓' }); this.wppList(); }
+    else this.setState({ wppMsg: 'Não consegui registrar' + (r && r.error ? ': ' + r.error : '.') });
   }
   async wppSend() {
     const st = this.state;
@@ -2239,13 +2276,25 @@ class Component extends DCLogic {
       wppQr: st.wppQr || '',
       wppShowGroups: st.wppState === 'connected',
       wppHasGroups: (st.wppGroups || []).length > 0,
-      wppGroups: (st.wppGroups || []).map(g => ({ nome: g.nome, leaderNome: g.leaderNome || '', membros: String(g.membros ?? 0), bd: (st.wppSel && st.wppSel.jid === g.jid) ? 'var(--color-gray-500)' : 'var(--color-border)', onClick: () => this.setState({ wppSel: g, wppMsg: null }) })),
-      wppRefreshClick: () => this.wppLoadGroups(),
+      wppNoGroups: st.wppState === 'connected' && (st.wppGroups || []).length === 0,
+      wppGroups: (st.wppGroups || []).map(g => ({
+        nome: g.nome, leaderNome: g.leaderNome || '—', membros: String(g.membros ?? 0),
+        statusLabel: g.joined ? 'assessoria dentro' : 'fora do grupo',
+        statusCor: g.joined ? '#3dd68c' : 'var(--color-gray-600)',
+        btnLabel: g.joined ? 'Selecionar' : 'Solicitar entrar',
+        bd: (st.wppSel && st.wppSel.jid && st.wppSel.jid === g.jid) ? 'var(--color-gray-500)' : 'var(--color-border)',
+        onClick: () => g.joined ? this.setState({ wppSel: g, wppMsg: null }) : this.wppJoin(g),
+      })),
+      wppRefreshClick: () => this.wppList(),
       wppHasSel: !!st.wppSel,
       wppSelNome: st.wppSel ? st.wppSel.nome : '',
       wppText: st.wppText, onWppText: (e) => set({ wppText: e.target.value }),
       wppSendClick: () => this.wppSend(),
       wppMsg: !!st.wppMsg, wppMsgText: st.wppMsg || '',
+      lgLink: st.lgLink, onLgLink: (e) => set({ lgLink: e.target.value }),
+      wppRegisterClick: () => this.wppRegister(),
+      lgHasGroups: (st.wppGroups || []).length > 0,
+      lgGroups: (st.wppGroups || []).map(g => ({ nome: g.nome, membros: String(g.membros ?? 0), stLabel: g.joined ? 'assessoria acompanhando' : 'registrado' })),
       grpFLiderSel: this.fltSelVal(st.grpFLider), onGrpFLider: (e) => set({ grpFLider: [e.target.value], grpSel: 0 }),
       grpLiderOpts: ['todos', ...new Set(gruposData.map(g => g.lider))].map(v => ({ v, l: v === 'todos' ? 'Todos os líderes' : v })),
       grpFCidadeSel: this.fltSelVal(st.grpFCidade), onGrpFCidade: (e) => set({ grpFCidade: [e.target.value], grpSel: 0 }),
