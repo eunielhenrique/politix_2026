@@ -29,6 +29,8 @@
     static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra']; }
     connectedCallback() {
       if (this._init) return; this._init = true;
+      this._onCtl = e => this.ctl(e.detail && e.detail.action);
+      window.addEventListener('politix:mapctl', this._onCtl);
       this.style.display = 'block'; this.style.position = 'relative';
       this.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:420px;font:13px var(--font-mono,monospace);color:var(--color-muted-foreground,#878787)">Carregando os 645 municípios (IBGE)…</div>';
       waitFor(() => window.d3, () => this.load());
@@ -165,6 +167,7 @@
       }
       const zoom = d3.zoom().scaleExtent([1, 14]).on('zoom', ev => { this._zt = ev.transform; g.attr('transform', ev.transform); });
       svg.call(zoom);
+      this._svg = svg; this._zoom = zoom; // expõe pros controles +/−/centralizar da barra de cima
       this.innerHTML = '';
       this.appendChild(svg.node());
       if (this._zt) svg.call(zoom.transform, this._zt);
@@ -182,27 +185,16 @@
           }
         } else if (this._zt) { this._zt = d3.zoomIdentity; svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity); }
       }
-      // toolbar
-      const bar = document.createElement('div');
-      bar.style.cssText = `position:absolute;bottom:12px;right:${window.innerWidth < 900 ? (window.innerWidth > window.innerHeight ? '296px' : '12px') : '344px'};display:flex;gap:6px;z-index:5`;
-      const mk = (label, title, fn, w) => { const b = document.createElement('button'); b.textContent = label; b.title = title; b.style.cssText = `height:30px;min-width:${w || 30}px;padding:0 8px;border:1px solid var(--color-border,#242424);border-radius:0;background:var(--color-background-200,#111);color:var(--color-foreground,#ededed);font:500 12px "Geist Mono",monospace;cursor:pointer`; b.onclick = fn; return b; };
-      const zoomBy = k => svg.transition().duration(250).call(zoom.scaleBy, k);
-      bar.appendChild(mk('+', 'Aproximar', () => zoomBy(1.6)));
-      bar.appendChild(mk('−', 'Afastar', () => zoomBy(0.63)));
-      bar.appendChild(mk('Estado', 'Ver o estado inteiro', () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity), 30));
-      bar.appendChild(mk('Grande SP', 'Focar na Grande São Paulo', () => {
-        const bs = rows.filter(r => GSP.includes(r.code)).map(r => r.b);
-        if (!bs.length) return;
-        const x0 = Math.min(...bs.map(b => b[0][0])), y0 = Math.min(...bs.map(b => b[0][1]));
-        const x1 = Math.max(...bs.map(b => b[1][0])), y1 = Math.max(...bs.map(b => b[1][1]));
-        const k = Math.min(14, 0.85 / Math.max((x1 - x0) / W, (y1 - y0) / H));
-        const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
-        svg.transition().duration(500).call(zoom.transform, t);
-      }, 30));
-      this.appendChild(bar);
       const tip = document.createElement('div');
       tip.style.cssText = 'position:absolute;pointer-events:none;display:none;z-index:6;max-width:270px;padding:9px 11px;border:1px solid var(--color-border,#242424);border-radius:0;background:var(--color-background-200,#111);color:var(--color-foreground,#ededed);font:12px "Geist Mono",monospace;box-shadow:0 4px 14px rgba(0,0,0,.12)';
       this.appendChild(tip); this._tip = tip;
+    }
+    ctl(action) {
+      const d3 = window.d3; const svg = this._svg, zoom = this._zoom;
+      if (!d3 || !svg || !zoom) return;
+      if (action === 'in') svg.transition().duration(220).call(zoom.scaleBy, 1.6);
+      else if (action === 'out') svg.transition().duration(220).call(zoom.scaleBy, 0.63);
+      else if (action === 'reset') svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
     }
     tip(ev, r, fonte) {
       const rect = this.getBoundingClientRect();
