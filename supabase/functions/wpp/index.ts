@@ -74,12 +74,13 @@ Deno.serve(async (req: Request) => {
 
     // ---- listar (assessor: todos; líder: os seus) ----
     if (action === "list") {
-      let q = admin.from("wpp_groups").select("id, nome, invite_code, jid, membros, joined, leader_id, leader:leader_id(name)").eq("tenant_id", tenant);
+      let q = admin.from("wpp_groups").select("id, nome, invite_code, jid, membros, joined, leader_id, leader:leader_id(name, cities)").eq("tenant_id", tenant);
       if (me.role === "lider") q = q.eq("leader_id", me.leader_id);
       const { data } = await q;
       const groups = (data || []).map((g: Record<string, unknown>) => ({
         id: g.id, nome: g.nome, code: g.invite_code, jid: g.jid, membros: g.membros, joined: !!g.joined,
         leaderId: g.leader_id, leaderNome: (g.leader as { name?: string })?.name || "",
+        cities: (g.leader as { cities?: string[] })?.cities || [],
       }));
       return json({ groups });
     }

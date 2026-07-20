@@ -78,7 +78,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
   </sc-if>
 
   <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
-    <div data-screen-label="Login" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:32px 20px">
+    <div data-screen-label="Login" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px">
       <div style="width:400px;max-width:100%;border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:36px;background:var(--color-background)">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9" style="stroke:var(--color-accent)" stroke-width="2.4" stroke-linecap="round" fill="none"></path></svg><span style="font-family:var(--font-sans);font-weight:600;font-size:26px;letter-spacing:-.3px">Politix</span></div>
         <h1 style="font-family:var(--font-sans);font-weight:500;font-size:32px;letter-spacing:-.5px;margin:0 0 8px">Entrar na campanha</h1>
@@ -92,7 +92,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
   </sc-if>
 
   <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">
-    <div data-screen-label="Onboarding" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:32px 20px">
+    <div data-screen-label="Onboarding" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px">
       <div style="width:440px;max-width:100%;border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:36px;background:var(--color-background)">
         <span style="display:inline-block;padding:4px 12px;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px">Primeiro acesso</span>
         <h1 style="font-family:var(--font-sans);font-weight:500;font-size:32px;letter-spacing:-.5px;margin:0 0 8px">Crie a sua campanha</h1>
@@ -107,7 +107,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
   </sc-if>
 
   <sc-if value="{{ isConvite }}" hint-placeholder-val="{{ false }}">
-    <div data-screen-label="Convite" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:32px 20px">
+    <div data-screen-label="Convite" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px">
       <div style="width:440px;max-width:100%;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-background)">
         <div style="background:var(--color-background-100) repeating-linear-gradient(-45deg,var(--color-hairline) 0 1px,transparent 1px 6px);border-bottom:1px solid var(--color-border);color:var(--color-foreground);padding:28px 36px">
           <div style="font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px">Convite de liderança</div>
@@ -141,7 +141,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
   </sc-if>
 
   <sc-if value="{{ isLeader }}" hint-placeholder-val="{{ true }}">
-    <div data-screen-label="App do líder" style="display:flex;justify-content:center;padding:36px 20px;background:var(--color-background-100);min-height:calc(100vh - 52px)">
+    <div data-screen-label="App do líder" style="display:flex;justify-content:center;padding:36px 20px;background:var(--color-background-100);min-height:100vh">
       <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ isDark }}" hint-size="402px,874px">
         <div style="display:flex;flex-direction:column;height:100%;background:var(--color-background);font-family:var(--font-sans);color:var(--color-foreground);position:relative">
           <div style="display:flex;align-items:center;gap:4px;padding:58px 10px 6px 18px;border-bottom:1px solid var(--color-gray-200)">
@@ -572,9 +572,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
   </sc-if>
 
   <sc-if value="{{ isAssessor }}" hint-placeholder-val="{{ false }}">
-    <div data-screen-label="Painel do assessor" style="display:flex;align-items:stretch;min-height:calc(100vh - 52px)">
+    <div data-screen-label="Painel do assessor" style="display:flex;align-items:stretch;min-height:100vh">
       <sc-if value="{{ showSide }}" hint-placeholder-val="{{ true }}">
-      <aside style="width:{{ sideW }};transition:width .2s ease;flex-shrink:0;border-right:1px solid var(--color-border);background:var(--color-background-100);padding:18px 12px 14px;display:flex;flex-direction:column;gap:2px;position:sticky;top:52px;height:calc(100vh - 52px);overflow:auto">
+      <aside style="width:{{ sideW }};transition:width .2s ease;flex-shrink:0;border-right:1px solid var(--color-border);background:var(--color-background-100);padding:18px 12px 14px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow:auto">
         <div style="display:flex;align-items:center;gap:8px;padding:4px 6px 12px">
           <sc-if value="{{ sideOpen }}" hint-placeholder-val="{{ true }}">
             <svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0;margin-left:4px"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"></path></svg>
@@ -1052,7 +1052,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             <sc-if value="{{ wppShowGroups }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top:14px">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-                  <span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground)">Grupos registrados pelos líderes</span>
+                  <span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground)">Grupos dos líderes · solicitar entrar</span>
                   <div style="flex:1"></div>
                   <button onClick="{{ wppRefreshClick }}" style="height:30px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer">Atualizar</button>
                 </div>
@@ -1072,13 +1072,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </sc-if>
                 <sc-if value="{{ wppHasGroups }}" hint-placeholder-val="{{ false }}"></sc-if>
                 <sc-if value="{{ wppNoGroups }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5">Nenhum grupo ainda. Os líderes registram os grupos deles no app do líder (colando o link de convite). Depois eles aparecem aqui e você pode solicitar entrar.</div>
-                </sc-if>
-                <sc-if value="{{ wppHasSel }}" hint-placeholder-val="{{ false }}">
-                  <div style="margin-top:12px">
-                    <textarea value="{{ wppText }}" onChange="{{ onWppText }}" placeholder="Mensagem para {{ wppSelNome }} — enviada como Assessoria" style="width:100%;min-height:80px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-family:var(--font-sans);font-size:13.5px;line-height:1.5;outline:none;resize:vertical"></textarea>
-                    <button onClick="{{ wppSendClick }}" style="height:38px;padding:0 18px;margin-top:8px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer">Enviar como Assessoria</button>
-                  </div>
+                  <div style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5">Nenhum grupo aguardando. Os líderes registram os grupos no app deles; os já vinculados aparecem na lista de grupos abaixo, com o chat para enviar como Assessoria.</div>
                 </sc-if>
               </div>
             </sc-if>
@@ -2192,7 +2186,7 @@ class Component extends DCLogic {
     });
     const cidResto = cidadesRank.slice(3);
     // ---- grupos ----
-    const gruposData = [
+    const _gruposMock = [
       { id: 'g1', nome: 'Zona Leste com Lelinho', lider: 'Marcos Tavares', cidade: 'São Paulo (ZL)', regiao: 'Metropolitana de São Paulo', membros: 248, ativos7d: 61, msgs: [
         ['Marcos Tavares', 'Bom dia, grupo! Sábado tem panfletagem na feira de Itaquera, 8h. Quem vai?', '08:12'],
         ['Rosana Alves', 'Eu vou! Levo mais duas vizinhas.', '08:20'],
@@ -2230,7 +2224,16 @@ class Component extends DCLogic {
       { id: 'L4', nome: 'Líderes — Santos (Baixada)', lider: 'Assessoria', cidade: 'Baixada Santista', regiao: 'Santos (Baixada Santista)', membros: 14, ativos7d: 3, msgs: [
         ['Assessoria', 'Baixada precisa de ritmo — Edson, como podemos ajudar?', 'há 8d']] },
     ];
-    const grpFonte = st.grpTipo === 'lideres' ? gruposLideres : gruposData;
+    const _realJoined = (st.wppState === 'connected')
+      ? (st.wppGroups || []).filter(g => g.joined).map(g => ({
+          id: g.jid || g.code, jid: g.jid, nome: g.nome, lider: g.leaderNome || '—',
+          cidade: (g.cities && g.cities[0]) || '—', regiao: this.raDe((g.cities && g.cities[0])) || null,
+          membros: g.membros || 0, ativos7d: 0,
+          msgs: [['Assessoria', 'Grupo vinculado à campanha. O que você enviar aqui vai como Assessoria no WhatsApp real.', 'agora']],
+        }))
+      : null;
+    const gruposData = _realJoined || _gruposMock;
+    const grpFonte = _realJoined || (st.grpTipo === 'lideres' ? gruposLideres : gruposData);
     const gruposVis = grpFonte.filter(g =>
       (st.grpTipo === 'lideres' || this.fltMatch(st.grpFLider, g.lider)) &&
       (st.grpTipo === 'lideres' || this.fltMatch(st.grpFCidade, g.cidade)) &&
@@ -2253,9 +2256,19 @@ class Component extends DCLogic {
         : set({ grpSel: i }),
     }));
     const gMsgs = gSel ? [...gSel.msgs.map(([de, texto, quando]) => ({ de, texto, quando })), ...(st.grpExtra[gSel.id] || [])] : [];
-    const grpDeliver = (texto) => {
+    const grpDeliver = async (texto) => {
       const alvos = st.grpBc ? (st.grpBcSel.length ? st.grpBcSel : []) : (gSel ? [gSel.id] : []);
       if (!alvos.length) { set({ grpNota: 'Selecione ao menos um grupo na lista para a mensagem em massa.' }); return false; }
+      if (_realJoined) {
+        // envio real via WhatsApp (id do grupo = jid)
+        this.setState({ grpInput: '', grpNota: 'Enviando…' });
+        let ok = 0;
+        for (const jid of alvos) { const r = await this._pxWpp('send', { to: jid, text: texto }); if (r && r.ok) ok++; }
+        const extra = { ...this.state.grpExtra };
+        alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto, quando: 'agora' }]; });
+        this.setState({ grpExtra: extra, grpNota: `Enviado para ${ok} de ${alvos.length} grupo(s) no WhatsApp.` });
+        return true;
+      }
       const extra = { ...st.grpExtra };
       alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto, quando: 'agora' }]; });
       this.setState({ grpExtra: extra, grpInput: '', grpNota: st.grpBc ? `Enviado para ${alvos.length} grupo(s).` : null });
@@ -2275,15 +2288,13 @@ class Component extends DCLogic {
       wppShowQr: st.wppState === 'connecting' && !!st.wppQr,
       wppQr: st.wppQr || '',
       wppShowGroups: st.wppState === 'connected',
-      wppHasGroups: (st.wppGroups || []).length > 0,
-      wppNoGroups: st.wppState === 'connected' && (st.wppGroups || []).length === 0,
-      wppGroups: (st.wppGroups || []).map(g => ({
+      wppHasGroups: (st.wppGroups || []).filter(g => !g.joined).length > 0,
+      wppNoGroups: st.wppState === 'connected' && (st.wppGroups || []).filter(g => !g.joined).length === 0,
+      wppGroups: (st.wppGroups || []).filter(g => !g.joined).map(g => ({
         nome: g.nome, leaderNome: g.leaderNome || '—', membros: String(g.membros ?? 0),
-        statusLabel: g.joined ? 'assessoria dentro' : 'fora do grupo',
-        statusCor: g.joined ? '#3dd68c' : 'var(--color-gray-600)',
-        btnLabel: g.joined ? 'Selecionar' : 'Solicitar entrar',
-        bd: (st.wppSel && st.wppSel.jid && st.wppSel.jid === g.jid) ? 'var(--color-gray-500)' : 'var(--color-border)',
-        onClick: () => g.joined ? this.setState({ wppSel: g, wppMsg: null }) : this.wppJoin(g),
+        statusLabel: 'fora do grupo', statusCor: 'var(--color-gray-600)',
+        btnLabel: 'Solicitar entrar', bd: 'var(--color-border)',
+        onClick: () => this.wppJoin(g),
       })),
       wppRefreshClick: () => this.wppList(),
       wppHasSel: !!st.wppSel,
