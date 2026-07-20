@@ -8,8 +8,8 @@
   const NAMES_URL = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/35/municipios';
   const GSP = ['3550308', '3534401', '3505708', '3547304', '3510609', '3518800', '3513009', '3522505', '3509205', '3525003', '3539103', '3552809', '3515004', '3513801', '3548708', '3547809'];
   const PAL = {
-    dark: { neutro: '#1a1a1a', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], line: '#000000', pin: '#ededed', pinRing: '#000000' },
-    light: { neutro: '#ececec', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff' },
+    dark: { neutro: '#1a1a1a', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000' },
+    light: { neutro: '#ececec', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff' },
   };
   const ANO_SYNTH = { '2024': 0.35, '2022': 0.6, '2018': 0.35, '2012': 0.2 };
   const MEMBROS = { candidato: ['candidato'], irmao: ['irmao'], pai: ['pai'], familia: ['candidato', 'irmao', 'pai'] };
@@ -103,8 +103,10 @@
       const scoped = selRa >= 0 ? rows.filter(r => r.ra === selRa) : rows; // RA selecionada
       const maxLid = Math.max(...rows.map(r => r.liderJan), 1);
       const seq = d3.interpolateRgbBasis(P.seq);
+      const hseq = d3.interpolateRgbBasis(P.hseq);
       const fill = r => {
-        if (layer === 'historico') return seq(r.indice / 100);
+        if (selRa >= 0 && r.ra !== selRa) return P.neutro; // fora da RA = cinza chapado (sem cor vazando)
+        if (layer === 'historico') return hseq(Math.pow(r.indice / 100, 0.6)); // heat âmbar, realça o meio
         if (layer === 'rede') return r.liderJan > 0 ? seq(0.25 + 0.75 * Math.sqrt(r.liderJan / maxLid)) : P.neutro;
         return P[r.status];
       };
@@ -131,7 +133,7 @@
       g.selectAll('path').data(rows).join('path')
         .attr('d', r => r.d)
         .attr('fill', r => fill(r))
-        .attr('fill-opacity', r => (selRa >= 0 && r.ra !== selRa) ? 0.08 : 1)
+        .attr('fill-opacity', r => (selRa >= 0 && r.ra !== selRa) ? 0.35 : 1)
         .attr('stroke', P.line).attr('stroke-width', 0.4)
         .style('cursor', 'pointer')
         .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })

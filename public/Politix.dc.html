@@ -2659,7 +2659,9 @@ class Component extends DCLogic {
       mapFullLabel: st.mapFull ? 'Recolher' : 'Expandir',
       mapFullIcon: st.mapFull ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
       showDots: st.mapLayer === 'cobertura', showGrad: st.mapLayer !== 'cobertura',
-      legendGrad: 'linear-gradient(90deg,#111111,#454545,#ededed)',
+      legendGrad: st.mapLayer === 'historico'
+        ? (isDark ? 'linear-gradient(90deg,#181818,#7a4d00,#ffb224,#ffe3ad)' : 'linear-gradient(90deg,#f4f1e8,#eda01f,#cc6f00,#5a2a00)')
+        : (isDark ? 'linear-gradient(90deg,#111111,#454545,#ededed)' : 'linear-gradient(90deg,#ededed,#b8b8b8,#171717)'),
       legendNote: st.mapLayer === 'cobertura' ? 'cor = potencial da família × cobertura da rede · ○ tracejado = líder convidado (pendente)' : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros' : 'intensidade e círculos ∝ liderados cadastrados',
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
       liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
