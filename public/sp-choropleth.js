@@ -141,16 +141,17 @@
           } }));
         });
       if (layer !== 'historico') {
-        const pins = rows.filter(r => r.c && (r.liderJan > 0 || r.pend > 0));
+        const pins = rows.filter(r => r.c && (r.liderados > 0 || r.lideres > 0 || r.pend > 0));
         const pg = g.append('g').attr('pointer-events', 'none');
         pins.forEach(r => {
           const [x, y] = r.c;
           if (!isFinite(x) || !isFinite(y)) return;
-          if (r.liderJan > 0) {
-            pg.append('circle').attr('cx', x).attr('cy', y).attr('r', Math.min(3 + Math.sqrt(r.liderJan) * 0.55, 16))
+          if (r.liderados > 0 || r.lideres > 0) {
+            // líder ativo — tamanho ∝ liderados (mínimo se ainda sem cadastro)
+            pg.append('circle').attr('cx', x).attr('cy', y).attr('r', Math.min(3 + Math.sqrt(r.liderados) * 0.55, 16))
               .attr('fill', P.pin).attr('fill-opacity', 0.85).attr('stroke', P.pinRing).attr('stroke-width', 1.2);
           } else {
-            // líder convidado (pendente) — pin oco tracejado, ainda sem liderados
+            // líder convidado (pendente) — pin oco tracejado, ainda sem ativar
             pg.append('circle').attr('cx', x).attr('cy', y).attr('r', 5)
               .attr('fill', 'none').attr('stroke', '#ffb224').attr('stroke-width', 1.6).attr('stroke-dasharray', '2.5,2.5');
           }
