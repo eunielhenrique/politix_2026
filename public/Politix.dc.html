@@ -1584,6 +1584,8 @@ class Component extends DCLogic {
     window.addEventListener('politix:mapstats', this._onStats);
     this._onKey = (e) => { if (e.key === 'Escape' && this.state.mapFull) this.setState({ mapFull: false }); };
     window.addEventListener('keydown', this._onKey);
+    this._onFsChange = () => { const on = !!document.fullscreenElement; if (!on && this.state.mapFull) this.setState({ mapFull: false }); };
+    document.addEventListener('fullscreenchange', this._onFsChange);
     this._onScroll = () => {
       if (this.state.view !== 'assessor' || this.state.aTab !== 'ranking') return;
       const el = document.scrollingElement;
@@ -1600,6 +1602,7 @@ class Component extends DCLogic {
     window.removeEventListener('politix:muni', this._onMuni);
     window.removeEventListener('politix:mapstats', this._onStats);
     window.removeEventListener('keydown', this._onKey);
+    document.removeEventListener('fullscreenchange', this._onFsChange);
     window.removeEventListener('scroll', this._onScroll);
     window.removeEventListener('resize', this._onResize);
   }
@@ -2638,18 +2641,29 @@ class Component extends DCLogic {
         : 'position:absolute;left:12px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
       mapToolbarMaxW: isMob ? 'calc(100% - 24px)' : 'calc(100% - 360px)',
       mapRotateHint: isMob && st.mapFull && ((st.vh ?? (typeof window !== 'undefined' ? window.innerHeight : 800)) > (st.vw ?? 402)),
-      toggleMapFull: () => set({ mapFull: !st.mapFull }),
+      toggleMapFull: () => {
+        const entering = !st.mapFull;
+        set({ mapFull: entering });
+        try {
+          if (entering) { const el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen(); }
+          else if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+        } catch (e) {}
+      },
       mapFullLabel: st.mapFull ? 'Recolher' : 'Expandir',
       mapFullIcon: st.mapFull ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
       showDots: st.mapLayer === 'cobertura', showGrad: st.mapLayer !== 'cobertura',
       legendGrad: 'linear-gradient(90deg,#111111,#454545,#ededed)',
       legendNote: st.mapLayer === 'cobertura' ? 'círculos = liderados cadastrados (tamanho ∝ quantidade)' : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros' : 'intensidade e círculos ∝ liderados cadastrados',
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
-      liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDe(t.nome))).map((t, i) => ({
-        pos: i + 1, nome: t.nome, sub: t.statusLabel,
-        dot: t.status === 'priorizar' ? 'var(--color-highlight)' : t.status === 'parcial' ? '#878787' : 'var(--color-gray-1000)',
-        potF: 'índ. ' + (t.indice != null ? t.indice : this.potIdx(t.pot)), lid: fmtN(t.liderados), onClick: () => set({ muni: t }),
-      })),
+      liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDe(t.nome))).map((t, i) => {
+        const iv = t.indice != null ? t.indice : this.potIdx(t.pot);
+        const nivel = iv >= 40 ? 'alto' : iv >= 18 ? 'médio' : 'baixo';
+        return {
+          pos: i + 1, nome: t.nome, sub: 'potencial ' + nivel,
+          dot: iv >= 40 ? 'var(--color-accent)' : iv >= 18 ? '#878787' : 'var(--color-gray-500)',
+          potF: 'índ. ' + iv, lid: fmtN(t.liderados), onClick: () => set({ muni: t }),
+        };
+      }),
       liveEmpty: !(ms && ms.top && ms.top.length),
       podio, rankingResto, rankingTotal, rankHasMore, cidadesRank: cidResto, cidPodio, cidadesTotal: String(cidadesRank.length),
       regiaoOpts: [{ v: 'todos', l: 'Todas as regiões (15 RAs)' }, ...RA15.map(v => ({ v, l: v }))],
@@ -2673,7 +2687,7 @@ class Component extends DCLogic {
           trendCor = d < -0.08 ? 'var(--color-highlight)' : 'var(--color-gray-1000)';
         }
         const ind = mu.indice != null ? mu.indice : this.potIdx(mu.pot);
-        const forcaN = ind >= 45 ? 2 : ind >= 18 ? 1 : 0; // força pela penetração (reduto), não volume
+        const forcaN = ind >= 40 ? 2 : ind >= 18 ? 1 : 0; // nível do índice: alto/médio/baixo
         const nivelM = ['baixo', 'médio', 'alto'][forcaN];
         const cov = mu.pot > 0 ? mu.liderados / mu.pot * 1000 : 0;
         const alvo = Math.ceil(mu.pot * 2 / 1000);
