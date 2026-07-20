@@ -1054,6 +1054,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
                   <span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--color-muted-foreground)">Grupos dos líderes · solicitar entrar</span>
                   <div style="flex:1"></div>
+                  <span style="font-size:11px;color:var(--color-gray-600);white-space:nowrap">{{ wppRefreshMsg }}</span>
                   <button onClick="{{ wppRefreshClick }}" style="height:30px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer">Atualizar</button>
                 </div>
                 <sc-if value="{{ wppHasGroups }}" hint-placeholder-val="{{ true }}">
@@ -1690,7 +1691,9 @@ class Component extends DCLogic {
   }
   async wppList() {
     const r = await this._pxWpp('list');
-    if (r && Array.isArray(r.groups)) this.setState({ wppGroups: r.groups });
+    const groups = (r && Array.isArray(r.groups)) ? r.groups : null;
+    if (groups) this.setState({ wppGroups: groups });
+    return groups;
   }
   async wppJoin(g) {
     this.setState({ wppMsg: 'Entrando em ' + g.nome + '…' });
@@ -2319,7 +2322,14 @@ class Component extends DCLogic {
         btnLabel: 'Solicitar entrar', bd: 'var(--color-border)',
         onClick: () => this.wppJoin(g),
       })),
-      wppRefreshClick: () => this.wppList(),
+      wppRefreshMsg: st.wppRefreshMsg || '',
+      wppRefreshClick: async () => {
+        this.setState({ wppRefreshMsg: 'Atualizando…' });
+        const groups = await this.wppList();
+        if (!groups) { this.setState({ wppRefreshMsg: 'não consegui atualizar' }); return; }
+        const pend = groups.filter(g => !g.joined).length;
+        this.setState({ wppRefreshMsg: `${groups.length} dos líderes · ${pend} a entrar · ${groups.length - pend} vinculado(s)` });
+      },
       wppHasSel: !!st.wppSel,
       wppSelNome: st.wppSel ? st.wppSel.nome : '',
       wppText: st.wppText, onWppText: (e) => set({ wppText: e.target.value }),
