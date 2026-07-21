@@ -617,6 +617,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <button onClick="{{ abrirConfig }}" title="Configurações" style="width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:{{ configBg }};color:{{ configCor }};cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" style-hover="color:var(--color-foreground)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-5l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h5l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2Z"></path></svg>
           </button>
+          <button onClick="{{ sair }}" title="Sair" style="width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--color-gray-600);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" style-hover="color:var(--color-highlight)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+          </button>
         </div>
         </div></sc-if>
         <sc-if value="{{ sideClosed }}" hint-placeholder-val="{{ false }}">
@@ -1522,6 +1525,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <button onClick="{{ toggleTema }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-height:96px;padding:14px 12px;border:1px solid var(--color-border);border-radius:8px;background:transparent;color:var(--color-gray-900);cursor:pointer;text-align:left">
                   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ temaIcon }}"></path></svg>
                   <span style="font-size:12.5px;font-weight:600;line-height:1.25">{{ temaLabel }}</span>
+                </button>
+                <button onClick="{{ sair }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-height:96px;padding:14px 12px;border:1px solid var(--color-border);border-radius:8px;background:transparent;color:var(--color-highlight);cursor:pointer;text-align:left">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+                  <span style="font-size:12.5px;font-weight:600;line-height:1.25">Sair</span>
                 </button>
               </div>
               <div style="padding:14px 18px 30px;border-top:1px solid var(--color-border);font-family:var(--font-mono);font-size:10.5px;color:var(--color-gray-600)">Eleição: {{ electionDateFmt }} · faltam {{ electionDaysLeft }} dias</div>
@@ -2825,6 +2832,7 @@ class Component extends DCLogic {
       notifAList: _notifA,
       notifDot: _notifA.some(n => n.novo),
       aiFabShow: !isMob,
+      sair: () => { const sb = this._pxClient(); if (sb) sb.auth.signOut().catch(() => {}); this.setState({ view: 'login', remote: null, senha: '', loginMsg: null, notifOpen: false, aSheet: false, muni: null }); },
       isLogin: st.view === 'login', isOnboarding: st.view === 'onboarding', isConvite: st.view === 'convite', isLeader: st.view === 'leader', isAssessor: st.view === 'assessor',
       senha: st.senha || '', onSenha: (e) => set({ senha: e.target.value, loginMsg: null }),
       hasLoginMsg: !!st.loginMsg, loginMsg: st.loginMsg || '', loginMsgCor: st.loginMsgErr ? 'var(--color-highlight)' : 'var(--color-muted-foreground)',
