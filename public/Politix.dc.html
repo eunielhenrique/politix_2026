@@ -1237,6 +1237,12 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </div>
             </sc-if>
             <x-import component-from-global-scope="sp-choropleth" from="./sp-choropleth.js" layer="{{ mapLayer }}" fonte="{{ mapFonte }}" ano="{{ mapAno }}" theme="{{ themeName }}" data-sel-ra="{{ mapSelRa }}" data-anchors="{{ anchorsJson }}" hint-size="100%,100%" style="display:block;width:100%;height:{{ mapCanvasH }}"></x-import>
+            <sc-if value="{{ expandIconShow }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ toggleMapFull }}" title="Expandir" style="position:absolute;top:12px;right:12px;z-index:6;width:38px;height:38px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.12)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapFullIcon }}"></path></svg>
+              </button>
+            </sc-if>
+            <sc-if value="{{ mapToolbarShow }}" hint-placeholder-val="{{ true }}">
             <div style="position:absolute;top:12px;left:12px;z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:{{ mapToolbarMaxW }};padding:8px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.08)">
               <button onClick="{{ toggleMapFull }}" title="{{ mapFullLabel }}" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapFullIcon }}"></path></svg>
@@ -1263,6 +1269,8 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </div>
               </sc-if>
             </div>
+            </sc-if>
+            <sc-if value="{{ mapCtlShow }}" hint-placeholder-val="{{ true }}">
             <div style="position:absolute;bottom:12px;right:{{ mapCtlRight }};z-index:6;display:flex;gap:6px;align-items:center">
               <button onClick="{{ mapCenter }}" title="Centralizar o mapa" style="height:34px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(0,0,0,.12)">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="3.4"></circle></svg>
@@ -1271,6 +1279,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <button onClick="{{ mapZoomOut }}" title="Afastar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">−</button>
               <button onClick="{{ mapZoomIn }}" title="Aproximar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">+</button>
             </div>
+            </sc-if>
             <div style="{{ mapKpiStyle }}">
               <div style="display:flex;gap:18px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.08)">
                 <sc-for list="{{ kpisMapa }}" as="km" hint-placeholder-count="4">
@@ -1551,7 +1560,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
       </button>
       </sc-if>
       <sc-if value="{{ aiOpen }}" hint-placeholder-val="{{ false }}">
-        <div data-screen-label="Politix IA" style="position:fixed;right:24px;bottom:{{ aiPanelBottom }};z-index:96;width:390px;max-width:calc(100vw - 48px);height:min(560px,calc(100vh - 140px));display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);box-shadow:0 16px 48px rgba(0,0,0,.4);overflow:hidden">
+        <div data-screen-label="Politix IA" style="{{ aiPanelStyle }}">
           <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--color-border);background:var(--color-background-100)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--color-accent)"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9L19 15Z"></path></svg>
             <div style="flex:1;min-width:0">
@@ -1696,7 +1705,7 @@ class Component extends DCLogic {
     // acompanha o teclado (iOS): quando um overlay em tela cheia com input está aberto, encolhe pra caber acima do teclado
     if (typeof window !== 'undefined' && window.visualViewport && !this._vvBound) {
       this._vvBound = true;
-      const upd = () => { if (this.state.grpChatOpen) this.setState({ vvH: Math.round(window.visualViewport.height), vvTop: Math.round(window.visualViewport.offsetTop) }); };
+      const upd = () => { if (this.state.grpChatOpen || this.state.aiOpenA) this.setState({ vvH: Math.round(window.visualViewport.height), vvTop: Math.round(window.visualViewport.offsetTop) }); };
       window.visualViewport.addEventListener('resize', upd);
       window.visualViewport.addEventListener('scroll', upd);
     }
@@ -2704,6 +2713,12 @@ class Component extends DCLogic {
       mainPad: isMob ? '16px 14px 130px' : '22px 28px 48px',
       pageSubMargin: isMob ? '0 0 16px' : '-4px 0 18px',
       aiFabBottom: isMob ? '104px' : '24px', aiPanelBottom: isMob ? '158px' : '80px',
+      aiPanelStyle: isMob
+        ? `position:fixed;left:0;top:${st.vvTop || 0}px;width:100%;height:${st.vvH ? (st.vvH + 'px') : '100dvh'};z-index:130;display:flex;flex-direction:column;background:var(--color-background);overflow:hidden`
+        : 'position:fixed;right:24px;bottom:80px;z-index:96;width:390px;max-width:calc(100vw - 48px);height:min(560px,calc(100vh - 140px));display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);box-shadow:0 16px 48px rgba(0,0,0,.4);overflow:hidden',
+      mapCtlShow: !isMob || st.mapFull,
+      mapToolbarShow: !isMob || st.mapFull,
+      expandIconShow: isMob && !st.mapFull,
       ...(() => {
         const defs = [['visao', 'Visão', I.target], ['mapa', 'Mapa', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Líderes', I.award], ['cidades', 'Cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]];
         const mk = ([k, curto, icon]) => { const on = st.aTab === k; return { curto, icon, onClick: () => set({ aTab: k, aSheet: false, muni: null, selLeader: null }), cor: on ? 'var(--color-accent)' : 'var(--color-gray-600)', fw: on ? '600' : '500', sw: on ? '2.1' : '1.7' }; };
