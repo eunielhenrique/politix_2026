@@ -2650,7 +2650,7 @@ class Component extends DCLogic {
     const anoPills = ['todos', ...(anosPorMembro[st.mapFonte] || [])].map(j => ({ label: j === 'todos' ? 'Todos' : j, onClick: () => set({ mapAno: j }), ...pill(st.mapAno === j) }));
     const layerPills = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ['rede', 'Rede atual']].map(([k, label]) => ({ label, onClick: () => set({ mapLayer: k }), ...pill(st.mapLayer === k) }));
     const mu = st.muni;
-    const stTone = mu ? ({ priorizar: errC, parcial: warnC, coberto: okC, neutro: ['var(--color-background-100)', 'var(--color-muted-foreground)'] })[mu.status] : errC;
+    const stTone = mu ? (({ priorizar: errC, parcial: warnC, coberto: okC, fraco: warnC, neutro: ['var(--color-background-100)', 'var(--color-muted-foreground)'] })[mu.status] || ['var(--color-background-100)', 'var(--color-muted-foreground)']) : errC;
     const _muNiv = mu ? (mu.indice != null ? mu.indice : this.potIdx(mu.pot)) : 0;
     const _muNivW = _muNiv >= 40 ? 'alto' : _muNiv >= 18 ? 'médio' : 'baixo';
     const gapText = !mu ? '' : mu.status === 'priorizar'
@@ -2818,7 +2818,11 @@ class Component extends DCLogic {
             ? `O potencial da família aqui é ${nivelM} (índice ${ind}) e a rede cobre só ${covPct}% do alvo. Faltam ~${fmtN(falta)} liderados para cobertura forte — cidade prioritária para um novo líder.`
             : mu.status === 'parcial'
             ? `Potencial ${nivelM} da família (índice ${ind}) e a rede cobre ${covPct}% do alvo — há espaço: mais ~${fmtN(falta)} liderados levam a cidade à cobertura forte.`
-            : `Cobertura forte: a rede já cobre ${covPct}% do alvo sobre o potencial da família. Manter o ritmo basta.`,
+            : mu.status === 'coberto'
+            ? `Cobertura forte: a rede já cobre ${covPct}% do alvo sobre o potencial da família. Manter o ritmo basta.`
+            : mu.status === 'fraco'
+            ? `Presença fraca da família aqui (índice ${ind}) — algum voto histórico, mas abaixo dos redutos. Prioridade menor; entra na conta se sobrar fôlego.`
+            : `Potencial baixo da família neste município (índice ${ind}). Prioridade baixa de investimento.`,
         };
       })(),
       muniPotF: mu ? String(mu.indice != null ? mu.indice : this.potIdx(mu.pot)) : '',
