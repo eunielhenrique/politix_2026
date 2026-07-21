@@ -8,8 +8,8 @@
   const NAMES_URL = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/35/municipios';
   const GSP = ['3550308', '3534401', '3505708', '3547304', '3510609', '3518800', '3513009', '3522505', '3509205', '3525003', '3539103', '3552809', '3515004', '3513801', '3548708', '3547809'];
   const PAL = {
-    dark: { neutro: '#1a1a1a', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000' },
-    light: { neutro: '#ececec', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff' },
+    dark: { neutro: '#1a1a1a', fraco: '#5e4a1e', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000' },
+    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff' },
   };
   const ANO_SYNTH = { '2024': 0.35, '2022': 0.6, '2018': 0.35, '2012': 0.2 };
   const MEMBROS = { candidato: ['candidato'], irmao: ['irmao'], pai: ['pai'], familia: ['candidato', 'irmao', 'pai'] };
@@ -87,10 +87,11 @@
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
       rows.forEach(r => {
-        // só é foco quem tem potencial médio/alto da família (índice ≥ 18); abaixo disso = neutro (baixo/nenhum voto)
-        if (r.indice < 18) r.status = 'neutro';
+        // ≤10 = fora do reduto; 10–18 = presença fraca (amarelo fraco); ≥18 = foco (médio/alto), cobertura pela rede
+        if (r.indice <= 10) r.status = 'neutro';
+        else if (r.indice < 18) r.status = 'fraco';
         else r.status = r.liderados >= 80 ? 'coberto' : r.liderados >= 25 ? 'parcial' : 'priorizar';
-        r.statusLabel = { neutro: 'Potencial baixo', coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[r.status];
+        r.statusLabel = { neutro: 'Potencial baixo', fraco: 'Presença fraca', coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[r.status];
       });
       return { rows, maxPot, fonte };
     }
@@ -113,7 +114,7 @@
         return P[r.status];
       };
       // stats + live ranked list (escopados pela RA quando selecionada)
-      const hi = scoped.filter(r => r.status !== 'neutro');
+      const hi = scoped.filter(r => r.status !== 'neutro' && r.status !== 'fraco');
       // lista: RA selecionada → TODAS as cidades da região (ranking por índice); sem RA → só as de foco (índice ≥ 18)
       const listRows = selRa >= 0 ? scoped.filter(r => r.indice > 0) : hi;
       const top = listRows.slice().sort((a, b) => b.indice - a.indice).map(r => ({
