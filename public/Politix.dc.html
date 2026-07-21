@@ -2,7 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Politix">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-180.png">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -624,10 +631,35 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         <div style="display:flex;align-items:center;gap:4px;margin:-16px -14px 14px;padding:58px 10px 6px 18px;border-bottom:1px solid var(--color-gray-200);background:var(--color-background)">
           <span style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:.08em">POLITIX</span>
           <div style="flex:1"></div>
-          <button title="Notificações" style="position:relative;width:44px;height:44px;border:none;background:none;color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5M13.7 20a2 2 0 0 1-3.4 0"></path></svg>
-            <span style="position:absolute;top:9px;right:10px;width:6px;height:6px;border-radius:var(--radius-full);background:var(--color-accent)"></span>
+          <button onClick="{{ toggleTema }}" title="{{ temaLabel }}" style="width:44px;height:44px;border:none;background:none;color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ temaIcon }}"></path></svg>
           </button>
+          <button onClick="{{ openNotifA }}" title="Notificações" style="position:relative;width:44px;height:44px;border:none;background:none;color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5M13.7 20a2 2 0 0 1-3.4 0"></path></svg>
+            <sc-if value="{{ notifDot }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:9px;right:10px;width:6px;height:6px;border-radius:var(--radius-full);background:var(--color-accent)"></span></sc-if>
+          </button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ fecharNotif }}" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center">
+          <div onClick="{{ notifStop }}" style="width:100%;max-width:460px;max-height:74vh;overflow:auto;background:var(--color-background);border:1px solid var(--color-border);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.3);padding:18px 18px calc(20px + env(safe-area-inset-bottom))">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-muted-foreground)">Notificações</span>
+              <div style="flex:1"></div>
+              <button onClick="{{ fecharNotif }}" style="width:32px;height:32px;border:none;background:var(--color-gray-300);border-radius:var(--radius-full);color:var(--color-foreground);cursor:pointer;font-size:14px">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ notifAList }}" as="nt" hint-placeholder-count="2">
+                <div style="display:flex;gap:11px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
+                  <div style="width:34px;height:34px;border-radius:var(--radius-full);background:{{ nt.bg }};color:{{ nt.fg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px">{{ nt.emoji }}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13.5px;font-weight:600">{{ nt.titulo }}</div>
+                    <div style="font-size:12px;color:var(--color-muted-foreground);line-height:1.45;margin-top:2px">{{ nt.texto }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
         </div>
       </sc-if>
       <sc-if value="{{ showSide }}" hint-placeholder-val="{{ true }}">
@@ -638,9 +670,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <h1 style="font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--color-foreground);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pageTitle }}</h1>
         </div>
         <div style="flex:1"></div>
-        <button title="Notificações" style="position:relative;width:34px;height:34px;border:none;background:none;color:var(--color-gray-900);cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <button onClick="{{ openNotifA }}" title="Notificações" style="position:relative;width:34px;height:34px;border:none;background:none;color:var(--color-gray-900);cursor:pointer;display:flex;align-items:center;justify-content:center">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5M13.7 20a2 2 0 0 1-3.4 0"></path></svg>
-          <span style="position:absolute;top:6px;right:7px;width:5px;height:5px;border-radius:var(--radius-full);background:var(--color-accent)"></span>
+          <sc-if value="{{ notifDot }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:6px;right:7px;width:5px;height:5px;border-radius:var(--radius-full);background:var(--color-accent)"></span></sc-if>
         </button>
         <button onClick="{{ toggleTema }}" title="{{ temaLabel }}" style="width:34px;height:34px;border:none;background:none;color:var(--color-gray-900);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--color-foreground)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ temaIcon }}"></path></svg>
@@ -2054,6 +2086,13 @@ class Component extends DCLogic {
     ];
     const AR = st.remote && st.remote.ranking;
     const diasEl = (st.remote && st.remote.electionDate) ? Math.max(0, Math.ceil((new Date(st.remote.electionDate + 'T12:00:00') - new Date()) / 86400000)) : dias;
+    // notificações reais (derivadas do ranking): destaque + líderes parados; se vazio, mensagem de rede começando
+    const _notifA = [];
+    { const _AR = AR || [];
+      const _top = _AR.slice().sort((a, b) => (Number(b.rate_7d) || 0) - (Number(a.rate_7d) || 0))[0];
+      if (_top && (Number(_top.rate_7d) || 0) > 0) _notifA.push({ emoji: '★', bg: 'var(--color-foreground)', fg: 'var(--color-background)', titulo: 'Destaque: ' + _top.name, texto: String(_top.rate_7d).replace('.', ',') + '/dia — o maior ritmo da rede. Vale apoiar o ramo.', novo: true });
+      _AR.filter(l => l.status === 'active' && (Number(l.rate_7d) || 0) === 0).slice(0, 5).forEach(l => _notifA.push({ emoji: '●', bg: '#3a2a00', fg: '#ffb224', titulo: l.name + ' está sem ritmo', texto: 'Sem novos cadastros nos últimos 7 dias — um contato direto ajuda a retomar.', novo: true }));
+      if (!_notifA.length) _notifA.push({ emoji: '○', bg: 'var(--color-gray-300)', fg: 'var(--color-foreground)', titulo: 'Sua rede está começando', texto: 'Convide os primeiros líderes em Configurações › Convidar líder. As notificações aparecem aqui conforme a rede se movimenta.', novo: false }); }
     const kpis = AR ? (function () {
       const lids = st.remote.liderados || [];
       const metaTotal = AR.reduce((a, r) => a + (r.meta || 0), 0);
@@ -2750,6 +2789,12 @@ class Component extends DCLogic {
       isDark,
       shellNav,
       showShell: false,
+      notifOpen: !!st.notifOpen,
+      openNotifA: () => set({ notifOpen: true }),
+      fecharNotif: () => set({ notifOpen: false }),
+      notifStop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      notifAList: _notifA,
+      notifDot: _notifA.some(n => n.novo),
       isLogin: st.view === 'login', isOnboarding: st.view === 'onboarding', isConvite: st.view === 'convite', isLeader: st.view === 'leader', isAssessor: st.view === 'assessor',
       goLeader: (e) => {
         if (e && e.preventDefault) e.preventDefault();
