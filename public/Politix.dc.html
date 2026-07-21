@@ -1162,9 +1162,14 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </button>
             </sc-for>
           </div>
-          <sc-if value="{{ temGrupo }}" hint-placeholder-val="{{ true }}">
-            <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);display:flex;flex-direction:column;height:calc(100vh - 210px);min-height:480px;overflow:hidden">
+          <sc-if value="{{ grpChatVisible }}" hint-placeholder-val="{{ true }}">
+            <div style="{{ grpChatStyle }}">
               <div style="display:flex;align-items:center;gap:11px;padding:14px 18px;border-bottom:1px solid var(--color-border)">
+                <sc-if value="{{ grpChatBackShow }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ grpChatBack }}" title="Voltar" style="width:34px;height:34px;border:none;background:none;color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:-6px">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+                  </button>
+                </sc-if>
                 <div style="width:38px;height:38px;border-radius:var(--radius-sm);background:var(--color-gray-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-sans);font-weight:600;font-size:13px">{{ gSelIni }}</div>
                 <div style="flex:1;min-width:0">
                   <div style="font-size:14.5px;font-weight:600">{{ gSelNome }}</div>
@@ -2331,7 +2336,7 @@ class Component extends DCLogic {
       ckBg: st.grpBcSel.includes(g.id) ? 'var(--color-foreground)' : 'transparent',
       onClick: () => st.grpBc
         ? set({ grpBcSel: st.grpBcSel.includes(g.id) ? st.grpBcSel.filter(x => x !== g.id) : [...st.grpBcSel, g.id] })
-        : set({ grpSel: i }),
+        : set({ grpSel: i, grpChatOpen: true }),
     }));
     const gMsgs = gSel ? [...gSel.msgs.map(([de, texto, quando]) => ({ de, texto, quando })), ...(st.grpExtra[gSel.id] || [])] : [];
     const grpDeliver = async (texto) => {
@@ -2487,6 +2492,12 @@ class Component extends DCLogic {
       onGrpKey: (e) => { if (e.key === 'Enter') enviarGrp(); },
       enviarGrp,
       temGrupo: !!gSel,
+      grpChatVisible: !!gSel && (!isMob || !!st.grpChatOpen),
+      grpChatStyle: (isMob && st.grpChatOpen)
+        ? 'position:fixed;inset:0;z-index:120;background:var(--color-background);display:flex;flex-direction:column;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)'
+        : 'border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);display:flex;flex-direction:column;height:calc(100vh - 210px);min-height:480px;overflow:hidden',
+      grpChatBackShow: isMob,
+      grpChatBack: () => set({ grpChatOpen: false }),
     };
     const medal = ['#ededed', '#878787', '#666666'];
     const podioOrder = [1, 0, 2]; // 2º, 1º, 3º
