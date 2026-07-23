@@ -901,7 +901,6 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button onClick="{{ baixarModelo }}" style="height:40px;padding:0 16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-weight:500;cursor:pointer">Baixar modelo (.csv)</button>
                 <button onClick="{{ bulkUploadClick }}" style="height:40px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer">Subir planilha (.csv, .xlsx)</button>
-                <input type="file" accept=".csv,.xlsx,.xls,text/csv" onChange="{{ onBulkFile }}" ref="{{ bulkFileRef }}" style="display:none">
                 <sc-if value="{{ bulkBusy }}" hint-placeholder-val="{{ false }}"><span style="align-self:center;font-size:12.5px;color:var(--color-muted-foreground)">Lendo o arquivo…</span></sc-if>
               </div>
             </div>
@@ -3122,9 +3121,7 @@ class Component extends DCLogic {
       waCadLink: st.cadInvite ? ('https://wa.me/?text=' + encodeURIComponent('Você foi convidado(a) para ser líder na campanha. Ative seu acesso: ' + st.cadInvite)) : '#',
       fecharCadInvite: () => set({ cadInvite: null }),
       baixarModelo: () => this._baixarModelo(),
-      bulkFileRef: (this._bulkFileRef2 = this._bulkFileRef2 || React.createRef()),
-      bulkUploadClick: () => this._bulkFileRef2.current && this._bulkFileRef2.current.click(),
-      onBulkFile: (e) => { const f = e.target.files && e.target.files[0]; if (f) this._parseFile(f); e.target.value = ''; },
+      bulkUploadClick: () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv,.xlsx,.xls,text/csv'; inp.style.display = 'none'; inp.onchange = (e) => { const f = e.target.files && e.target.files[0]; if (f) this._parseFile(f); inp.remove(); }; document.body.appendChild(inp); inp.click(); },
       bulkBusy: st.bulkBusy, bulkFileName: st.bulkFileName || '',
       hasBulkData: !!(st.bulkRawRows && st.bulkMap),
       mapNome: String(st.bulkMap ? st.bulkMap.nome : -1), onMapNome: (e) => set({ bulkMap: { ...st.bulkMap, nome: parseInt(e.target.value, 10) } }),
