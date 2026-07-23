@@ -21,6 +21,8 @@
 <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script>window.PX_SB_URL="https://gmurynexmbbisxpdejmz.supabase.co";window.PX_SB_KEY="sb_publishable_I1_NXNfigx6JY1-7If87HA_bIg160Vj";</script>
 <style>
 body{margin:0;font-family:var(--font-sans);background:var(--color-background);color:var(--color-foreground);-webkit-font-smoothing:antialiased;
@@ -858,6 +860,139 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         </div>
       </sc-if>
 
+      <sc-if value="{{ aTabCadastro }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Cadastrar líder" style="max-width:960px">
+          <div style="display:flex;gap:6px;margin-bottom:18px">
+            <button onClick="{{ setCadUm }}" style="height:34px;padding:0 16px;border:1px solid {{ cuBd }};border-radius:var(--radius-sm);background:{{ cuBg }};color:{{ cuFg }};font-size:13px;font-weight:500;cursor:pointer">Um a um</button>
+            <button onClick="{{ setCadPlan }}" style="height:34px;padding:0 16px;border:1px solid {{ cpBd }};border-radius:var(--radius-sm);background:{{ cpBg }};color:{{ cpFg }};font-size:13px;font-weight:500;cursor:pointer">Planilha</button>
+          </div>
+
+          <sc-if value="{{ cadTabUm }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:20px;max-width:540px">
+              <div style="font-size:14px;font-weight:600;margin-bottom:3px">Convidar um líder</div>
+              <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-bottom:16px;line-height:1.5">Preencha os dados e gere o link — envie pelo WhatsApp. Quem ativar entra na árvore da campanha.</div>
+              <input value="{{ cCN }}" onChange="{{ onCCN }}" placeholder="Nome do líder" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;margin-bottom:10px">
+              <input value="{{ cCZ }}" onChange="{{ onCCZ }}" inputmode="tel" placeholder="WhatsApp — (11) 9…" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;font-variant-numeric:tabular-nums;outline:none;margin-bottom:10px">
+              <input value="{{ cCC }}" onChange="{{ onCCC }}" placeholder="Cidades de atuação (separe por vírgula)" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;margin-bottom:10px">
+              <input value="{{ cCP }}" onChange="{{ onCCP }}" inputmode="numeric" placeholder="Promessa de votos" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;font-variant-numeric:tabular-nums;outline:none;margin-bottom:10px">
+              <select value="{{ cCParent }}" onChange="{{ onCCParent }}" style="width:100%;height:44px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13.5px;outline:none;margin-bottom:14px">
+                <sc-for list="{{ cParentOpts }}" as="p" hint-placeholder-count="1"><option value="{{ p.v }}">{{ p.l }}</option></sc-for>
+              </select>
+              <sc-if value="{{ hasCadMsg }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:{{ cadMsgCor }};line-height:1.45;margin-bottom:12px">{{ cadMsgTxt }}</div></sc-if>
+              <button onClick="{{ geraConviteCad }}" style="width:100%;height:44px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:14px;font-weight:500;cursor:pointer">{{ cadBtnLabel }}</button>
+            </div>
+            <sc-if value="{{ hasCadInvite }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px solid var(--color-gray-500);border-radius:var(--radius-sm);background:var(--color-background-100);padding:16px;max-width:540px;margin-top:14px">
+                <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-bottom:8px">Convite gerado para <b style="color:var(--color-foreground)">{{ cadInvNome }}</b> — link único, válido por 30 dias.</div>
+                <div style="font-family:var(--font-mono);font-size:12px;color:var(--color-foreground);word-break:break-all;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);margin-bottom:10px">{{ cadInviteLink }}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button onClick="{{ copyCadInvite }}" style="height:38px;padding:0 16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-weight:500;cursor:pointer">{{ cadCopyLabel }}</button>
+                  <a href="{{ waCadLink }}" target="_blank" rel="noopener" style="height:38px;padding:0 16px;display:inline-flex;align-items:center;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;text-decoration:none">Enviar no WhatsApp</a>
+                  <button onClick="{{ fecharCadInvite }}" style="height:38px;padding:0 14px;border:none;background:none;color:var(--color-gray-600);font-size:13px;cursor:pointer">Fechar</button>
+                </div>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ cadTabPlan }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:20px">
+              <div style="font-size:14px;font-weight:600;margin-bottom:3px">Cadastrar em lote por planilha</div>
+              <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-bottom:16px;line-height:1.5">Baixe o modelo, preencha e suba (.csv, .xlsx). A gente lê, deduplica por WhatsApp e mostra a prévia antes de gravar.</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button onClick="{{ baixarModelo }}" style="height:40px;padding:0 16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-weight:500;cursor:pointer">Baixar modelo (.csv)</button>
+                <button onClick="{{ bulkUploadClick }}" style="height:40px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer">Subir planilha (.csv, .xlsx)</button>
+                <input type="file" accept=".csv,.xlsx,.xls,text/csv" onChange="{{ onBulkFile }}" ref="{{ bulkFileRef }}" style="display:none">
+                <sc-if value="{{ bulkBusy }}" hint-placeholder-val="{{ false }}"><span style="align-self:center;font-size:12.5px;color:var(--color-muted-foreground)">Lendo o arquivo…</span></sc-if>
+              </div>
+            </div>
+
+            <sc-if value="{{ hasBulkData }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:18px;margin-top:14px">
+                <div style="font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--color-muted-foreground);margin-bottom:10px">Mapear colunas · {{ bulkFileName }}</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+                  <label style="font-size:11px;color:var(--color-muted-foreground)">Nome *<select value="{{ mapNome }}" onChange="{{ onMapNome }}" style="display:block;width:100%;height:38px;margin-top:4px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ hdrOptsN }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <label style="font-size:11px;color:var(--color-muted-foreground)">WhatsApp *<select value="{{ mapWa }}" onChange="{{ onMapWa }}" style="display:block;width:100%;height:38px;margin-top:4px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ hdrOptsN }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <label style="font-size:11px;color:var(--color-muted-foreground)">Cidades<select value="{{ mapCity }}" onChange="{{ onMapCity }}" style="display:block;width:100%;height:38px;margin-top:4px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ hdrOptsN }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <label style="font-size:11px;color:var(--color-muted-foreground)">Promessa<select value="{{ mapPromise }}" onChange="{{ onMapPromise }}" style="display:block;width:100%;height:38px;margin-top:4px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ hdrOptsN }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <label style="font-size:11px;color:var(--color-muted-foreground)">Líder responsável<select value="{{ mapParent }}" onChange="{{ onMapParent }}" style="display:block;width:100%;height:38px;margin-top:4px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ hdrOptsN }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                </div>
+                <sc-if value="{{ bulkNeedMap }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--color-highlight);margin-top:10px">Selecione as colunas de <b>Nome</b> e <b>WhatsApp</b> — são obrigatórias.</div></sc-if>
+                <div style="display:flex;gap:16px;align-items:baseline;margin:14px 0 10px;font-size:12.5px;font-variant-numeric:tabular-nums">
+                  <span style="color:var(--color-foreground);font-weight:600">{{ bulkCntPronto }} prontos</span>
+                  <span style="color:var(--color-gray-600)">{{ bulkCntDup }} já na campanha</span>
+                  <span style="color:var(--color-highlight)">{{ bulkCntInc }} incompletos</span>
+                </div>
+                <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);max-height:360px;overflow:auto">
+                  <sc-for list="{{ bulkRows }}" as="br" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--color-gray-200)">
+                      <span style="width:8px;height:8px;border-radius:var(--radius-full);background:{{ br.stCor }};flex-shrink:0"></span>
+                      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ br.nome }}</div><div style="font-size:11px;color:var(--color-gray-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ br.cidades }}</div></div>
+                      <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground);white-space:nowrap;flex-shrink:0">{{ br.waF }}</span>
+                      <span style="font-size:11px;font-variant-numeric:tabular-nums;color:var(--color-gray-600);white-space:nowrap;flex-shrink:0;min-width:44px;text-align:right">{{ br.promessa }}</span>
+                      <span style="font-size:10.5px;color:{{ br.stCor }};white-space:nowrap;flex-shrink:0;min-width:92px;text-align:right">{{ br.stLabel }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ bulkOverflow }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:var(--color-gray-600);margin-top:8px">Mostrando as primeiras 200 de {{ bulkTotal }} linhas (todas as prontas serão cadastradas).</div></sc-if>
+                <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+                  <button onClick="{{ confirmarBulk }}" style="height:44px;padding:0 18px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13.5px;font-weight:500;cursor:pointer">{{ bulkConfirmLabel }}</button>
+                  <button onClick="{{ cancelarBulk }}" style="height:44px;padding:0 14px;border:none;background:none;color:var(--color-gray-600);font-size:13px;cursor:pointer">Cancelar</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasBulkResult }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px solid var(--color-gray-500);border-radius:var(--radius-sm);background:var(--color-background-100);padding:18px;margin-top:14px">
+                <sc-if value="{{ bulkResErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--color-highlight)">{{ bulkResErr }}</div></sc-if>
+                <sc-if value="{{ bulkResOk }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;gap:16px;align-items:baseline;margin-bottom:12px;font-size:13px;font-variant-numeric:tabular-nums">
+                    <span style="font-weight:600">{{ bulkResCriados }} convites criados</span>
+                    <span style="color:var(--color-gray-600)">{{ bulkResDup }} já na campanha</span>
+                    <span style="color:var(--color-highlight)">{{ bulkResInc }} incompletos</span>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button onClick="{{ copyAllLinks }}" style="height:40px;padding:0 16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-weight:500;cursor:pointer">{{ bulkResCopyLabel }}</button>
+                    <button onClick="{{ baixarLinksCsv }}" style="height:40px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer">Baixar CSV (nome, WhatsApp, link)</button>
+                    <button onClick="{{ limparBulkResult }}" style="height:40px;padding:0 14px;border:none;background:none;color:var(--color-gray-600);font-size:13px;cursor:pointer">Ok</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <div style="margin-top:28px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+              <span style="font-size:13px;font-weight:600">Líderes da campanha</span>
+              <span style="font-size:12px;color:var(--color-gray-600);font-variant-numeric:tabular-nums">{{ ldrCount }}</span>
+              <div style="flex:1"></div>
+              <select value="{{ ldrFilterSel }}" onChange="{{ onLdrFilter }}" style="height:34px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ ldrFilterOpts }}" as="fo" hint-placeholder-count="3"><option value="{{ fo.v }}">{{ fo.l }}</option></sc-for></select>
+              <input value="{{ ldrSearchV }}" onChange="{{ onLdrSearch }}" placeholder="Buscar nome ou cidade" style="height:34px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none;width:180px">
+              <button onClick="{{ recarregarLideres }}" style="height:34px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer">Atualizar</button>
+            </div>
+            <sc-if value="{{ ldrLoading }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:var(--color-muted-foreground);padding:16px 0">Carregando líderes…</div></sc-if>
+            <sc-if value="{{ ldrZero }}" hint-placeholder-val="{{ true }}"><div style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.6;padding:20px;border:1px dashed var(--color-border);border-radius:var(--radius-sm);text-align:center">Nenhum líder ainda. Convide o primeiro acima — um a um ou por planilha.</div></sc-if>
+            <sc-if value="{{ ldrEmpty }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:var(--color-muted-foreground);padding:16px 0">Nenhum líder neste filtro/busca.</div></sc-if>
+            <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden">
+              <sc-for list="{{ ldrRows }}" as="lr" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--color-gray-200)">
+                  <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ lr.nome }}</div><div style="font-size:11px;color:var(--color-gray-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ lr.cidades }} · pai: {{ lr.pai }}</div></div>
+                  <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground);white-space:nowrap;flex-shrink:0">meta {{ lr.meta }}</span>
+                  <span style="font-size:11px;color:{{ lr.stCor }};white-space:nowrap;flex-shrink:0;min-width:60px;text-align:center">{{ lr.stLabel }}</span>
+                  <span style="font-size:11px;color:var(--color-gray-600);white-space:nowrap;flex-shrink:0">{{ lr.quando }}</span>
+                  <sc-if value="{{ lr.hasToken }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:4px;flex-shrink:0">
+                      <button onClick="{{ lr.copiarLink }}" title="Copiar link" style="width:32px;height:32px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></button>
+                      <a href="{{ lr.waHref }}" target="_blank" rel="noopener" title="Reenviar no WhatsApp" style="width:32px;height:32px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);display:flex;align-items:center;justify-content:center;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"></path></svg></a>
+                      <sc-if value="{{ lr.pend }}" hint-placeholder-val="{{ true }}"><button onClick="{{ lr.revogar }}" title="Revogar convite" style="width:32px;height:32px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-gray-600);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"></path></svg></button></sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
       <sc-if value="{{ aTabCidades }}" hint-placeholder-val="{{ false }}">
         <div data-screen-label="Ranking de cidades">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 14px">
@@ -1661,7 +1796,9 @@ class Component extends DCLogic {
     cNome: '', cZap: '', cCidades: '', cPromessa: '', invite: null, copied: false,
     obNome: '', obZap: '', obCidades: 'Campinas, Jundiaí', obPromessa: '40', obErro: null,
     pFoto: null, pNome: 'Marcos Tavares', pZap: '(11) 98765-4321', pEmail: 'marcos@exemplo.com.br', pCidades: 'Zona Leste — São Paulo, Itaquera', pPromessa: '300', pPend: null, pMsg: null,
-    aInvite: null, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '',
+    aInvite: null, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '', aCParent: '', aCMsg: null, aCBusy: false,
+    cadTab: 'um', cadInvite: null, cadInviteNome: '', cadCopied: false, bulkBusy: false, bulkFileName: '', bulkHeaders: null, bulkRawRows: null, bulkMap: null, bulkResult: null, bulkResCopied: false,
+    ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
     aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
@@ -1814,6 +1951,95 @@ class Component extends DCLogic {
     this.setState({ wppMsg: 'Enviando…' });
     const r = await this._pxWpp('send', { to: st.wppSel.jid, text: st.wppText.trim() });
     this.setState({ wppMsg: (r && r.ok) ? 'Enviado para ' + st.wppSel.nome + ' ✓' : ('Falhou' + (r && r.error ? ': ' + r.error : '.')), wppText: (r && r.ok) ? '' : st.wppText });
+  }
+  // ===== Cadastro de líderes (assessor) =====
+  _normWa(s) { return String(s || '').replace(/\D/g, ''); }
+  _fmtWa(s) { const d = this._normWa(s); if (d.length >= 12 && d.startsWith('55')) { const n = d.slice(2); return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7, 11)}`; } if (d.length >= 10) return `(${d.slice(0, 2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}`; return String(s || ''); }
+  _inviteUrl(token) { return location.origin + '/?vista=convite&token=' + token; }
+  async _loadLeaders() {
+    const sb = this._pxClient(); if (!sb) return;
+    this.setState({ ldrBusy: true });
+    const { data, error } = await sb.rpc('leaders_admin');
+    this.setState({ ldrList: error ? [] : (data || []), ldrBusy: false });
+  }
+  async _cadInviteSingle() {
+    const st = this.state; const sb = this._pxClient();
+    const nome = (st.aCN || '').trim(); const wa = this._normWa(st.aCZ);
+    if (!nome || wa.length < 10) { this.setState({ aCMsg: { err: true, txt: 'Preencha o nome e um WhatsApp válido (com DDD).' } }); return; }
+    if (!sb) { this.setState({ aCMsg: { err: true, txt: 'Sem conexão com o backend.' } }); return; }
+    this.setState({ aCBusy: true, aCMsg: null });
+    const cts = (st.aCC || '').split(',').map(s => s.trim()).filter(Boolean);
+    const { data, error } = await sb.rpc('invite_leader', { p_name: nome, p_whatsapp: wa, p_cities: cts, p_promise: parseInt(st.aCP, 10) || 0, p_parent: st.aCParent || null });
+    if (error) {
+      const dup = (error.code === '23505') || /duplicate|unique/i.test(error.message || '');
+      this.setState({ aCBusy: false, aCMsg: { err: true, txt: dup ? 'Esse WhatsApp já está cadastrado como líder (nunca duplica).' : ('Não consegui gerar: ' + error.message) } });
+      return;
+    }
+    const row = Array.isArray(data) ? data[0] : data;
+    this.setState({ aCBusy: false, cadInvite: this._inviteUrl(row.token), cadInviteNome: nome, cadCopied: false, aCMsg: { err: false, txt: 'Convite gerado para ' + nome + '.' }, aCN: '', aCZ: '', aCC: '', aCP: '', aCParent: '' });
+    this._loadLeaders();
+  }
+  async _revokeLeader(id) { const sb = this._pxClient(); if (!sb) return; this.setState({ ldrBusy: true }); await sb.rpc('revoke_leader_invite', { p_leader_id: id }); this._loadLeaders(); }
+  _dl(name, content, type) {
+    const blob = new Blob([content], { type: type || 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+  _baixarModelo() {
+    const csv = 'Nome,WhatsApp,Cidades,Promessa de votos,Líder responsável\r\n' +
+      'Maria Aparecida,(11) 98888-0001,São Paulo;Guarulhos,300,\r\n' +
+      'João Pedro,(11) 97777-0002,Osasco,150,Maria Aparecida\r\n';
+    this._dl('modelo-lideres-politix.csv', '﻿' + csv);
+  }
+  async _parseFile(file) {
+    this.setState({ bulkBusy: true, bulkFileName: file.name, bulkResult: null, bulkHeaders: null, bulkRawRows: null, bulkMap: null });
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    let headers = [], rows = [];
+    try {
+      if (ext === 'xlsx' || ext === 'xls') {
+        const buf = await file.arrayBuffer(); const wb = XLSX.read(buf, { type: 'array' });
+        const aoa = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, blankrows: false, defval: '' });
+        headers = (aoa[0] || []).map(x => String(x).trim());
+        rows = aoa.slice(1).map(r => headers.map((_, i) => String(r[i] == null ? '' : r[i]).trim()));
+      } else {
+        const text = await file.text(); const parsed = Papa.parse(text.replace(/^﻿/, ''), { skipEmptyLines: true });
+        const aoa = parsed.data; headers = (aoa[0] || []).map(x => String(x).trim());
+        rows = aoa.slice(1).map(r => headers.map((_, i) => String(r[i] == null ? '' : r[i]).trim()));
+      }
+    } catch (e) { this.setState({ bulkBusy: false, bulkResult: { error: 'Não consegui ler o arquivo: ' + (e.message || e) } }); return; }
+    rows = rows.filter(r => r.some(c => c && String(c).trim()));
+    this.setState({ bulkBusy: false, bulkHeaders: headers, bulkRawRows: rows, bulkMap: this._autoMap(headers) });
+  }
+  _autoMap(headers) {
+    const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+    const find = (pats) => { for (let i = 0; i < headers.length; i++) { const h = norm(headers[i]); if (pats.some(p => h.includes(p))) return i; } return -1; };
+    return { nome: find(['nome', 'name', 'lider', 'lÝder']), whatsapp: find(['whatsapp', 'telefone', 'celular', 'zap', 'fone', 'contato', 'numero']), cities: find(['cidade', 'municip', 'atuacao', 'atua']), promise: find(['promessa', 'meta', 'voto']), parent: find(['responsavel', 'pai', 'superior', 'lider resp']) };
+  }
+  _bulkComputed() {
+    const st = this.state; if (!st.bulkRawRows || !st.bulkMap) return null;
+    const m = st.bulkMap; const known = new Set((st.ldrList || []).map(l => this._normWa(l.whatsapp))); const seen = new Set();
+    return st.bulkRawRows.map((r, i) => {
+      const g = (idx) => (idx != null && idx >= 0 && idx < r.length) ? String(r[idx] || '').trim() : '';
+      const nome = g(m.nome); const waN = this._normWa(g(m.whatsapp));
+      const cities = g(m.cities).split(/[;,]/).map(s => s.trim()).filter(Boolean);
+      const promise = parseInt((g(m.promise) || '').replace(/\D/g, ''), 10) || 0; const parentRef = g(m.parent);
+      let status = 'pronto';
+      if (!nome || waN.length < 10) status = 'incompleto';
+      else if (known.has(waN) || seen.has(waN)) status = 'dup';
+      if (status === 'pronto') seen.add(waN);
+      return { i, nome, waN, waF: waN ? this._fmtWa(waN) : g(m.whatsapp), cities, promise, parentRef, status };
+    });
+  }
+  async _confirmBulk() {
+    const st = this.state; const sb = this._pxClient(); const rows = this._bulkComputed(); if (!rows || !sb) return;
+    const prontos = rows.filter(r => r.status === 'pronto').map(r => ({ name: r.nome, whatsapp: r.waN, cities: r.cities, promise: r.promise, parent_ref: r.parentRef || null }));
+    if (!prontos.length) { this.setState({ bulkResult: { error: 'Nenhuma linha pronta para cadastrar. Corrija os incompletos ou confira as duplicatas.' } }); return; }
+    this.setState({ bulkBusy: true, bulkResult: null });
+    const { data, error } = await sb.rpc('invite_leaders_bulk', { rows: prontos });
+    if (error) { this.setState({ bulkBusy: false, bulkResult: { error: 'Falha no lote: ' + error.message } }); return; }
+    const criados = (data || []).filter(x => x.status === 'criado');
+    this.setState({ bulkBusy: false, bulkResult: { criados: criados.length, dup: (data || []).filter(x => x.status === 'duplicado').length, inc: (data || []).filter(x => x.status === 'incompleto').length, links: criados.map(c => ({ name: c.name, whatsapp: this._fmtWa(c.whatsapp), url: this._inviteUrl(c.token) })) }, bulkResCopied: false, bulkHeaders: null, bulkRawRows: null, bulkMap: null });
+    this._loadLeaders();
   }
   mkA(ibge, nome, lat, lng, c, i, p, lideres, liderados, ritmo, top) {
     const h = arr => arr.map(([cargo, ano, votos]) => ({ cargo, ano, votos }));
@@ -2650,12 +2876,12 @@ class Component extends DCLogic {
     const fmtN = (n) => (n ?? 0).toLocaleString('pt-BR');
     const fmtMil = (n) => n >= 1e6 ? (n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : n >= 1000 ? Math.round(n / 1000) + ' mil' : String(n);
     const fonteLabels = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão', familia: 'Consolidado' };
-    const assessorTabs = [['visao', 'Visão geral', I.target], ['mapa', 'Mapa Rede', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Ranking de líderes', I.award], ['cidades', 'Ranking de cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]].map(([k, label, icon]) => ({
+    const assessorTabs = [['visao', 'Visão geral', I.target], ['mapa', 'Mapa Rede', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Ranking de líderes', I.award], ['cadastro', 'Cadastrar líder', 'M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6'], ['cidades', 'Ranking de cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]].map(([k, label, icon]) => ({
       label, icon, onClick: () => set({ aTab: k }),
       bg: st.aTab === k ? 'var(--color-gray-300)' : 'transparent', fg: st.aTab === k ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
     }));
-    const pageTitle = { visao: 'Cockpit da campanha', ranking: 'Ranking de líderes', cidades: 'Ranking de cidades', grupos: 'Grupos da rede', config: 'Configurações', mapa: 'Mapa Rede' }[st.aTab];
-    const pageSub = { visao: 'Meta, ritmo e ranking da rede de lideranças', ranking: 'Pódio e ranking completo — clique num líder para o raio-x', cidades: 'Potencial da família × rede atual, cidade a cidade — clique para ver no mapa', grupos: 'Os grupos de WhatsApp de cada líder — envie comunicados sem sair do painel', config: 'Convites e dados oficiais da campanha', mapa: 'Mapa eleitoral do estado — referência histórica (TSE)' }[st.aTab];
+    const pageTitle = { visao: 'Cockpit da campanha', ranking: 'Ranking de líderes', cadastro: 'Cadastrar líder', cidades: 'Ranking de cidades', grupos: 'Grupos da rede', config: 'Configurações', mapa: 'Mapa Rede' }[st.aTab];
+    const pageSub = { visao: 'Meta, ritmo e ranking da rede de lideranças', ranking: 'Pódio e ranking completo — clique num líder para o raio-x', cadastro: 'Convide líderes um a um ou por planilha — dedup por WhatsApp, nunca duplica', cidades: 'Potencial da família × rede atual, cidade a cidade — clique para ver no mapa', grupos: 'Os grupos de WhatsApp de cada líder — envie comunicados sem sair do painel', config: 'Convites e dados oficiais da campanha', mapa: 'Mapa eleitoral do estado — referência histórica (TSE)' }[st.aTab];
     const ms = st.mapStats;
     const kpisMapa = [
       { label: 'Cidades a priorizar', valor: ms ? String(ms.priorizadas) : '…', sub: 'alto histórico da família, rede fraca', cor: 'var(--color-highlight)' },
@@ -2861,10 +3087,89 @@ class Component extends DCLogic {
       gapText,
       convidarCidade: () => set({ aInvite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, aCopied: false, aTab: 'config' }),
     };
+    // ===== Cadastro de líderes (bindings) =====
+    if (st.aTab === 'cadastro' && st.ldrList === null && !st.ldrBusy) this._loadLeaders();
+    const _tabPill = on => ({ bg: on ? 'var(--color-foreground)' : 'transparent', fg: on ? 'var(--color-background)' : 'var(--color-muted-foreground)', bd: on ? 'var(--color-foreground)' : 'var(--color-border)' });
+    const _cu = _tabPill(st.cadTab === 'um'), _cpl = _tabPill(st.cadTab === 'planilha');
+    const _ldrRaw = st.ldrList || [];
+    const _bulkRows = this._bulkComputed();
+    const _cnt = { pronto: 0, dup: 0, incompleto: 0 }; (_bulkRows || []).forEach(r => _cnt[r.status]++);
+    const _stCor = { pronto: 'var(--color-gray-500)', dup: 'var(--color-gray-700)', incompleto: 'var(--color-highlight)' };
+    const _stLbl = { pronto: 'pronto', dup: 'já na campanha', incompleto: 'incompleto' };
+    const _hdrOptsN = [{ v: '-1', l: '— não usar —' }].concat((st.bulkHeaders || []).map((h, i) => ({ v: String(i), l: h || ('Coluna ' + (i + 1)) })));
+    const _fq = (st.ldrSearch || '').toLowerCase().trim();
+    const _ldrFiltered = _ldrRaw.filter(l => {
+      const okS = st.ldrFilter === 'todos' || (st.ldrFilter === 'pendente' ? l.status === 'invited' : l.status !== 'invited');
+      const okQ = !_fq || (l.name || '').toLowerCase().includes(_fq) || (l.cities || []).join(' ').toLowerCase().includes(_fq);
+      return okS && okQ;
+    });
+    const cadVals = {
+      aTabCadastro: st.aTab === 'cadastro',
+      cadTabUm: st.cadTab === 'um', cadTabPlan: st.cadTab === 'planilha',
+      setCadUm: () => set({ cadTab: 'um' }), setCadPlan: () => set({ cadTab: 'planilha' }),
+      cuBg: _cu.bg, cuFg: _cu.fg, cuBd: _cu.bd, cpBg: _cpl.bg, cpFg: _cpl.fg, cpBd: _cpl.bd,
+      cCN: st.aCN, onCCN: (e) => set({ aCN: e.target.value, aCMsg: null }),
+      cCZ: st.aCZ, onCCZ: (e) => set({ aCZ: e.target.value, aCMsg: null }),
+      cCC: st.aCC, onCCC: (e) => set({ aCC: e.target.value }),
+      cCP: st.aCP, onCCP: (e) => set({ aCP: e.target.value.replace(/\D/g, '') }),
+      cCParent: st.aCParent, onCCParent: (e) => set({ aCParent: e.target.value }),
+      cParentOpts: [{ v: '', l: '— Líder de topo (sem responsável) —' }].concat(_ldrRaw.map(l => ({ v: l.leader_id, l: l.name }))),
+      geraConviteCad: () => this._cadInviteSingle(),
+      cadBusy: st.aCBusy, cadBtnLabel: st.aCBusy ? 'Gerando…' : 'Gerar convite',
+      hasCadMsg: !!st.aCMsg, cadMsgTxt: st.aCMsg ? st.aCMsg.txt : '', cadMsgCor: st.aCMsg && st.aCMsg.err ? 'var(--color-highlight)' : 'var(--color-gray-1000)',
+      hasCadInvite: !!st.cadInvite, cadInviteLink: st.cadInvite || '', cadInvNome: st.cadInviteNome,
+      copyCadInvite: () => copy(st.cadInvite, 'cadCopied'), cadCopyLabel: st.cadCopied ? 'Copiado ✓' : 'Copiar link',
+      waCadLink: st.cadInvite ? ('https://wa.me/?text=' + encodeURIComponent('Você foi convidado(a) para ser líder na campanha. Ative seu acesso: ' + st.cadInvite)) : '#',
+      fecharCadInvite: () => set({ cadInvite: null }),
+      baixarModelo: () => this._baixarModelo(),
+      bulkFileRef: (this._bulkFileRef2 = this._bulkFileRef2 || React.createRef()),
+      bulkUploadClick: () => this._bulkFileRef2.current && this._bulkFileRef2.current.click(),
+      onBulkFile: (e) => { const f = e.target.files && e.target.files[0]; if (f) this._parseFile(f); e.target.value = ''; },
+      bulkBusy: st.bulkBusy, bulkFileName: st.bulkFileName || '',
+      hasBulkData: !!(st.bulkRawRows && st.bulkMap),
+      mapNome: String(st.bulkMap ? st.bulkMap.nome : -1), onMapNome: (e) => set({ bulkMap: { ...st.bulkMap, nome: parseInt(e.target.value, 10) } }),
+      mapWa: String(st.bulkMap ? st.bulkMap.whatsapp : -1), onMapWa: (e) => set({ bulkMap: { ...st.bulkMap, whatsapp: parseInt(e.target.value, 10) } }),
+      mapCity: String(st.bulkMap ? st.bulkMap.cities : -1), onMapCity: (e) => set({ bulkMap: { ...st.bulkMap, cities: parseInt(e.target.value, 10) } }),
+      mapPromise: String(st.bulkMap ? st.bulkMap.promise : -1), onMapPromise: (e) => set({ bulkMap: { ...st.bulkMap, promise: parseInt(e.target.value, 10) } }),
+      mapParent: String(st.bulkMap ? st.bulkMap.parent : -1), onMapParent: (e) => set({ bulkMap: { ...st.bulkMap, parent: parseInt(e.target.value, 10) } }),
+      hdrOptsN: _hdrOptsN,
+      bulkNeedMap: !!(st.bulkMap && (st.bulkMap.nome < 0 || st.bulkMap.whatsapp < 0)),
+      bulkRows: (_bulkRows || []).slice(0, 200).map(r => ({ nome: r.nome || '(sem nome)', waF: r.waF || '—', cidades: r.cities.join(', ') || '—', promessa: r.promise ? fmtN(r.promise) : '—', pai: r.parentRef || '—', stLabel: _stLbl[r.status], stCor: _stCor[r.status] })),
+      bulkCntPronto: String(_cnt.pronto), bulkCntDup: String(_cnt.dup), bulkCntInc: String(_cnt.incompleto),
+      bulkTotal: String((_bulkRows || []).length), bulkOverflow: (_bulkRows || []).length > 200,
+      confirmarBulk: () => this._confirmBulk(),
+      bulkCanConfirm: _cnt.pronto > 0 && !st.bulkBusy, bulkConfirmLabel: st.bulkBusy ? 'Cadastrando…' : ('Cadastrar ' + _cnt.pronto + ' líder(es) e gerar convites'),
+      cancelarBulk: () => set({ bulkRawRows: null, bulkMap: null, bulkHeaders: null, bulkFileName: '' }),
+      hasBulkResult: !!st.bulkResult, bulkResErr: st.bulkResult && st.bulkResult.error ? st.bulkResult.error : '', bulkResOk: !!(st.bulkResult && !st.bulkResult.error),
+      bulkResCriados: st.bulkResult ? String(st.bulkResult.criados || 0) : '0', bulkResDup: st.bulkResult ? String(st.bulkResult.dup || 0) : '0', bulkResInc: st.bulkResult ? String(st.bulkResult.inc || 0) : '0',
+      copyAllLinks: () => { const ls = (st.bulkResult && st.bulkResult.links) || []; copy(ls.map(l => l.name + ': ' + l.url).join('\n'), 'bulkResCopied'); },
+      bulkResCopyLabel: st.bulkResCopied ? 'Copiado ✓' : 'Copiar todos os links',
+      baixarLinksCsv: () => { const ls = (st.bulkResult && st.bulkResult.links) || []; const csv = 'Nome,WhatsApp,Link do convite\r\n' + ls.map(l => `"${l.name}","${l.whatsapp}","${l.url}"`).join('\r\n'); this._dl('convites-lideres-politix.csv', '﻿' + csv); },
+      limparBulkResult: () => set({ bulkResult: null }),
+      ldrLoading: st.ldrBusy && st.ldrList === null, ldrEmpty: !!(st.ldrList && _ldrFiltered.length === 0 && _ldrRaw.length > 0), ldrZero: !!(st.ldrList && _ldrRaw.length === 0),
+      ldrCount: String(_ldrRaw.length),
+      ldrFilterOpts: [{ v: 'todos', l: 'Todos' }, { v: 'pendente', l: 'Pendentes' }, { v: 'ativo', l: 'Ativos' }],
+      ldrFilterSel: st.ldrFilter, onLdrFilter: (e) => set({ ldrFilter: e.target.value }),
+      ldrSearchV: st.ldrSearch, onLdrSearch: (e) => set({ ldrSearch: e.target.value }),
+      recarregarLideres: () => this._loadLeaders(),
+      ldrRows: _ldrFiltered.map(l => {
+        const pend = l.status === 'invited'; const url = l.token ? this._inviteUrl(l.token) : '';
+        return {
+          nome: l.name, cidades: (l.cities || []).join(', ') || '—', meta: l.promise ? fmtN(l.promise) : '—',
+          stLabel: pend ? 'Pendente' : 'Ativo', stCor: pend ? 'var(--color-highlight)' : '#3dd68c',
+          quando: l.invited_at ? new Date(l.invited_at).toLocaleDateString('pt-BR') : '—', pai: l.parent_name || '—', pend, hasToken: !!l.token,
+          copied: st.ldrCopiedId === l.leader_id,
+          copiarLink: () => { if (url) { try { navigator.clipboard.writeText(url); } catch (e) {} } this.setState({ ldrCopiedId: l.leader_id }); setTimeout(() => this.setState({ ldrCopiedId: null }), 1600); },
+          waHref: url ? ('https://wa.me/' + this._normWa(l.whatsapp) + '?text=' + encodeURIComponent('Ative seu acesso de líder na campanha: ' + url)) : '#',
+          revogar: () => { if (window.confirm('Revogar o convite de ' + l.name + '? Ele sai da campanha (vale só para pendentes).')) this._revokeLeader(l.leader_id); },
+        };
+      }),
+    };
     return {
       ...mapVals,
       ...drawerVals,
       ...grupoVals,
+      ...cadVals,
       isDark,
       shellNav,
       showShell: false,
