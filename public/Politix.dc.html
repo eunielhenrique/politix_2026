@@ -1476,6 +1476,12 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px;font-size:12px">
                       <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Força da família aqui</span><span style="font-weight:600;color:{{ muniForcaCor }}">{{ muniForca }}</span></div>
                       <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Tendência da região</span><span style="font-weight:600;color:{{ muniTrendCor }}">{{ muniTrend }}</span></div>
+                      <sc-if value="{{ hasMuniEleitorado }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Eleitorado (TSE)</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ muniEleitorado }}</span></div>
+                      </sc-if>
+                      <sc-if value="{{ hasMuniPrefeito }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Prefeito(a)</span><span style="font-weight:600">{{ muniPrefeito }}</span></div>
+                      </sc-if>
                       <sc-if value="{{ hasMuniVotos }}" hint-placeholder-val="{{ false }}">
                         <div style="color:var(--color-muted-foreground);margin-top:3px;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Votos da família (2022)</div>
                         <sc-for list="{{ muniVotos }}" as="mv" hint-placeholder-count="3">
@@ -1800,7 +1806,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -1960,6 +1966,14 @@ class Component extends DCLogic {
     this.setState({ ldrBusy: true });
     const { data, error } = await sb.rpc('leaders_admin');
     this.setState({ ldrList: error ? [] : (data || []), ldrBusy: false });
+  }
+  async _loadPanorama(ibge) {
+    if (!ibge || this._panoIbge === ibge) return;
+    this._panoIbge = ibge;
+    const sb = this._pxClient(); if (!sb) return;
+    const { data } = await sb.rpc('municipio_panorama_politico', { p_ibge: String(ibge) });
+    const row = Array.isArray(data) ? data[0] : data;
+    this.setState({ muniPano: row || null });
   }
   async _cadInviteSingle() {
     const st = this.state; const sb = this._pxClient();
@@ -2893,6 +2907,8 @@ class Component extends DCLogic {
     const anoPills = ['todos', ...(anosPorMembro[st.mapFonte] || [])].map(j => ({ label: j === 'todos' ? 'Todos' : j, onClick: () => set({ mapAno: j }), ...pill(st.mapAno === j) }));
     const layerPills = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ['rede', 'Rede atual']].map(([k, label]) => ({ label, onClick: () => set({ mapLayer: k }), ...pill(st.mapLayer === k) }));
     const mu = st.muni;
+    if (mu && mu.ibge) this._loadPanorama(mu.ibge); // panorama TSE (eleitorado) via RPC
+    const _pano = (mu && st.muniPano && String(st.muniPano.ibge) === String(mu.ibge)) ? st.muniPano : null;
     const stTone = mu ? (({ priorizar: errC, parcial: warnC, coberto: okC, fraco: warnC, neutro: ['var(--color-background-100)', 'var(--color-muted-foreground)'] })[mu.status] || ['var(--color-background-100)', 'var(--color-muted-foreground)']) : errC;
     const _muNiv = mu ? (mu.indice != null ? mu.indice : this.potIdx(mu.pot)) : 0;
     const _muNivW = _muNiv >= 40 ? 'alto' : _muNiv >= 18 ? 'médio' : 'baixo';
@@ -3033,6 +3049,8 @@ class Component extends DCLogic {
       cidFRegiaoSel: this.fltSelVal(st.cidFRegiao), onCidFRegiao: (e) => set({ cidFRegiao: [e.target.value] }),
       mapFRegiaoSel: this.fltSelVal(st.mapFRegiao), onMapFRegiao: (e) => set({ mapFRegiao: [e.target.value], muni: null }),
       muniNome: mu ? mu.nome : '', muniStatusLabel: mu ? mu.statusLabel : '', muniStBg: stTone[0], muniStFg: stTone[1],
+      hasMuniEleitorado: !!(_pano && _pano.eleitorado), muniEleitorado: (_pano && _pano.eleitorado) ? fmtN(_pano.eleitorado) : '—',
+      hasMuniPrefeito: !!(_pano && _pano.prefeito), muniPrefeito: (_pano && _pano.prefeito) ? (_pano.prefeito + (_pano.prefeito_partido ? ' (' + _pano.prefeito_partido + ')' : '')) : '',
       ...(() => {
         if (!mu) return { muniBest: '', muniTrend: '', muniTrendCor: '', muniPresenca: '', muniForca: '', muniForcaCor: '', muniLeitura: '', hasMuniCand: false, muniCandAno: '', muniCandVotos: '', hasMuniVotos: false, muniVotos: [] };
         const h = mu.historico || [];
