@@ -1498,9 +1498,25 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniRitmo }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">ritmo 7d</div></div>
                   </div>
                   <div style="margin-top:10px">
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--color-muted-foreground)"><span>Cobertura sobre o potencial</span><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--color-foreground)">{{ muniPorMil }} /mil</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--color-muted-foreground)"><span>Cobertura sobre o eleitorado</span><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--color-foreground)">{{ muniPorMil }} /mil</span></div>
                     <div style="height:5px;border-radius:var(--radius-sm);background:var(--color-gray-300);margin-top:5px;overflow:hidden"><div style="height:100%;background:var(--color-foreground);width:{{ muniCovW }}"></div></div>
-                    <div style="font-size:10px;color:var(--color-gray-600);margin-top:4px">= {{ muniCovPct }} do potencial coberto · alvo forte ≈ 2/mil</div>
+                    <div style="font-size:10px;color:var(--color-gray-600);margin-top:4px">= {{ muniCovPct }} do alvo · alvo forte ≈ 2 liderados por mil eleitores</div>
+                  </div>
+                  <div style="font-size:12px;font-weight:600;margin:18px 0 8px">Líderes desta cidade ({{ cidLideresN }})</div>
+                  <sc-if value="{{ cidLideresVazio }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-size:12px;color:var(--color-muted-foreground);line-height:1.5;margin:0 0 8px">Nenhum líder cadastrado aqui.</p>
+                  </sc-if>
+                  <div style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto">
+                    <sc-for list="{{ cidLideresList }}" as="cl" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
+                        <div style="flex:1;min-width:0">
+                          <div style="font-size:12.5px;font-weight:600;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cl.nome }}</div>
+                          <div style="font-family:var(--font-mono);font-size:10.5px;color:var(--color-gray-600);font-variant-numeric:tabular-nums">{{ cl.zap }}</div>
+                          <div style="font-size:10.5px;color:var(--color-gray-600);margin-top:2px">{{ cl.meta }}</div>
+                        </div>
+                        <span style="flex-shrink:0;padding:3px 9px;border-radius:var(--radius-sm);font-size:10px;font-weight:600;background:{{ cl.seloBg }};color:{{ cl.seloFg }}">{{ cl.selo }}</span>
+                      </div>
+                    </sc-for>
                   </div>
                   <sc-if value="{{ hasMuniBairros }}" hint-placeholder-val="{{ false }}">
                     <div style="font-size:12px;font-weight:600;margin:18px 0 3px">Bairros — onde a família puxa voto na cidade</div>
@@ -1806,7 +1822,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, cidLideres: null, cidLideresCidade: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -1974,6 +1990,26 @@ class Component extends DCLogic {
     const { data } = await sb.rpc('municipio_panorama_politico', { p_ibge: String(ibge) });
     const row = Array.isArray(data) ? data[0] : data;
     this.setState({ muniPano: row || null });
+  }
+  // eleitorado (TSE) dos 643 municípios — denominador REAL da cobertura no mapa (liderados/mil eleitores)
+  _loadEleitorado() {
+    if (this._eleit || this._eleitLoading) return;
+    const sb = this._pxClient(); if (!sb) return;
+    this._eleitLoading = true;
+    sb.from('municipio_politico').select('ibge,eleitorado').then(({ data }) => {
+      const m = {}; (data || []).forEach(r => { if (r.eleitorado) m[String(r.ibge)] = r.eleitorado; });
+      this._eleit = m; this._eleitLoading = false; this.setState({ eleitV: (this.state.eleitV || 0) + 1 });
+    }, () => { this._eleitLoading = false; });
+  }
+  // líderes REAIS da cidade selecionada (RPC city_leaders) — fonte do veredito do painel
+  async _loadCityLeaders(cidade) {
+    if (!cidade || this._clCidade === cidade) return;
+    this._clCidade = cidade;
+    const sb = this._pxClient();
+    if (!sb) { this.setState({ cidLideres: [], cidLideresCidade: cidade }); return; }
+    let rows = [];
+    try { const { data } = await sb.rpc('city_leaders', { p_city: cidade }); rows = data || []; } catch (e) {}
+    this.setState({ cidLideres: rows, cidLideresCidade: cidade }); // falhou = estado vazio honesto, nunca "carregando" eterno
   }
   async _cadInviteSingle() {
     const st = this.state; const sb = this._pxClient();
@@ -2473,11 +2509,13 @@ class Component extends DCLogic {
     const _addRede = (cityName, kind) => { const fa = famByName[_normCidade(cityName || '')]; if (!fa) return; const rr = redeByIbge[fa.ibge] || (redeByIbge[fa.ibge] = { liderados: 0, lideres: 0, pend: 0 }); rr[kind]++; };
     if (AR) {
       (st.remote.liderados || []).forEach(l => _addRede(l.city, 'liderados'));
-      AR.forEach(ld => (ld.cities || []).forEach(c => _addRede(c, ld.status === 'invited' ? 'pend' : 'lideres')));
+      // líder ATIVO = status 'active'; convidado conta como pendente, nunca como ativo
+      AR.forEach(ld => { const k = ld.status === 'active' ? 'lideres' : ld.status === 'invited' ? 'pend' : null; if (k) (ld.cities || []).forEach(c => _addRede(c, k)); });
     }
-    if (this._ajRemote !== st.remote) {
-      const anchorsReal = this.anchorsData.map(a => { const rr = redeByIbge[a.ibge]; return { ...a, ra: Component.RA_IBGE[a.ibge], rede: rr ? { lideres: rr.lideres, liderados: rr.liderados, pend: rr.pend, ritmo: 0 } : a.rede }; });
-      this._aj = JSON.stringify(anchorsReal); this._ajRemote = st.remote;
+    this._loadEleitorado();
+    if (this._ajRemote !== st.remote || this._ajEleit !== this._eleit) {
+      const anchorsReal = this.anchorsData.map(a => { const rr = redeByIbge[a.ibge]; return { ...a, ra: Component.RA_IBGE[a.ibge], eleitorado: (this._eleit && this._eleit[a.ibge]) || 0, rede: rr ? { lideres: rr.lideres, liderados: rr.liderados, pend: rr.pend, ritmo: 0 } : a.rede }; });
+      this._aj = JSON.stringify(anchorsReal); this._ajRemote = st.remote; this._ajEleit = this._eleit;
     }
     const _cidMock = this.anchorsData.map(a => {
       const pot = consolidadoPot[a.ibge];
@@ -2908,16 +2946,27 @@ class Component extends DCLogic {
     const layerPills = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ['rede', 'Rede atual']].map(([k, label]) => ({ label, onClick: () => set({ mapLayer: k }), ...pill(st.mapLayer === k) }));
     const mu = st.muni;
     if (mu && mu.ibge) this._loadPanorama(mu.ibge); // panorama TSE (eleitorado) via RPC
+    if (mu && mu.nome) this._loadCityLeaders(mu.nome); // líderes reais da cidade (city_leaders)
     const _pano = (mu && st.muniPano && String(st.muniPano.ibge) === String(mu.ibge)) ? st.muniPano : null;
-    const stTone = mu ? (({ priorizar: errC, parcial: warnC, coberto: okC, fraco: warnC, neutro: ['var(--color-background-100)', 'var(--color-muted-foreground)'] })[mu.status] || ['var(--color-background-100)', 'var(--color-muted-foreground)']) : errC;
+    // ── contagens REAIS da cidade: veredito, cor e números do painel saem todos daqui ──
+    const _cl = (mu && st.cidLideresCidade === mu.nome && Array.isArray(st.cidLideres)) ? st.cidLideres : null;
+    const _clAtivos = _cl ? _cl.filter(l => l.status === 'active').length : null;
+    const _clLiderados = _cl ? _cl.reduce((s, l) => s + Number(l.liderados || 0), 0) : null;
+    const muLideres = _clAtivos != null ? _clAtivos : (mu ? (mu.lideres || 0) : 0);
+    const muLiderados = _clLiderados != null ? _clLiderados : (mu ? (mu.liderados || 0) : 0);
+    const _muEleit = _pano ? _pano.eleitorado : 0;
+    const _vd = (_cl && typeof window !== 'undefined' && window.PXVeredito) ? window.PXVeredito(muLideres, muLiderados, _muEleit) : null;
+    const muStatus = _vd ? _vd.status : (mu ? mu.status : 'priorizar');
+    const muStatusLabel = _vd ? _vd.label : (mu ? mu.statusLabel : '');
+    const stTone = mu ? (({ priorizar: errC, parcial: warnC, coberto: okC, fraco: warnC, neutro: ['var(--color-background-100)', 'var(--color-muted-foreground)'] })[muStatus] || ['var(--color-background-100)', 'var(--color-muted-foreground)']) : errC;
     const _muNiv = mu ? (mu.indice != null ? mu.indice : this.potIdx(mu.pot)) : 0;
     const _muNivW = _muNiv >= 40 ? 'alto' : _muNiv >= 18 ? 'médio' : 'baixo';
-    const gapText = !mu ? '' : mu.status === 'priorizar'
-      ? `A família tem potencial ${_muNivW} aqui (índice ${_muNiv}), e hoje a rede tem ${mu.liderados} liderados e ${mu.lideres} líder(es) ativo(s) — potencial ainda descoberto.`
-      : mu.status === 'parcial'
-      ? `Há rede aqui (${mu.liderados} liderados, ${mu.lideres} líder(es)), mas ela está abaixo do potencial ${_muNivW} da família na região. Reforçar antes de abrir frente nova.`
-      : mu.status === 'coberto'
-      ? `Rede forte: ${fmtN(mu.liderados)} liderados e ${mu.lideres} líder(es) sobre um potencial ${_muNivW} da família. Manter o ritmo.`
+    const gapText = !mu ? '' : (muLideres > 0 || muLiderados > 0)
+      ? (muStatus === 'coberto'
+        ? `Rede forte: ${fmtN(muLiderados)} liderados e ${muLideres} líder(es) ativo(s) sobre um potencial ${_muNivW} da família. Manter o ritmo.`
+        : `Há rede aqui (${fmtN(muLiderados)} liderados, ${muLideres} líder(es) ativo(s)), mas ainda abaixo do alvo de 2 liderados por mil eleitores. Reforçar antes de abrir frente nova.`)
+      : muStatus === 'priorizar'
+      ? `A família tem potencial ${_muNivW} aqui (índice ${_muNiv}) e nenhum líder cadastrado — potencial ainda descoberto.`
       : `Potencial baixo da família neste município. Prioridade baixa de investimento.`;
     const mapVals = {
       aTabVisao: st.aTab === 'visao', aTabMapa: st.aTab === 'mapa', aTabRanking: st.aTab === 'ranking', aTabCidades: st.aTab === 'cidades', aTabConfig: st.aTab === 'config', abrirConfig: () => set({ aTab: 'config' }),
@@ -3048,7 +3097,7 @@ class Component extends DCLogic {
       rankFRegiaoSel: this.fltSelVal(st.rankFRegiao), onRankFRegiao: (e) => set({ rankFRegiao: [e.target.value], selLeader: null, rankVisible: 20 }),
       cidFRegiaoSel: this.fltSelVal(st.cidFRegiao), onCidFRegiao: (e) => set({ cidFRegiao: [e.target.value] }),
       mapFRegiaoSel: this.fltSelVal(st.mapFRegiao), onMapFRegiao: (e) => set({ mapFRegiao: [e.target.value], muni: null }),
-      muniNome: mu ? mu.nome : '', muniStatusLabel: mu ? mu.statusLabel : '', muniStBg: stTone[0], muniStFg: stTone[1],
+      muniNome: mu ? mu.nome : '', muniStatusLabel: muStatusLabel, muniStBg: stTone[0], muniStFg: stTone[1],
       hasMuniEleitorado: !!(_pano && _pano.eleitorado), muniEleitorado: (_pano && _pano.eleitorado) ? fmtN(_pano.eleitorado) : '—',
       hasMuniPrefeito: !!(_pano && _pano.prefeito), muniPrefeito: (_pano && _pano.prefeito) ? (_pano.prefeito + (_pano.prefeito_partido ? ' (' + _pano.prefeito_partido + ')' : '')) : '',
       ...(() => {
@@ -3069,10 +3118,14 @@ class Component extends DCLogic {
         const ind = mu.indice != null ? mu.indice : this.potIdx(mu.pot);
         const forcaN = ind >= 40 ? 2 : ind >= 18 ? 1 : 0; // nível do índice: alto/médio/baixo
         const nivelM = ['baixo', 'médio', 'alto'][forcaN];
-        const cov = mu.pot > 0 ? mu.liderados / mu.pot * 1000 : 0;
-        const alvo = Math.ceil(mu.pot * 2 / 1000);
+        // cobertura sempre sobre o eleitorado REAL (TSE): alvo forte = 2 liderados por mil eleitores
+        const temEleit = !!_muEleit;
+        const cov = temEleit ? muLiderados / (_muEleit / 1000) : 0;
+        const alvo = temEleit ? Math.ceil(_muEleit * 2 / 1000) : 0;
         const covPct = Math.min(999, Math.round(cov / 2 * 100));
-        const falta = Math.max(alvo - mu.liderados, 0);
+        const falta = Math.max(alvo - muLiderados, 0);
+        const alvoTxt = temEleit ? ` — ${covPct}% do alvo de 2 liderados por mil eleitores` : '';
+        const faltaTxt = temEleit ? ` Faltam ~${fmtN(falta)} liderados para cobertura forte.` : '';
         return {
           muniBest: best ? `${best.membro.split(' (')[0]} — ${best.cargo} ${best.ano} (${fMil(best.votos)})` : 'referência estimada da base histórica',
           muniTrend: trend, muniTrendCor: trendCor,
@@ -3081,13 +3134,14 @@ class Component extends DCLogic {
           muniVotos: [...h].sort((a, b) => (/Wesley/.test(a.membro) ? 0 : /Elvis/.test(a.membro) ? 1 : 2) - (/Wesley/.test(b.membro) ? 0 : /Elvis/.test(b.membro) ? 1 : 2)).map(x => ({ label: `${x.membro.split(' ')[0]} · ${x.cargo} ${x.ano}`, votos: fmtN(x.votos) })),
           muniPresenca: h.length ? `${h.length} campanha${h.length > 1 ? 's' : ''} · ${anos.join(', ')}` : 'sem campanha direta aqui',
           muniForca: ['baixa', 'média', 'alta'][forcaN], muniForcaCor: ['var(--color-muted-foreground)', 'var(--color-gray-1000)', 'var(--color-accent)'][forcaN],
-          muniLeitura: mu.status === 'priorizar'
-            ? `O potencial da família aqui é ${nivelM} (índice ${ind}) e a rede cobre só ${covPct}% do alvo. Faltam ~${fmtN(falta)} liderados para cobertura forte — cidade prioritária para um novo líder.`
-            : mu.status === 'parcial'
-            ? `Potencial ${nivelM} da família (índice ${ind}) e a rede cobre ${covPct}% do alvo — há espaço: mais ~${fmtN(falta)} liderados levam a cidade à cobertura forte.`
-            : mu.status === 'coberto'
-            ? `Cobertura forte: a rede já cobre ${covPct}% do alvo sobre o potencial da família. Manter o ritmo basta.`
-            : mu.status === 'fraco'
+          // a leitura segue as contagens REAIS: com líder na cidade, nunca "nenhum líder"
+          muniLeitura: (muLideres > 0 || muLiderados > 0)
+            ? (muStatus === 'coberto'
+              ? `Cobertura forte: ${muLideres} líder(es) ativo(s) e ${fmtN(muLiderados)} liderados${alvoTxt}. Manter o ritmo basta.`
+              : `${muLideres} líder(es) ativo(s) e ${fmtN(muLiderados)} liderados nesta cidade${alvoTxt}.${faltaTxt}`)
+            : muStatus === 'priorizar'
+            ? `Potencial ${nivelM} da família (índice ${ind}) e nenhum líder cadastrado — cidade prioritária para um novo líder.${temEleit ? ` Alvo: ~${fmtN(alvo)} liderados.` : ''}`
+            : muStatus === 'fraco'
             ? `Presença fraca da família aqui (índice ${ind}) — algum voto histórico, mas abaixo dos redutos. Prioridade menor; entra na conta se sobrar fôlego.`
             : `Potencial baixo da família neste município (índice ${ind}). Prioridade baixa de investimento.`,
         };
@@ -3096,10 +3150,18 @@ class Component extends DCLogic {
       muniBairros: (() => { if (mu && !this._bairros && !this._bairrosLoading) this._loadBairros(); const bz = (this._bairros && mu && this._bairros[mu.ibge]) || null; return bz ? bz.slice(0, 24).map(b => ({ nome: b[0], indice: String(b[5]), nivel: 'potencial ' + (b[5] >= 40 ? 'alto' : b[5] >= 18 ? 'médio' : 'baixo'), dot: b[5] >= 40 ? 'var(--color-accent)' : b[5] >= 18 ? '#878787' : 'var(--color-gray-500)' })) : []; })(),
       hasMuniBairros: !!(this._bairros && mu && this._bairros[mu.ibge] && this._bairros[mu.ibge].length > 1),
       muniBairrosN: (this._bairros && mu && this._bairros[mu.ibge]) ? String(this._bairros[mu.ibge].length) : '',
-      muniLideres: mu ? String(mu.lideres) : '', muniLiderados: mu ? fmtN(mu.liderados) : '', muniRitmo: mu ? String(mu.ritmo).replace('.', ',') : '',
-      muniPorMil: mu && mu.pot > 0 ? (mu.liderados / mu.pot * 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—',
-      muniCovPct: mu && mu.pot > 0 ? (mu.liderados / mu.pot * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '%' : '—',
-      muniCovW: mu && mu.pot > 0 ? Math.min(mu.liderados / mu.pot * 1000 / 2 * 100, 100).toFixed(0) + '%' : '0%',
+      muniLideres: mu ? String(muLideres) : '', muniLiderados: mu ? fmtN(muLiderados) : '', muniRitmo: mu ? String(mu.ritmo).replace('.', ',') : '',
+      muniPorMil: mu && _muEleit ? (muLiderados / (_muEleit / 1000)).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '—',
+      muniCovPct: mu && _muEleit ? (muLiderados / (_muEleit / 1000) / 2 * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—',
+      muniCovW: mu && _muEleit ? Math.min(muLiderados / (_muEleit / 1000) / 2 * 100, 100).toFixed(0) + '%' : '0%',
+      cidLideresN: _cl ? String(_cl.length) : '…', // '…' enquanto carrega — nunca mostrar 0 sobre fetch em curso
+      cidLideresVazio: !!_cl && _cl.length === 0,
+      cidLideresList: (_cl || []).map(l => ({
+        nome: l.name || '—', zap: this._fmtWa(l.whatsapp),
+        meta: `${l.parent_name || 'Topo'} · promessa ${fmtN(l.promise_votes || 0)} · ${fmtN(Number(l.liderados || 0))} liderados`,
+        selo: l.status === 'active' ? 'Ativo' : 'Pendente',
+        seloBg: l.status === 'active' ? okC[0] : warnC[0], seloFg: l.status === 'active' ? okC[1] : warnC[1],
+      })),
       hasTop: !!mu && mu.topLideres.length > 0, topLideres: mu ? mu.topLideres.map(n => ({ n })) : [],
       gapText,
       convidarCidade: () => set({ aInvite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, aCopied: false, aTab: 'config' }),

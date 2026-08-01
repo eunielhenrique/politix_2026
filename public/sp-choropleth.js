@@ -25,6 +25,18 @@
   function waitFor(cond, cb, tries = 200) { if (cond()) return cb(); if (tries <= 0) return; setTimeout(() => waitFor(cond, cb, tries - 1), 50); }
   const fmt = n => n.toLocaleString('pt-BR');
 
+  // Veredito de cobertura — SEMPRE derivado das contagens REAIS do município
+  // (líderes ativos + liderados + eleitorado TSE). Cidade com líder nunca é "Descoberta".
+  // Exposto no window pro painel usar a MESMA fonte (nunca dois vereditos divergentes).
+  function veredito(lideres, liderados, eleitorado) {
+    const l = lideres || 0, ld = liderados || 0;
+    const porMil = eleitorado ? ld / (eleitorado / 1000) : 0;
+    if (l === 0 && ld === 0) return { label: 'Descoberta', status: 'priorizar', porMil };
+    if (porMil >= 2) return { label: 'Coberta', status: 'coberto', porMil };
+    return { label: `Presença · ${l} líder(es)`, status: 'parcial', porMil };
+  }
+  window.PXVeredito = veredito;
+
   class SPChoropleth extends HTMLElement {
     static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra']; }
     connectedCallback() {
@@ -35,7 +47,11 @@
       this.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:420px;font:13px var(--font-mono,monospace);color:var(--color-muted-foreground,#878787)">Carregando os 645 municípios (IBGE)…</div>';
       waitFor(() => window.d3, () => this.load());
     }
-    attributeChangedCallback() { if (this._feats) this.render(); }
+    attributeChangedCallback(name, oldV, newV) {
+      // voltar pra "Estado" (sem RA) desfaz o zoom de duplo-clique — senão ficaria preso na cidade
+      if (name === 'data-sel-ra' && oldV !== newV && (newV == null || newV === '')) this._zt = null;
+      if (this._feats) this.render();
+    }
     get anchors() { try { return JSON.parse(this.getAttribute('data-anchors') || '[]'); } catch (e) { return []; } }
     async load() {
       try {
@@ -83,15 +99,22 @@
         const lideres = a ? a.rede.lideres : 0;
         const pend = a && a.rede.pend ? a.rede.pend : 0;
         const liderJan = liderados;
-        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, ra: a && a.ra != null ? a.ra : null, ritmo: a ? a.rede.ritmo : 0 };
+        const eleitorado = a && a.eleitorado ? a.eleitorado : 0;
+        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, eleitorado, ra: a && a.ra != null ? a.ra : null, ritmo: a ? a.rede.ritmo : 0 };
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
       rows.forEach(r => {
-        // ≤10 = fora do reduto; 10–18 = presença fraca (amarelo fraco); ≥18 = foco (médio/alto), cobertura pela rede
-        if (r.indice <= 10) r.status = 'neutro';
-        else if (r.indice < 18) r.status = 'fraco';
-        else r.status = r.liderados >= 80 ? 'coberto' : r.liderados >= 25 ? 'parcial' : 'priorizar';
-        r.statusLabel = { neutro: 'Potencial baixo', fraco: 'Presença fraca', coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[r.status];
+        const v = veredito(r.lideres, r.liderados, r.eleitorado);
+        r.porMil = v.porMil;
+        if (r.lideres > 0 || r.liderados > 0) {
+          // tem rede REAL: veredito e cor saem da mesma contagem — nunca "descoberta" com líder
+          r.status = v.status; r.statusLabel = v.label;
+        } else {
+          // sem rede nenhuma: a cor mostra o potencial da família
+          // (≤10 = fora do reduto; 10–18 = presença fraca; ≥18 = descoberta com potencial)
+          r.status = r.indice <= 10 ? 'neutro' : r.indice < 18 ? 'fraco' : 'priorizar';
+          r.statusLabel = { neutro: 'Potencial baixo', fraco: 'Presença fraca', priorizar: 'Descoberta' }[r.status];
+        }
       });
       return { rows, maxPot, fonte };
     }
@@ -149,7 +172,8 @@
             historico: r.historico.sort((a, b) => b.votos - a.votos),
             topLideres: (r.a && r.a.topLideres) || [], fonte,
           } }));
-        });
+        })
+        .on('dblclick', (ev, r) => { ev.stopPropagation(); self.zoomToFeature(r); }); // clique simples abre o painel; duplo aproxima
       if (layer !== 'historico') {
         const pg = g.append('g').attr('pointer-events', 'none');
         rows.filter(r => r.c && (selRa < 0 || r.ra === selRa)).forEach(r => {
@@ -168,6 +192,7 @@
       }
       const zoom = d3.zoom().scaleExtent([1, 14]).on('zoom', ev => { this._zt = ev.transform; g.attr('transform', ev.transform); });
       svg.call(zoom);
+      svg.on('dblclick.zoom', null); // duplo-clique é nosso (zoomToFeature), não o do d3.zoom
       this._svg = svg; this._zoom = zoom; // expõe pros controles +/−/centralizar da barra de cima
       this.innerHTML = '';
       this.appendChild(svg.node());
@@ -190,6 +215,16 @@
       tip.style.cssText = 'position:absolute;pointer-events:none;display:none;z-index:6;max-width:270px;padding:9px 11px;border:1px solid var(--color-border,#242424);border-radius:0;background:var(--color-background-200,#111);color:var(--color-foreground,#ededed);font:12px "Geist Mono",monospace;box-shadow:0 4px 14px rgba(0,0,0,.12)';
       this.appendChild(tip); this._tip = tip;
     }
+    // duplo-clique: aproxima e centraliza o município (mantém o painel aberto pelo click simples)
+    zoomToFeature(r) {
+      const d3 = window.d3; const svg = this._svg, zoom = this._zoom;
+      if (!d3 || !svg || !zoom || !r || !r.b) return;
+      const [[x0, y0], [x1, y1]] = r.b;
+      const k = Math.min(8, 0.9 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001));
+      const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
+      this._zt = t;
+      svg.transition().duration(600).call(zoom.transform, t);
+    }
     ctl(action) {
       const d3 = window.d3; const svg = this._svg, zoom = this._zoom;
       if (!d3 || !svg || !zoom) return;
@@ -201,14 +236,15 @@
       const rect = this.getBoundingClientRect();
       const t = this._tip; if (!t) return;
       const fl = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão', familia: 'Família Cezar' }[fonte];
-      const porMil = r.pot > 0 ? r.liderados / r.pot * 1000 : 0;
-      const porMilF = porMil.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+      const porMilF = (r.porMil || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+      const alvoF = r.eleitorado ? ` · ${porMilF}/mil eleitores (alvo 2/mil)` : '';
       let verdict, vc;
-      if (r.status === 'neutro') { verdict = 'Histórico baixo da família aqui — prioridade baixa'; vc = 'var(--mutedsoft,#93939f)'; }
-      else if (r.liderados === 0 && r.pend > 0) { verdict = `${r.pend} líder(es) convidado(s) — aguardando ativar (pendente)`; vc = '#b06a12'; }
-      else if (r.liderados === 0) { const nv = r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'; verdict = `NÃO coberta — nenhum líder ativo. Potencial ${nv} descoberto`; vc = r.indice >= 40 ? '#c23b3b' : r.indice >= 18 ? '#b06a12' : 'var(--mutedsoft,#93939f)'; }
-      else if (r.status === 'coberto') { verdict = `Coberta e no ritmo do potencial (${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#2f9e64'; }
-      else { verdict = `Coberta, mas ABAIXO do potencial (cobrindo ${Math.min(999, Math.round(porMil / 2 * 100))}% do alvo)`; vc = '#b06a12'; }
+      // a contagem real manda: com líder/liderado na cidade, nunca dizer "nenhum líder"
+      if (r.status === 'coberto') { verdict = `Coberta — ${r.lideres} líder(es) ativo(s)${alvoF}`; vc = '#2f9e64'; }
+      else if (r.lideres > 0 || r.liderados > 0) { verdict = `Presença · ${r.lideres} líder(es) ativo(s) · ${fmt(r.liderados)} liderado(s)${alvoF}`; vc = '#b06a12'; }
+      else if (r.pend > 0) { verdict = `${r.pend} líder(es) convidado(s) — aguardando ativar (pendente)`; vc = '#b06a12'; }
+      else if (r.status === 'neutro' || r.status === 'fraco') { verdict = 'Histórico baixo da família aqui — prioridade baixa'; vc = 'var(--mutedsoft,#93939f)'; }
+      else { const nv = r.indice >= 40 ? 'alto' : 'médio'; verdict = `Descoberta — nenhum líder cadastrado. Potencial ${nv}`; vc = r.indice >= 40 ? '#c23b3b' : '#b06a12'; }
       t.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${r.nome}</div>
 <div style="color:var(--color-muted-foreground,#878787)">Potencial da família (${fl}): <b style="color:var(--color-foreground,#ededed)">${r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'} · índice ${r.indice}</b></div>
 <div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)${r.pend ? ' · <b style="color:#ffb224">' + r.pend + ' pendente(s)</b>' : ''}</div>
