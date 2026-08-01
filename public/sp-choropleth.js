@@ -1,5 +1,5 @@
 // <sp-choropleth> — São Paulo municipality choropleth: rede × histórico da família.
-// Attributes: layer (cobertura|historico|rede), fonte (candidato|irmao|pai|familia),
+// Attributes: layer (cobertura|historico|rede|muni2024), fonte (candidato|irmao|pai|familia),
 // ano (todos|2024|2022|2018|2012), theme (light|dark), data-anchors (JSON).
 // Events (window): 'politix:muni' (click detail), 'politix:mapstats' (KPI counts).
 (function () {
@@ -100,7 +100,8 @@
         const pend = a && a.rede.pend ? a.rede.pend : 0;
         const liderJan = liderados;
         const eleitorado = a && a.eleitorado ? a.eleitorado : 0;
-        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, eleitorado, ra: a && a.ra != null ? a.ra : null, ritmo: a ? a.rede.ritmo : 0 };
+        const vv = a && a.vv ? a.vv : 0; // votos válidos 2024 (TSE)
+        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, eleitorado, vv, ra: a && a.ra ? a.ra : null, ritmo: a ? a.rede.ritmo : 0 };
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
       rows.forEach(r => {
@@ -124,25 +125,31 @@
       const theme = this.getAttribute('theme') === 'light' ? 'light' : 'dark';
       const P = PAL[theme];
       const { rows, maxPot, fonte } = this.values();
-      const selRaAttr = this.getAttribute('data-sel-ra');
-      const selRa = (selRaAttr == null || selRaAttr === '') ? -1 : parseInt(selRaAttr, 10);
-      const scoped = selRa >= 0 ? rows.filter(r => r.ra === selRa) : rows; // RA selecionada
+      // RA agora é o nome oficial vindo do banco (municipio_politico.ra, 16 regiões) — string, não índice
+      const selRa = this.getAttribute('data-sel-ra') || '';
+      const scoped = selRa ? rows.filter(r => r.ra === selRa) : rows; // RA selecionada
       const maxLid = Math.max(...rows.map(r => r.liderJan), 1);
+      const maxEl = Math.max(...rows.map(r => r.eleitorado), 1);
+      // eleitorado é MUITO desigual (capital ~9M × cidade de 1k): escala log pra não achatar o mapa
+      const elN = v => v > 0 ? Math.log10(1 + v) / Math.log10(1 + maxEl) : 0;
       const seq = d3.interpolateRgbBasis(P.seq);
       const hseq = d3.interpolateRgbBasis(P.hseq);
       const fill = r => {
-        if (selRa >= 0 && r.ra !== selRa) return P.neutro; // fora da RA = cinza chapado (sem cor vazando)
+        if (selRa && r.ra !== selRa) return P.neutro; // fora da RA = cinza chapado (sem cor vazando)
         if (layer === 'historico') return hseq(Math.pow(r.indice / 100, 0.6)); // heat âmbar, realça o meio
         if (layer === 'rede') return r.liderJan > 0 ? seq(0.25 + 0.75 * Math.sqrt(r.liderJan / maxLid)) : P.neutro;
+        if (layer === 'muni2024') return r.eleitorado > 0 ? seq(0.18 + 0.82 * elN(r.eleitorado)) : P.neutro;
         return P[r.status];
       };
       // stats + live ranked list (escopados pela RA quando selecionada)
       const hi = scoped.filter(r => r.status !== 'neutro' && r.status !== 'fraco');
-      // lista: RA selecionada → TODAS as cidades da região (ranking por índice); sem RA → só as de foco (índice ≥ 18)
-      const listRows = selRa >= 0 ? scoped.filter(r => r.indice > 0) : hi;
-      const top = listRows.slice().sort((a, b) => b.indice - a.indice).map(r => ({
+      // lista: 2024 → todo município com eleitorado, ranqueado por eleitorado;
+      // RA selecionada → TODAS as cidades da região (ranking por índice); sem RA → só as de foco (índice ≥ 18)
+      const m24 = layer === 'muni2024';
+      const listRows = m24 ? scoped.filter(r => r.eleitorado > 0) : selRa ? scoped.filter(r => r.indice > 0) : hi;
+      const top = listRows.slice().sort((a, b) => m24 ? b.eleitorado - a.eleitorado : b.indice - a.indice).map(r => ({
         ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
-        liderados: r.liderados, lideres: r.lideres, ritmo: r.ritmo,
+        liderados: r.liderados, lideres: r.lideres, ritmo: r.ritmo, eleitorado: r.eleitorado, vv: r.vv, ra: r.ra,
         historico: r.historico.slice().sort((a, b) => b.votos - a.votos),
         topLideres: (r.a && r.a.topLideres) || [], fonte,
       }));
@@ -152,6 +159,9 @@
         cobertas: hi.filter(r => r.status === 'coberto').length,
         totalHist: scoped.reduce((s, r) => s + r.pot, 0),
         totalLiderados: scoped.reduce((s, r) => s + r.liderJan, 0),
+        munis: scoped.filter(r => r.eleitorado > 0).length,
+        totalEleitorado: scoped.reduce((s, r) => s + r.eleitorado, 0),
+        totalVV: scoped.reduce((s, r) => s + r.vv, 0),
         top,
       } }));
       const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', '100%').style('display', 'block').style('font-family', '"Geist Mono",monospace');
@@ -160,7 +170,7 @@
       g.selectAll('path').data(rows).join('path')
         .attr('d', r => r.d)
         .attr('fill', r => fill(r))
-        .attr('fill-opacity', r => (selRa >= 0 && r.ra !== selRa) ? 0.35 : 1)
+        .attr('fill-opacity', r => (selRa && r.ra !== selRa) ? 0.35 : 1)
         .attr('stroke', P.line).attr('stroke-width', 0.4)
         .style('cursor', 'pointer')
         .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })
@@ -176,7 +186,7 @@
         .on('dblclick', (ev, r) => { ev.stopPropagation(); self.zoomToFeature(r); }); // clique simples abre o painel; duplo aproxima
       if (layer !== 'historico') {
         const pg = g.append('g').attr('pointer-events', 'none');
-        rows.filter(r => r.c && (selRa < 0 || r.ra === selRa)).forEach(r => {
+        rows.filter(r => r.c && (!selRa || r.ra === selRa)).forEach(r => {
           const [x, y] = r.c;
           if (!isFinite(x) || !isFinite(y)) return;
           if (r.pend > 0 && r.liderados === 0 && r.lideres === 0) {
@@ -200,7 +210,7 @@
       // zoom automático pra RA selecionada (só quando a RA muda)
       if (selRa !== this._lastSelRa) {
         this._lastSelRa = selRa;
-        if (selRa >= 0) {
+        if (selRa) {
           const bs = scoped.map(r => r.b).filter(Boolean);
           if (bs.length) {
             const x0 = Math.min(...bs.map(b => b[0][0])), y0 = Math.min(...bs.map(b => b[0][1]));
@@ -235,6 +245,22 @@
     tip(ev, r, fonte) {
       const rect = this.getBoundingClientRect();
       const t = this._tip; if (!t) return;
+      const place = () => {
+        t.style.display = 'block';
+        const x = ev.clientX - rect.left + 14, y = ev.clientY - rect.top + 10;
+        t.style.left = Math.min(x, rect.width - 250) + 'px'; t.style.top = Math.min(y, rect.height - 90) + 'px';
+      };
+      // camada Município 2024: só dado oficial do TSE — eleitorado, votos válidos e comparecimento.
+      // NÃO existe comparação entre eleições aqui, então nada de "crescimento".
+      if ((this.getAttribute('layer') || '') === 'muni2024') {
+        const comp = r.eleitorado > 0 && r.vv > 0 ? (r.vv / r.eleitorado * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—';
+        t.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${r.nome}</div>
+<div style="color:var(--color-muted-foreground,#878787)">${r.ra ? 'RA ' + r.ra : 'região não informada'}</div>
+<div style="color:var(--color-muted-foreground,#878787)">Eleitorado 2024: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.eleitorado ? fmt(r.eleitorado) : '—'}</b></div>
+<div style="color:var(--color-muted-foreground,#878787)">Votos válidos 2024: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.vv ? fmt(r.vv) : '—'}</b> · ${comp} do eleitorado</div>
+<div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)</div>`;
+        return place();
+      }
       const fl = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão', familia: 'Família Cezar' }[fonte];
       const porMilF = (r.porMil || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
       const alvoF = r.eleitorado ? ` · ${porMilF}/mil eleitores (alvo 2/mil)` : '';
@@ -249,9 +275,7 @@
 <div style="color:var(--color-muted-foreground,#878787)">Potencial da família (${fl}): <b style="color:var(--color-foreground,#ededed)">${r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'} · índice ${r.indice}</b></div>
 <div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)${r.pend ? ' · <b style="color:#ffb224">' + r.pend + ' pendente(s)</b>' : ''}</div>
 <div style="margin-top:3px;font-weight:600;color:${vc}">${verdict}</div>`;
-      t.style.display = 'block';
-      const x = ev.clientX - rect.left + 14, y = ev.clientY - rect.top + 10;
-      t.style.left = Math.min(x, rect.width - 250) + 'px'; t.style.top = Math.min(y, rect.height - 90) + 'px';
+      place();
     }
     hideTip() { if (this._tip) this._tip.style.display = 'none'; }
   }
