@@ -37,6 +37,30 @@
   }
   window.PXVeredito = veredito;
 
+  // ── Escala em FAIXAS (verde→vermelho), no lugar do cinza contínuo ──
+  // Cobertura: verde = rede forte sobre o eleitorado, vermelho = descoberto.
+  // Município 2024: verde = eleitorado grande (onde mora o voto), vermelho = município pequeno.
+  const TIERS = {
+    cobertura: [
+      { min: 2, cor: '#2f9e64', label: 'Coberta (2+/mil)' },
+      { min: 1, cor: '#7cb342', label: 'Boa (1–2/mil)' },
+      { min: 0.4, cor: '#e3c04a', label: 'Média (0,4–1/mil)' },
+      // min 0 pega quem TEM líder mas ainda não tem liderados — nunca cai no vermelho de
+      // "descoberta", que é exclusivo de município sem rede nenhuma (ver fill()).
+      { min: 0, cor: '#e08b3c', label: 'Presença, pouca base' },
+      { min: -1, cor: '#c9463c', label: 'Descoberta com potencial' },
+    ],
+    muni2024: [
+      { min: 200000, cor: '#2f9e64', label: 'Muito alto (200 mil+)' },
+      { min: 80000, cor: '#7cb342', label: 'Alto (80–200 mil)' },
+      { min: 30000, cor: '#e3c04a', label: 'Médio (30–80 mil)' },
+      { min: 10000, cor: '#e08b3c', label: 'Baixo (10–30 mil)' },
+      { min: -1, cor: '#c9463c', label: 'Muito baixo (<10 mil)' },
+    ],
+  };
+  const tierDe = (escala, v) => (TIERS[escala] || []).find(t => v >= t.min) || TIERS[escala][TIERS[escala].length - 1];
+  window.PXTiers = TIERS;
+
   class SPChoropleth extends HTMLElement {
     static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra']; }
     connectedCallback() {
@@ -138,8 +162,12 @@
         if (selRa && r.ra !== selRa) return P.neutro; // fora da RA = cinza chapado (sem cor vazando)
         if (layer === 'historico') return hseq(Math.pow(r.indice / 100, 0.6)); // heat âmbar, realça o meio
         if (layer === 'rede') return r.liderJan > 0 ? seq(0.25 + 0.75 * Math.sqrt(r.liderJan / maxLid)) : P.neutro;
-        if (layer === 'muni2024') return r.eleitorado > 0 ? seq(0.18 + 0.82 * elN(r.eleitorado)) : P.neutro;
-        return P[r.status];
+        if (layer === 'muni2024') return r.eleitorado > 0 ? tierDe('muni2024', r.eleitorado).cor : P.neutro;
+        // Cobertura em faixas verde→vermelho SÓ onde há rede real. Sem rede, vermelho fica
+        // reservado a quem tem potencial da família (é o que pede ação); o resto segue cinza,
+        // senão o estado inteiro ficaria vermelho e a cor não diria nada.
+        if (r.lideres > 0 || r.liderados > 0) return tierDe('cobertura', r.porMil).cor;
+        return r.status === 'priorizar' ? '#c9463c' : P[r.status];
       };
       // stats + live ranked list (escopados pela RA quando selecionada)
       const hi = scoped.filter(r => r.status !== 'neutro' && r.status !== 'fraco');

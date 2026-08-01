@@ -1422,11 +1422,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:7px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);font-size:11px;color:var(--color-muted-foreground);box-shadow:0 4px 16px rgba(0,0,0,.08)">
                 <sc-if value="{{ showDots }}" hint-placeholder-val="{{ true }}">
-                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:#ffb224"></span>priorizar</span>
-                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:#c9a24a"></span>presença fraca</span>
-                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:#878787"></span>abaixo do potencial</span>
-                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:#ededed"></span>coberto</span>
-                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:var(--color-gray-300)"></span>neutro</span>
+                  <span style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">{{ legendTitulo }}</span>
+                  <sc-for list="{{ legendTiers }}" as="lt" hint-placeholder-count="5">
+                    <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:2px;background:{{ lt.cor }}"></span>{{ lt.label }}</span>
+                  </sc-for>
                 </sc-if>
                 <sc-if value="{{ showGrad }}" hint-placeholder-val="{{ false }}">
                   <span style="display:inline-flex;align-items:center;gap:8px">baixo<span style="width:120px;height:10px;border-radius:var(--radius-sm);background:{{ legendGrad }}"></span>alto</span>
@@ -1460,13 +1459,42 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </sc-if>
               <sc-if value="{{ hasMuni }}" hint-placeholder-val="{{ false }}">
                 <div>
+                  <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.6px;color:var(--color-gray-600);margin-bottom:6px">ANÁLISE DE MUNICÍPIO</div>
                   <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
-                    <div>
-                      <div style="font-family:var(--font-sans);font-weight:500;font-size:21px;letter-spacing:-.3px;line-height:1.15">{{ muniNome }}</div>
-                      <span style="display:inline-block;margin-top:6px;padding:3px 10px;border-radius:var(--radius-sm);font-size:10.5px;font-weight:600;background:{{ muniStBg }};color:{{ muniStFg }}">{{ muniStatusLabel }}</span>
+                    <div style="min-width:0">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ muniStFg }}" style="flex-shrink:0"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.3-6.2 3.3L7 14.2l-5-4.9 6.9-1L12 2Z"></path></svg>
+                        <div style="font-family:var(--font-sans);font-weight:600;font-size:22px;letter-spacing:-.2px;line-height:1.1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ muniNome }}</div>
+                      </div>
+                      <span style="display:inline-block;margin-top:7px;padding:3px 10px;border-radius:var(--radius-sm);font-size:10.5px;font-weight:600;background:{{ muniStBg }};color:{{ muniStFg }}">{{ muniStatusLabel }}</span>
                     </div>
-                    <button onClick="{{ fecharMuni }}" title="Voltar ao painel ao vivo" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-muted-foreground);cursor:pointer;font-size:11.5px;font-weight:500;white-space:nowrap">← Lista</button>
+                    <button onClick="{{ fecharMuni }}" title="Voltar ao painel ao vivo" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-muted-foreground);cursor:pointer;font-size:11.5px;font-weight:500;white-space:nowrap;flex-shrink:0">← Lista</button>
                   </div>
+                  <sc-if value="{{ hasMuniEleitorado }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px" class="keep-cols">
+                      <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:12px">
+                        <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">ELEITORADO 2024</div>
+                        <div style="font-family:var(--font-mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px">{{ muniEleitorado }}</div>
+                        <div style="font-size:10px;color:var(--color-gray-600);margin-top:3px">{{ muniShareTxt }}</div>
+                      </div>
+                      <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:12px">
+                        <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">VOTOS VÁLIDOS 2024</div>
+                        <div style="font-family:var(--font-mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px">{{ muniVV }}</div>
+                        <div style="font-size:10px;color:var(--color-gray-600);margin-top:3px">{{ muniComparecimento }} do eleitorado</div>
+                      </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;margin-top:8px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
+                      <svg width="72" height="72" viewBox="0 0 42 42" style="flex-shrink:0;transform:rotate(-90deg)">
+                        <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--color-gray-300)" stroke-width="5"></circle>
+                        <circle cx="21" cy="21" r="15.9" fill="none" stroke="{{ muniStFg }}" stroke-width="5" stroke-dasharray="{{ muniDonut }}" stroke-linecap="butt"></circle>
+                      </svg>
+                      <div style="min-width:0">
+                        <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">PESO NA REGIÃO</div>
+                        <div style="font-size:13px;font-weight:600;margin-top:4px">{{ muniSharePct }} do eleitorado da RA {{ muniRA }}</div>
+                        <div style="font-size:10.5px;color:var(--color-gray-600);margin-top:2px;line-height:1.45">{{ muniRankRA }}</div>
+                      </div>
+                    </div>
+                  </sc-if>
                   <div style="font-size:12px;font-weight:600;margin:16px 0 8px">Potencial da região <span style="font-weight:400;color:var(--color-gray-600)">(base: votos da família, ref. TSE — nunca soma com cadastros)</span></div>
                   <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:14px">
                     <div style="display:flex;align-items:baseline;gap:8px">
@@ -1509,6 +1537,24 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <div style="height:5px;border-radius:var(--radius-sm);background:var(--color-gray-300);margin-top:5px;overflow:hidden"><div style="height:100%;background:var(--color-foreground);width:{{ muniCovW }}"></div></div>
                     <div style="font-size:10px;color:var(--color-gray-600);margin-top:4px">= {{ muniCovPct }} do alvo · alvo forte ≈ 2 liderados por mil eleitores</div>
                   </div>
+                  <sc-if value="{{ hasSimilares }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size:12px;font-weight:600;margin:18px 0 3px">Municípios similares</div>
+                    <div style="font-size:10.5px;color:var(--color-gray-600);margin-bottom:8px">mesma RA e porte de eleitorado parecido — onde a rede está melhor ou pior que aqui</div>
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                      <div style="display:flex;gap:8px;padding:0 9px;font-family:var(--font-mono);font-size:9px;letter-spacing:.8px;color:var(--color-gray-600)">
+                        <span style="flex:1">MUNICÍPIO</span><span style="width:62px;text-align:right">ELEITORES</span><span style="width:52px;text-align:right">/MIL</span><span style="width:56px;text-align:right">LÍDERES</span>
+                      </div>
+                      <sc-for list="{{ similares }}" as="sm" hint-placeholder-count="5">
+                        <button onClick="{{ sm.onClick }}" style="display:flex;align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:{{ sm.bg }};cursor:pointer;text-align:left;width:100%">
+                          <span style="width:7px;height:7px;border-radius:2px;flex-shrink:0;background:{{ sm.cor }}"></span>
+                          <span style="flex:1;min-width:0;font-size:12px;font-weight:500;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sm.nome }}</span>
+                          <span style="width:62px;text-align:right;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--color-foreground)">{{ sm.eleitores }}</span>
+                          <span style="width:52px;text-align:right;font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ sm.cor }}">{{ sm.porMil }}</span>
+                          <span style="width:56px;text-align:right;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground)">{{ sm.lideres }}</span>
+                        </button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
                   <div style="font-size:12px;font-weight:600;margin:18px 0 8px">Líderes desta cidade ({{ cidLideresN }})</div>
                   <sc-if value="{{ cidLideresVazio }}" hint-placeholder-val="{{ false }}">
                     <p style="font-size:12px;color:var(--color-muted-foreground);line-height:1.5;margin:0 0 8px">Nenhum líder cadastrado aqui.</p>
@@ -3177,11 +3223,18 @@ class Component extends DCLogic {
       },
       mapFullLabel: st.mapFull ? 'Recolher' : 'Expandir',
       mapFullIcon: st.mapFull ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
-      showDots: st.mapLayer === 'cobertura', showGrad: st.mapLayer !== 'cobertura',
+      // legenda em faixas coloridas (cobertura e 2024); histórico/rede seguem no gradiente
+      showDots: st.mapLayer === 'cobertura' || st.mapLayer === 'muni2024',
+      showGrad: st.mapLayer === 'historico' || st.mapLayer === 'rede',
+      legendTitulo: st.mapLayer === 'muni2024' ? 'ELEITORADO 2024' : 'COBERTURA DA REDE',
+      legendTiers: [
+        ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[st.mapLayer === 'muni2024' ? 'muni2024' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
+        ...(st.mapLayer === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: 'sem rede e sem histórico' }] : []),
+      ],
       legendGrad: st.mapLayer === 'historico'
         ? (isDark ? 'linear-gradient(90deg,#181818,#7a4d00,#ffb224,#ffe3ad)' : 'linear-gradient(90deg,#f4f1e8,#eda01f,#cc6f00,#5a2a00)')
         : (isDark ? 'linear-gradient(90deg,#111111,#454545,#ededed)' : 'linear-gradient(90deg,#ededed,#b8b8b8,#171717)'),
-      legendNote: st.mapLayer === 'cobertura' ? 'cor = potencial da família × cobertura da rede · ○ tracejado = líder convidado (pendente)' : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros' : st.mapLayer === 'muni2024' ? 'cor ∝ eleitorado de 2024 (escala log) · números oficiais do TSE — sem comparação entre eleições' : 'intensidade e círculos ∝ liderados cadastrados',
+      legendNote: st.mapLayer === 'cobertura' ? 'cor = liderados por mil eleitores · ○ tracejado = líder convidado (pendente)' : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros' : st.mapLayer === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE — sem comparação entre eleições' : 'intensidade e círculos ∝ liderados cadastrados',
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
       liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
         // camada 2024: ranking por eleitorado, com votos válidos no lugar do índice da família
@@ -3215,6 +3268,48 @@ class Component extends DCLogic {
       // comparecimento = razão entre dois números do MESMO ano (2024); não é comparação entre eleições
       muniComparecimento: (_pano && _pano.votos_validos_2024 && _pano.eleitorado) ? (_pano.votos_validos_2024 / _pano.eleitorado * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—',
       hasMuniRA: !!(_pano && _pano.ra), muniRA: (_pano && _pano.ra) || '',
+      ...(() => {
+        // peso do município na própria RA + municípios de porte parecido (mesma RA).
+        // Tudo em cima de municipio_politico (eleitorado/vv/ra) e da rede real por IBGE.
+        const vazio = { muniShareTxt: '', muniSharePct: '—', muniDonut: '0 100', muniRankRA: '', hasSimilares: false, similares: [] };
+        const M = this._muni;
+        if (!mu || !M || !_muEleit) return vazio;
+        const meuRa = (_pano && _pano.ra) || (M[mu.ibge] && M[mu.ibge].ra);
+        if (!meuRa) return vazio;
+        const naRa = Object.entries(M).filter(([, v]) => v.ra === meuRa && v.eleitorado > 0);
+        const totRa = naRa.reduce((s, [, v]) => s + v.eleitorado, 0);
+        const share = totRa > 0 ? _muEleit / totRa * 100 : 0;
+        const ordem = naRa.slice().sort((a, b) => b[1].eleitorado - a[1].eleitorado);
+        const pos = ordem.findIndex(([k]) => String(k) === String(mu.ibge)) + 1;
+        const porMilDe = (ibge, eleit) => {
+          const rr = redeByIbge[ibge];
+          const lid = rr ? rr.liderados : 0;
+          return eleit > 0 ? lid / (eleit / 1000) : 0;
+        };
+        const corDe = pm => pm >= 2 ? '#2f9e64' : pm >= 1 ? '#7cb342' : pm >= 0.4 ? '#e3c04a' : pm > 0 ? '#e08b3c' : '#c9463c';
+        const similares = naRa
+          .filter(([k]) => String(k) !== String(mu.ibge))
+          .sort((a, b) => Math.abs(a[1].eleitorado - _muEleit) - Math.abs(b[1].eleitorado - _muEleit))
+          .slice(0, 5)
+          .map(([k, v]) => {
+            const pm = porMilDe(k, v.eleitorado);
+            const rr = redeByIbge[k];
+            return {
+              nome: v.nome, eleitores: fmtN(v.eleitorado),
+              porMil: pm > 0 ? pm.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '0',
+              lideres: String(rr ? rr.lideres : 0),
+              cor: corDe(pm), bg: 'var(--color-background-100)',
+              onClick: () => set({ muni: { ibge: k, nome: v.nome, status: mu.status, statusLabel: '', pot: 0, indice: 0, lideres: rr ? rr.lideres : 0, liderados: rr ? rr.liderados : 0, ritmo: 0, historico: [], topLideres: [], fonte: 'familia' } }),
+            };
+          });
+        return {
+          muniShareTxt: `${share.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% da RA ${meuRa}`,
+          muniSharePct: share.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%',
+          muniDonut: `${Math.min(share, 100).toFixed(1)} ${(100 - Math.min(share, 100)).toFixed(1)}`,
+          muniRankRA: pos > 0 ? `${pos}º maior eleitorado entre os ${naRa.length} municípios da região` : '',
+          hasSimilares: similares.length > 0, similares,
+        };
+      })(),
       hasMuniPrefeito: !!(_pano && _pano.prefeito), muniPrefeito: (_pano && _pano.prefeito) ? (_pano.prefeito + (_pano.prefeito_partido ? ' (' + _pano.prefeito_partido + ')' : '')) : '',
       ...(() => {
         if (!mu) return { muniBest: '', muniTrend: '', muniTrendCor: '', muniPresenca: '', muniForca: '', muniForcaCor: '', muniLeitura: '', hasMuniCand: false, muniCandAno: '', muniCandVotos: '', hasMuniVotos: false, muniVotos: [] };
