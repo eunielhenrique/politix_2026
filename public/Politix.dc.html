@@ -811,6 +811,30 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           </div>
         </div>
       </div>
+      <div style="margin-top:18px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:16px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+          <span style="font-size:14px;font-weight:600;color:var(--color-foreground)">Onde está o eleitorado e onde a rede chega</span>
+          <div style="display:flex;gap:14px;align-items:center;font-size:11px;color:var(--color-muted-foreground)">
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:2px;background:#2f9e64"></span>em cidade com líder</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:2px;background:var(--color-gray-400)"></span>sem líder</span>
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--color-gray-600);margin-bottom:14px">eleitorado de 2024 por região administrativa · barra cheia = total da região</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ raGrafico }}" as="rg" hint-placeholder-count="16">
+            <button onClick="{{ rg.onClick }}" title="{{ rg.title }}" style="display:block;width:100%;border:none;background:transparent;padding:0;cursor:pointer;text-align:left">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:3px">
+                <span style="font-size:12px;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rg.nome }}</span>
+                <span style="font-size:11px;color:var(--color-muted-foreground);font-variant-numeric:tabular-nums;white-space:nowrap">{{ rg.rotulo }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:2px;height:12px;width:{{ rg.larguraTotal }}">
+                <span style="height:100%;width:{{ rg.pctCom }};background:#2f9e64;border-radius:3px 0 0 3px;flex-shrink:0"></span>
+                <span style="height:100%;flex:1;background:var(--color-gray-400);border-radius:0 3px 3px 0"></span>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
       <div style="margin-top:18px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px 10px">
           <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">AS 16 REGIÕES — ELEIÇÕES MUNICIPAIS 2024</span>
@@ -3392,12 +3416,15 @@ class Component extends DCLogic {
       // Resumo por RA direto de municipio_politico (645 municípios) + líderes ativos por região
       ...(() => {
         const M = this._muni;
-        if (!M) return { raResumo: [], raTotMunis: '…', raTotEleit: '…', raTotValidos: '…', raTotPct: '…', raTotLideres: '…' };
+        if (!M) return { raGrafico: [], raResumo: [], raTotMunis: '…', raTotEleit: '…', raTotValidos: '…', raTotPct: '…', raTotLideres: '…' };
+        const cidComLider = new Set();
+        (AR || []).filter(l => l.status === 'active').forEach(l => (l.cities || []).forEach(c => cidComLider.add(this._normCid(c))));
         const porRa = {};
         Object.values(M).forEach(m => {
           const k = m.ra || '—';
-          const r = porRa[k] || (porRa[k] = { munis: 0, eleitorado: 0, validos: 0, lideres: 0 });
+          const r = porRa[k] || (porRa[k] = { munis: 0, eleitorado: 0, validos: 0, lideres: 0, eleitCom: 0, munisCom: 0 });
           r.munis++; r.eleitorado += m.eleitorado || 0; r.validos += m.vv || 0;
+          if (cidComLider.has(this._normCid(m.nome))) { r.eleitCom += m.eleitorado || 0; r.munisCom++; }
         });
         // líder conta na RA de cada cidade em que atua
         (AR || []).filter(l => l.status === 'active').forEach(l => (l.cities || []).forEach(c => {
@@ -3406,7 +3433,20 @@ class Component extends DCLogic {
         const linhas = Object.entries(porRa).sort((a, b) => b[1].eleitorado - a[1].eleitorado);
         const tot = linhas.reduce((s, [, v]) => ({ munis: s.munis + v.munis, eleitorado: s.eleitorado + v.eleitorado, validos: s.validos + v.validos, lideres: s.lideres + v.lideres }), { munis: 0, eleitorado: 0, validos: 0, lideres: 0 });
         const pctF = (v, e) => e ? (v / e * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' : '—';
+        const maiorRa = linhas.length ? linhas[0][1].eleitorado : 1;
         return {
+          // barra por RA: comprimento = eleitorado da região (proporcional à maior),
+          // parte verde = eleitorado que já mora em cidade com líder
+          raGrafico: linhas.map(([nome, v]) => {
+            const pctCob = v.eleitorado ? v.eleitCom / v.eleitorado * 100 : 0;
+            return {
+              nome, larguraTotal: Math.max(v.eleitorado / maiorRa * 100, 2).toFixed(1) + '%',
+              pctCom: pctCob.toFixed(1) + '%',
+              rotulo: `${fmtN(v.eleitorado)} · ${pctCob.toLocaleString('pt-BR', { maximumFractionDigits: pctCob >= 10 ? 0 : 1 })}% com líder`,
+              title: `${nome}: ${fmtN(v.eleitorado)} eleitores em ${v.munis} municípios · ${v.munisCom} cidade(s) com líder cobrindo ${fmtN(v.eleitCom)} eleitores`,
+              onClick: () => set({ aTab: 'mapa', mapFRegiao: [nome], muni: null }),
+            };
+          }),
           raResumo: linhas.map(([nome, v]) => ({
             nome, munis: String(v.munis), eleitorado: fmtN(v.eleitorado), validos: fmtN(v.validos),
             pct: pctF(v.validos, v.eleitorado), lideres: String(v.lideres),
