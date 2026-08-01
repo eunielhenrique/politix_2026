@@ -3637,7 +3637,7 @@ class Component extends DCLogic {
       candVazio: _aba !== 'eleitorado' && (!_cand || _cand.length === 0),
       candVazioTitulo: !_cand ? 'Carregando…' : (_aba === 'vereador' ? 'Sem votação de vereadores carregada' : 'Sem votação de prefeitos carregada'),
       candVazioTexto: !_cand ? 'Buscando a votação de 2024 deste município.'
-        : `A votação nominal de 2024 ainda não foi importada para ${mu ? mu.nome : 'este município'}. A tabela existe e a tela já lê dela — falta a carga do TSE.`,
+        : `A votação nominal de 2024 ainda não foi importada para ${mu ? mu.nome : 'este município'}. A tela já lê da tabela municipio_candidato — falta a carga do TSE.`,
       candLista: (_cand || []).map((c, i) => ({
         pos: String(i + 1), nome: c.nome_urna || c.nome_completo || '—',
         meta: [c.partido, c.numero, c.situacao].filter(Boolean).join(' · ') || '—',
