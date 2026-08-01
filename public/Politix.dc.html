@@ -1436,7 +1436,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </button>
             </sc-if>
             <sc-if value="{{ mapToolbarShow }}" hint-placeholder-val="{{ true }}">
-            <div style="position:absolute;top:12px;left:12px;z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:{{ mapToolbarMaxW }};padding:8px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.08)">
+            <div style="position:absolute;top:12px;left:12px;z-index:{{ mapToolbarZ }};display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:{{ mapToolbarMaxW }};padding:8px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.08)">
               <button onClick="{{ toggleMapFull }}" title="{{ mapFullLabel }}" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapFullIcon }}"></path></svg>
                 <span>{{ mapFullLabel }}</span>
@@ -1474,9 +1474,29 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </div>
                 </sc-if>
               </div>
-              <sc-if value="{{ showForca }}" hint-placeholder-val="{{ true }}">
-                <span title="Combinação de membros ligada nos chips de filtro" style="height:28px;display:inline-flex;align-items:center;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);font-size:11.5px;font-weight:500;color:var(--color-foreground);white-space:nowrap">{{ forcaLabel }}</span>
-              </sc-if>
+              <div style="position:relative">
+                <button onClick="{{ toggleForca }}" title="Filtrar a força da família por membro" style="position:relative;z-index:21;height:28px;padding:0 10px;border:1px solid {{ forcaBd }};border-radius:var(--radius-sm);background:{{ forcaBg }};color:{{ forcaFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap">
+                  <span>{{ forcaLabel }}</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"></path></svg>
+                </button>
+                <sc-if value="{{ forcaAberto }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:34px;left:0;min-width:268px;z-index:20;padding:6px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);box-shadow:0 8px 24px rgba(0,0,0,.3)">
+                    <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600);padding:6px 8px 7px">MEMBRO DA FAMÍLIA</div>
+                    <sc-for list="{{ forcaOpcoes }}" as="fm" hint-placeholder-count="4">
+                      <button onClick="{{ fm.onClick }}" style="display:flex;align-items:center;gap:9px;width:100%;padding:7px 8px;border:none;border-radius:var(--radius-sm);background:{{ fm.linhaBg }};cursor:pointer;text-align:left" style-hover="background:var(--color-background)">
+                        <span style="width:15px;height:15px;flex-shrink:0;border:1px solid {{ fm.bd }};border-radius:3px;background:{{ fm.bg }};display:inline-flex;align-items:center;justify-content:center">
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="{{ fm.tick }}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 5 5 9-11"></path></svg>
+                        </span>
+                        <span style="flex:1;min-width:0">
+                          <span style="display:block;font-size:12.5px;font-weight:500;color:var(--color-foreground)">{{ fm.label }}</span>
+                          <span style="display:block;font-size:10.5px;color:var(--color-gray-600)">{{ fm.meta }}</span>
+                        </span>
+                      </button>
+                    </sc-for>
+                    <div style="padding:7px 8px 4px;margin-top:4px;border-top:1px solid var(--color-gray-200);font-size:10.5px;color:var(--color-muted-foreground);line-height:1.45">{{ forcaNota }}</div>
+                  </div>
+                </sc-if>
+              </div>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
                 <span style="font-size:12px;color:var(--color-muted-foreground)">Camada</span>
@@ -1486,6 +1506,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </div>
               </sc-if>
             </div>
+            </sc-if>
+            <sc-if value="{{ forcaAberto }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ fecharForca }}" title="Fechar" style="position:absolute;inset:0;z-index:19"></div>
             </sc-if>
             <sc-if value="{{ mapCtlShow }}" hint-placeholder-val="{{ true }}">
             <div style="{{ mapCtlStyle }}">
@@ -2069,7 +2092,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], forcaOpen: false, muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -3458,7 +3481,39 @@ class Component extends DCLogic {
       sideToggleTitle: st.sideCollapsed ? 'Expandir menu' : 'Recolher menu',
       assessorTabs, pageTitle, pageSub, kpisMapa, layerPills,
       forcaLabel: 'Força de: ' + _forcaLabel + (_anosSel.length ? ' · ' + _anosSel.join(', ') : ''),
-      showForca: _layerAtual === 'historico' || _membSel.length < 3 || _anosSel.length > 0,
+      // seletor de membro no topo do mapa: marca/desmarca cada um (1, 2 ou 3) ou 'Todos'.
+      // Cada troca refaz a RPC com a combinação — o índice sai da SOMA DOS VOTOS, nunca
+      // da soma de índices. Um membro fica sempre ligado (desmarcar o último é no-op).
+      ...(() => {
+        const on = m => _membSel.includes(m);
+        const todos = _membSel.length === 3;
+        const tog = m => () => {
+          const nx = on(m) ? _membSel.filter(x => x !== m) : [..._membSel, m];
+          if (!nx.length) return;
+          set({ mapMembros: ['candidato', 'irmao', 'pai'].filter(x => nx.includes(x)), muni: null });
+        };
+        const cx = (marcado) => ({
+          bg: marcado ? 'var(--color-foreground)' : 'transparent',
+          bd: marcado ? 'var(--color-foreground)' : 'var(--color-border)',
+          tick: marcado ? 'var(--color-background)' : 'transparent',
+          linhaBg: marcado ? 'var(--color-highlight-dim)' : 'transparent',
+        });
+        return {
+          forcaAberto: !!st.forcaOpen,
+          toggleForca: () => set({ forcaOpen: !st.forcaOpen }),
+          fecharForca: () => set({ forcaOpen: false }),
+          forcaBg: todos ? 'var(--color-background)' : 'var(--color-foreground)',
+          forcaFg: todos ? 'var(--color-foreground)' : 'var(--color-background)',
+          forcaBd: todos ? 'var(--color-border)' : 'var(--color-foreground)',
+          forcaOpcoes: [
+            { label: 'Todos (a família)', meta: 'soma os votos dos três', onClick: () => set({ mapMembros: ['candidato', 'irmao', 'pai'], muni: null }), ...cx(todos) },
+            { label: 'Wesley Cezar (Lelinho)', meta: 'candidato · Dep. Federal 2022', onClick: tog('candidato'), ...cx(on('candidato')) },
+            { label: 'Elvis Cezar', meta: 'irmão · Governador 2022', onClick: tog('irmao'), ...cx(on('irmao')) },
+            { label: 'Cezar (Cezão)', meta: 'pai · Dep. Estadual 2022', onClick: tog('pai'), ...cx(on('pai')) },
+          ],
+          forcaNota: todos ? 'Desmarque alguém para ver a força só de quem sobrou.' : 'O índice, as cores do mapa e o ranking seguem esta seleção.',
+        };
+      })(),
       livePanelSub: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? (rn + ' · cidades por índice') : ('prioridade de investimento · ' + _forcaLabel); })(),
       mapLayer: _layerAtual, mapFonte: _membSel.join(','), mapAno: _anosSel.length ? _anosSel.join(',') : 'todos', themeName: isDark ? 'dark' : 'light',
       toggleTema: () => set({ temaOverride: isDark ? 'claro' : 'escuro' }),
@@ -3497,7 +3552,12 @@ class Component extends DCLogic {
       mapKpiStyle: isMob
         ? (st.mapFull ? 'display:none' : 'padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;align-items:stretch;border-top:1px solid var(--color-gray-200);padding-top:12px')
         : 'position:absolute;left:12px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
-      mapToolbarMaxW: isMob ? 'calc(100% - 24px)' : 'calc(100% - 360px)',
+      // a barra nunca pode passar por baixo do painel ao vivo (mesmo z-index, painel vem
+      // depois no DOM e ganha) — a folga segue a largura REAL do painel, não um 360 fixo
+      mapToolbarMaxW: isMob ? 'calc(100% - 24px)' : (st.mapListHidden ? 'calc(100% - 24px)' : `calc(100% - ${_painelW + 36}px)`),
+      // com o seletor de membro aberto a barra sobe: senão o backdrop de fechar fica preso
+      // no contexto de empilhamento dela (z 5) e o painel ao vivo come o clique de fora
+      mapToolbarZ: st.forcaOpen ? '21' : '5',
       mapRotateHint: isMob && st.mapFull && ((st.vh ?? (typeof window !== 'undefined' ? window.innerHeight : 800)) > (st.vw ?? 402)),
       toggleMapFull: () => {
         const entering = !st.mapFull;
@@ -3610,15 +3670,7 @@ class Component extends DCLogic {
         ];
         const ativos = grupos.filter(([k]) => F[k] && F[k] !== 'todos').length
           + (_membSel.length < 3 ? 1 : 0) + (_anosSel.length ? 1 : 0);
-        // chips MULTI-seleção: qualquer combinação de membros (1, 2 ou 3) e de anos.
-        // Trocar um chip só muda o p_membros/p_anos da RPC — o índice é sempre recalculado
-        // lá, a partir da SOMA DOS VOTOS. Nunca se soma índice de membro no front.
-        const _togMemb = (m) => {
-          const on = _membSel.includes(m);
-          const nx = on ? _membSel.filter(x => x !== m) : [..._membSel, m];
-          if (!nx.length) return; // pelo menos um membro sempre ligado
-          set({ mapMembros: ['candidato', 'irmao', 'pai'].filter(x => nx.includes(x)), muni: null });
-        };
+        // ano é MULTI-seleção; o membro mora no seletor "Força de:" do topo do mapa
         const _togAno = (a) => {
           const nx = _anosSel.includes(a) ? _anosSel.filter(x => x !== a) : [..._anosSel, a];
           set({ mapAnos: nx.sort(), muni: null });
@@ -3630,12 +3682,6 @@ class Component extends DCLogic {
         });
         const _anosBase = [...new Set((this._famAnos || [2022]))].sort();
         const gruposMulti = [
-          { titulo: 'MEMBRO DA FAMÍLIA (COMBINÁVEL)', opcoes: [
-            { label: 'Todos', onClick: () => set({ mapMembros: ['candidato', 'irmao', 'pai'], muni: null }), ..._chip(_membSel.length === 3) },
-            { label: 'Candidato · Wesley', onClick: () => _togMemb('candidato'), ..._chip(_membSel.includes('candidato')) },
-            { label: 'Irmão · Elvis', onClick: () => _togMemb('irmao'), ..._chip(_membSel.includes('irmao')) },
-            { label: 'Pai · Cezão', onClick: () => _togMemb('pai'), ..._chip(_membSel.includes('pai')) },
-          ] },
           ..._anosBase.length > 1 ? [{ titulo: 'ANO DA ELEIÇÃO', opcoes: [
             { label: 'Todos', onClick: () => set({ mapAnos: [], muni: null }), ..._chip(!_anosSel.length) },
             ..._anosBase.map(a => ({ label: String(a), onClick: () => _togAno(a), ..._chip(_anosSel.includes(a)) })),
