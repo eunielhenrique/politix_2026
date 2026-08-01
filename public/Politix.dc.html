@@ -695,7 +695,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
       </sc-if>
       <div style="font-family:var(--font-mono);text-transform:uppercase;font-size:12px;letter-spacing:.06em;color:var(--color-gray-700);margin:{{ pageSubMargin }}">{{ pageSub }}</div>
       <sc-if value="{{ aTabVisao }}" hint-placeholder-val="{{ true }}"><div>
-      <div style="display:grid;grid-template-columns:{{ kpiCols }};gap:{{ kpiGap }};margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:{{ kpiCols }};gap:{{ kpiGap }};margin-bottom:16px" class="keep-cols">
         <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
           <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:18px 20px;background:var(--color-background)">
             <div style="font-size:12px;font-weight:500;color:var(--color-muted-foreground);margin-bottom:6px">{{ k.label }}</div>
@@ -807,6 +807,37 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </div>
               </sc-for>
               <div style="font-size:10.5px;color:var(--color-gray-600);line-height:1.45;margin-top:2px">maior gap: {{ vgGapCidade }} — potencial {{ vgGapPot }} da família, sem líder</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:18px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px 10px">
+          <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">AS 16 REGIÕES — ELEIÇÕES MUNICIPAIS 2024</span>
+          <span style="font-size:11px;color:var(--color-gray-600)">clique numa região para abrir o mapa filtrado</span>
+        </div>
+        <div style="overflow-x:auto">
+          <div style="min-width:600px">
+            <div style="display:flex;gap:10px;padding:6px 16px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.8px;color:var(--color-gray-600);border-bottom:1px solid var(--color-border)">
+              <span style="flex:1">REGIÃO</span><span style="width:74px;text-align:right">MUNICÍPIOS</span><span style="width:96px;text-align:right">ELEITORADO</span><span style="width:96px;text-align:right">VOTOS VÁLIDOS</span><span style="width:60px;text-align:right">% VÁL.</span><span style="width:58px;text-align:right">LÍDERES</span>
+            </div>
+            <sc-for list="{{ raResumo }}" as="rr" hint-placeholder-count="16">
+              <button onClick="{{ rr.onClick }}" style="display:flex;gap:10px;width:100%;padding:9px 16px;border:none;border-bottom:1px solid var(--color-gray-200);background:transparent;cursor:pointer;text-align:left;align-items:center" style-hover="background:var(--color-background-100)">
+                <span style="flex:1;min-width:0;font-size:12.5px;font-weight:500;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rr.nome }}</span>
+                <span style="width:74px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground)">{{ rr.munis }}</span>
+                <span style="width:96px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:var(--color-foreground)">{{ rr.eleitorado }}</span>
+                <span style="width:96px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground)">{{ rr.validos }}</span>
+                <span style="width:60px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground)">{{ rr.pct }}</span>
+                <span style="width:58px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ rr.cor }}">{{ rr.lideres }}</span>
+              </button>
+            </sc-for>
+            <div style="display:flex;gap:10px;padding:11px 16px;background:var(--color-background-100);align-items:center">
+              <span style="flex:1;font-size:12.5px;font-weight:600">TOTAL DO ESTADO</span>
+              <span style="width:74px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ raTotMunis }}</span>
+              <span style="width:96px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ raTotEleit }}</span>
+              <span style="width:96px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ raTotValidos }}</span>
+              <span style="width:60px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ raTotPct }}</span>
+              <span style="width:58px;text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ raTotLideres }}</span>
             </div>
           </div>
         </div>
@@ -1409,13 +1440,12 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </div>
             </sc-if>
             <sc-if value="{{ mapCtlShow }}" hint-placeholder-val="{{ true }}">
-            <div style="position:absolute;bottom:12px;right:{{ mapCtlRight }};z-index:6;display:flex;gap:6px;align-items:center">
-              <button onClick="{{ mapCenter }}" title="Centralizar o mapa" style="height:34px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(0,0,0,.12)">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="3.4"></circle></svg>
-                <span>Centralizar</span>
-              </button>
-              <button onClick="{{ mapZoomOut }}" title="Afastar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">−</button>
+            <div style="{{ mapCtlStyle }}">
               <button onClick="{{ mapZoomIn }}" title="Aproximar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">+</button>
+              <button onClick="{{ mapZoomOut }}" title="Afastar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">−</button>
+              <button onClick="{{ mapCenter }}" title="Centralizar o mapa" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.12)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="3.4"></circle></svg>
+              </button>
             </div>
             </sc-if>
             <div style="{{ mapKpiStyle }}">
@@ -2602,7 +2632,25 @@ class Component extends DCLogic {
       if (_top && (Number(_top.rate_7d) || 0) > 0) _notifA.push({ emoji: '★', bg: 'var(--color-foreground)', fg: 'var(--color-background)', titulo: 'Destaque: ' + _top.name, texto: String(_top.rate_7d).replace('.', ',') + '/dia — o maior ritmo da rede. Vale apoiar o ramo.', novo: true });
       _AR.filter(l => l.status === 'active' && (Number(l.rate_7d) || 0) === 0).slice(0, 5).forEach(l => _notifA.push({ emoji: '●', bg: '#3a2a00', fg: '#ffb224', titulo: l.name + ' está sem ritmo', texto: 'Sem novos cadastros nos últimos 7 dias — um contato direto ajuda a retomar.', novo: true }));
       if (!_notifA.length) _notifA.push({ emoji: '○', bg: 'var(--color-gray-300)', fg: 'var(--color-foreground)', titulo: 'Sua rede está começando', texto: 'Convide os primeiros líderes em Configurações › Convidar líder. As notificações aparecem aqui conforme a rede se movimenta.', novo: false }); }
-    const kpis = AR ? (function () {
+    const _semLidVG = typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS;
+    // Sem cadastro de liderados, os KPIs de entrega (realizado, % da meta, ritmo) seriam
+    // zero em tudo. A Visão Geral passa a medir o que existe: líderes ativos, promessa
+    // somada e a cobertura do território sobre o eleitorado oficial de 2024.
+    const kpis = (AR && _semLidVG) ? (function () {
+      const ativos = AR.filter(r => r.status === 'active');
+      const promessa = ativos.reduce((a, r) => a + (r.meta || 0), 0);
+      const pend = AR.filter(r => r.status === 'invited').length;
+      const cid = new Set(); ativos.forEach(r => (r.cities || []).forEach(c => cid.add(this._normCid(c))));
+      const eleitAlc = this._muni ? Object.values(this._muni).reduce((s, m) => s + (cid.has(this._normCid(m.nome)) ? (m.eleitorado || 0) : 0), 0) : 0;
+      const eleitTot = this._muni ? Object.values(this._muni).reduce((s, m) => s + (m.eleitorado || 0), 0) : 0;
+      const pctEleit = eleitTot ? (eleitAlc / eleitTot * 100) : 0;
+      return [
+        { label: 'Líderes ativos', valor: ativos.length.toLocaleString('pt-BR'), sub: `${pend} convite(s) pendente(s)`, subCor: 'var(--color-muted-foreground)' },
+        { label: 'Promessa somada', valor: promessa.toLocaleString('pt-BR') + ' votos', sub: `${ativos.filter(r => (r.meta || 0) > 0).length} líderes com promessa`, subCor: 'var(--color-gray-1000)' },
+        { label: 'Cidades com líder', valor: String(cid.size), sub: `de 645 municípios de SP`, subCor: 'var(--color-gray-700)' },
+        { label: 'Eleitorado alcançado', valor: eleitAlc.toLocaleString('pt-BR'), sub: `${pctEleit.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% do eleitorado do estado`, subCor: 'var(--color-highlight)' },
+      ];
+    }).call(this) : AR ? (function () {
       const lids = st.remote.liderados || [];
       const metaTotal = AR.reduce((a, r) => a + (r.meta || 0), 0);
       const realTotal = lids.length;
@@ -3119,11 +3167,13 @@ class Component extends DCLogic {
     const ms = st.mapStats;
     // sem cadastro de liderados: toda métrica derivada deles sai da tela (ver PX_SEM_LIDERADOS)
     const SEM_LID = typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS;
+    // camada efetiva: 'rede' vira 'cobertura' enquanto não há liderados (viraram a mesma coisa)
+    const _layerAtual = (SEM_LID && st.mapLayer === 'rede') ? 'cobertura' : st.mapLayer;
     // largura do painel do mapa em px — os controles +/−/centralizar se afastam por ela,
     // senão ficam por baixo do painel (o offset era fixo, da época em que ele tinha 320)
-    const _painelW = Math.max(400, Math.min(560, Math.round((st.vw || 1440) * 0.46)));
+    const _painelW = Math.max(380, Math.min(490, Math.round((st.vw || 1440) * 0.36)));
     // na camada 2024 os KPIs são o dado oficial do TSE do escopo (região selecionada ou estado)
-    const kpisMapa = st.mapLayer === 'muni2024' ? [
+    const kpisMapa = _layerAtual === 'muni2024' ? [
       { label: 'Municípios no escopo', valor: ms ? fmtN(ms.munis) : '…', cor: 'var(--color-foreground)' },
       { label: 'Eleitorado 2024', valor: ms ? fmtN(ms.totalEleitorado) : '…', cor: 'var(--color-gray-1000)' },
       { label: 'Votos válidos 2024', valor: ms ? fmtN(ms.totalVV) : '…', cor: 'var(--color-gray-1000)' },
@@ -3143,7 +3193,9 @@ class Component extends DCLogic {
     const pill = (on) => on ? { bg: 'var(--color-foreground)', fg: 'var(--color-background)', bd: 'var(--color-foreground)' } : { bg: 'transparent', fg: 'var(--color-muted-foreground)', bd: 'var(--color-border)' };
     const anosPorMembro = { candidato: ['2022'], irmao: ['2024', '2022'], pai: ['2018', '2012'], familia: ['2024', '2022', '2018', '2012'] };
     const anoPills = ['todos', ...(anosPorMembro[st.mapFonte] || [])].map(j => ({ label: j === 'todos' ? 'Todos' : j, onClick: () => set({ mapAno: j }), ...pill(st.mapAno === j) }));
-    const layerPills = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ['rede', 'Rede atual'], ['muni2024', 'Município 2024']].map(([k, label]) => ({ label, onClick: () => set({ mapLayer: k }), ...pill(st.mapLayer === k) }));
+    // "Rede atual" era liderados; sem eles vira cópia de "Cobertura" — some enquanto o flag estiver ligado
+    const _camadas = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ...(SEM_LID ? [] : [['rede', 'Rede atual']]), ['muni2024', 'Município 2024']];
+    const layerPills = _camadas.map(([k, label]) => ({ label, onClick: () => set({ mapLayer: k }), ...pill(_layerAtual === k) }));
     const mu = st.muni;
     if (mu && mu.ibge) this._loadPanorama(mu.ibge); // panorama TSE (eleitorado) via RPC
     if (mu && mu.nome) this._loadCityLeaders(mu.nome); // líderes reais da cidade (city_leaders)
@@ -3238,13 +3290,14 @@ class Component extends DCLogic {
       fonteOpts: Object.keys(fonteLabels).map(v => ({ v, l: fonteLabels[v] })),
       fonteLabelSel: fonteLabels[st.mapFonte],
       livePanelSub: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? (rn + ' · cidades por índice') : ('prioridade de investimento · ' + fonteLabels[st.mapFonte]); })(),
-      mapLayer: st.mapLayer, mapFonte: st.mapFonte, mapAno: st.mapAno, themeName: isDark ? 'dark' : 'light',
+      mapLayer: _layerAtual, mapFonte: st.mapFonte, mapAno: st.mapAno, themeName: isDark ? 'dark' : 'light',
       toggleTema: () => set({ temaOverride: isDark ? 'claro' : 'escuro' }),
       temaIcon: isDark ? 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4' : 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z',
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })(), // nome da RA (banco), não índice
-      mapCtlRight: (isMob || st.mapListHidden) ? '12px' : (_painelW + 24) + 'px',
+      // controles empilhados no canto inferior ESQUERDO; os KPIs saem da frente (left:60px)
+      mapCtlStyle: 'position:absolute;left:12px;bottom:12px;z-index:6;display:flex;flex-direction:column;gap:6px;align-items:flex-start',
       mapZoomIn: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'in' } })),
       mapZoomOut: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'out' } })),
       mapCenter: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'reset' } })),
@@ -3267,7 +3320,7 @@ class Component extends DCLogic {
       mapListBtnLabel: st.mapListHidden ? 'Mostrar lista' : 'Ocultar lista',
       mapKpiStyle: isMob
         ? (st.mapFull ? 'display:none' : 'padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;align-items:stretch;border-top:1px solid var(--color-gray-200);padding-top:12px')
-        : 'position:absolute;left:12px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
+        : 'position:absolute;left:60px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
       mapToolbarMaxW: isMob ? 'calc(100% - 24px)' : 'calc(100% - 360px)',
       mapRotateHint: isMob && st.mapFull && ((st.vh ?? (typeof window !== 'undefined' ? window.innerHeight : 800)) > (st.vw ?? 402)),
       toggleMapFull: () => {
@@ -3281,28 +3334,28 @@ class Component extends DCLogic {
       mapFullLabel: st.mapFull ? 'Recolher' : 'Expandir',
       mapFullIcon: st.mapFull ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
       // legenda em faixas coloridas (cobertura e 2024); histórico/rede seguem no gradiente
-      showDots: st.mapLayer === 'cobertura' || st.mapLayer === 'muni2024' || (SEM_LID && st.mapLayer === 'rede'),
-      showGrad: st.mapLayer === 'historico' || (!SEM_LID && st.mapLayer === 'rede'),
+      showDots: _layerAtual === 'cobertura' || _layerAtual === 'muni2024' || (SEM_LID && _layerAtual === 'rede'),
+      showGrad: _layerAtual === 'historico' || (!SEM_LID && _layerAtual === 'rede'),
       // cada camada tem legenda própria: título, faixas (ou gradiente) e extremos reais
-      legendTitulo: { cobertura: SEM_LID ? 'LÍDERES CADASTRADOS' : 'COBERTURA DA REDE', muni2024: 'ELEITORADO 2024', historico: 'POTENCIAL DA FAMÍLIA (ÍNDICE 0–100)', rede: SEM_LID ? 'LÍDERES CADASTRADOS' : 'LIDERADOS CADASTRADOS' }[st.mapLayer] || '',
+      legendTitulo: { cobertura: SEM_LID ? 'LÍDERES CADASTRADOS' : 'COBERTURA DA REDE', muni2024: 'ELEITORADO 2024', historico: 'POTENCIAL DA FAMÍLIA (ÍNDICE 0–100)', rede: SEM_LID ? 'LÍDERES CADASTRADOS' : 'LIDERADOS CADASTRADOS' }[_layerAtual] || '',
       legendMin: '0',
-      legendMax: st.mapLayer === 'historico' ? '100'
+      legendMax: _layerAtual === 'historico' ? '100'
         : (ms && ms.top && ms.top.length) ? fmtN(Math.max(...ms.top.map(t => t.liderados || 0))) : '—',
       legendTiers: [
-        ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[st.mapLayer === 'muni2024' ? 'muni2024' : SEM_LID ? 'lideres' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
-        ...(st.mapLayer === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: 'sem líder e sem histórico' }] : []),
+        ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[_layerAtual === 'muni2024' ? 'muni2024' : SEM_LID ? 'lideres' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
+        ...(_layerAtual === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: 'sem líder e sem histórico' }] : []),
       ],
-      legendGrad: st.mapLayer === 'historico'
+      legendGrad: _layerAtual === 'historico'
         ? (isDark ? 'linear-gradient(90deg,#181818,#7a4d00,#ffb224,#ffe3ad)' : 'linear-gradient(90deg,#f4f1e8,#eda01f,#cc6f00,#5a2a00)')
         : (isDark ? 'linear-gradient(90deg,#111111,#454545,#ededed)' : 'linear-gradient(90deg,#ededed,#b8b8b8,#171717)'),
-      legendNote: st.mapLayer === 'cobertura' ? (SEM_LID ? 'cor = líderes ativos no município · ○ tracejado = líder convidado (pendente)' : 'cor = liderados por mil eleitores · ○ tracejado = líder convidado (pendente)')
-        : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros'
-        : st.mapLayer === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE — sem comparação entre eleições'
+      legendNote: _layerAtual === 'cobertura' ? (SEM_LID ? 'cor = líderes ativos no município · ○ tracejado = líder convidado (pendente)' : 'cor = liderados por mil eleitores · ○ tracejado = líder convidado (pendente)')
+        : _layerAtual === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros'
+        : _layerAtual === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE — sem comparação entre eleições'
         : (SEM_LID ? 'cor = líderes ativos no município — cadastro de liderados ainda não iniciado' : 'intensidade e círculos ∝ liderados cadastrados'),
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
       liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
         // camada 2024: ranking por eleitorado, com votos válidos no lugar do índice da família
-        if (st.mapLayer === 'muni2024') {
+        if (_layerAtual === 'muni2024') {
           const comp = (t.eleitorado > 0 && t.vv > 0) ? (t.vv / t.eleitorado * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—';
           return {
             pos: i + 1, nome: t.nome, sub: t.ra ? 'RA ' + t.ra : 'região não informada',
@@ -3320,7 +3373,35 @@ class Component extends DCLogic {
         };
       }),
       liveEmpty: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).length === 0,
-      liveEmptyText: !ms ? 'Carregando o índice de prioridade…' : st.mapLayer === 'muni2024' ? 'Nenhum município com dado de 2024 nesta região.' : 'Nenhuma cidade com potencial da família nesta região — a família praticamente não fez voto por aqui em 2022.',
+      liveEmptyText: !ms ? 'Carregando o índice de prioridade…' : _layerAtual === 'muni2024' ? 'Nenhum município com dado de 2024 nesta região.' : 'Nenhuma cidade com potencial da família nesta região — a família praticamente não fez voto por aqui em 2022.',
+      // Resumo por RA direto de municipio_politico (645 municípios) + líderes ativos por região
+      ...(() => {
+        const M = this._muni;
+        if (!M) return { raResumo: [], raTotMunis: '…', raTotEleit: '…', raTotValidos: '…', raTotPct: '…', raTotLideres: '…' };
+        const porRa = {};
+        Object.values(M).forEach(m => {
+          const k = m.ra || '—';
+          const r = porRa[k] || (porRa[k] = { munis: 0, eleitorado: 0, validos: 0, lideres: 0 });
+          r.munis++; r.eleitorado += m.eleitorado || 0; r.validos += m.vv || 0;
+        });
+        // líder conta na RA de cada cidade em que atua
+        (AR || []).filter(l => l.status === 'active').forEach(l => (l.cities || []).forEach(c => {
+          const ra = this.raDe(c); if (ra && porRa[ra]) porRa[ra].lideres++;
+        }));
+        const linhas = Object.entries(porRa).sort((a, b) => b[1].eleitorado - a[1].eleitorado);
+        const tot = linhas.reduce((s, [, v]) => ({ munis: s.munis + v.munis, eleitorado: s.eleitorado + v.eleitorado, validos: s.validos + v.validos, lideres: s.lideres + v.lideres }), { munis: 0, eleitorado: 0, validos: 0, lideres: 0 });
+        const pctF = (v, e) => e ? (v / e * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' : '—';
+        return {
+          raResumo: linhas.map(([nome, v]) => ({
+            nome, munis: String(v.munis), eleitorado: fmtN(v.eleitorado), validos: fmtN(v.validos),
+            pct: pctF(v.validos, v.eleitorado), lideres: String(v.lideres),
+            cor: v.lideres > 0 ? 'var(--color-foreground)' : 'var(--color-highlight)',
+            onClick: () => set({ aTab: 'mapa', mapFRegiao: [nome], muni: null }),
+          })),
+          raTotMunis: String(tot.munis), raTotEleit: fmtN(tot.eleitorado), raTotValidos: fmtN(tot.validos),
+          raTotPct: pctF(tot.validos, tot.eleitorado), raTotLideres: String(tot.lideres),
+        };
+      })(),
       podio, rankingResto, rankingTotal, rankHasMore, cidadesRank: cidResto, cidPodio, cidadesTotal: String(cidadesRank.length),
       regiaoOpts: [{ v: 'todos', l: `Todas as regiões (${RA15.length} RAs)` }, ...RA15.map(v => ({ v, l: v }))],
       rankFRegiaoSel: this.fltSelVal(st.rankFRegiao), onRankFRegiao: (e) => set({ rankFRegiao: [e.target.value], selLeader: null, rankVisible: 20 }),

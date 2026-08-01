@@ -29,6 +29,7 @@
   // (líderes ativos + liderados + eleitorado TSE). Cidade com líder nunca é "Descoberta".
   // Exposto no window pro painel usar a MESMA fonte (nunca dois vereditos divergentes).
   const semLid = () => !!window.PX_SEM_LIDERADOS;
+  const PRIO_ELEIT = 20000; // piso de eleitorado pra município sem líder virar prioridade no mapa
   function veredito(lideres, liderados, eleitorado) {
     const l = lideres || 0, ld = liderados || 0;
     const porMil = eleitorado ? ld / (eleitorado / 1000) : 0;
@@ -63,7 +64,7 @@
       { min: 3, cor: '#7cb342', label: '3–4 líderes' },
       { min: 2, cor: '#e3c04a', label: '2 líderes' },
       { min: 1, cor: '#e08b3c', label: '1 líder' },
-      { min: -1, cor: '#c9463c', label: 'Sem líder (com potencial)' },
+      { min: -1, cor: '#c9463c', label: 'Sem líder · prioridade' },
     ],
     muni2024: [
       { min: 200000, cor: '#2f9e64', label: 'Muito alto (200 mil+)' },
@@ -184,7 +185,13 @@
         // Cobertura em faixas verde→vermelho SÓ onde há rede real. Sem rede, vermelho fica
         // reservado a quem tem potencial da família (é o que pede ação); o resto segue cinza,
         // senão o estado inteiro ficaria vermelho e a cor não diria nada.
-        if (semLid()) return r.lideres > 0 ? tierDe('lideres', r.lideres).cor : (r.status === 'priorizar' ? '#c9463c' : P[r.status]);
+        if (semLid()) {
+          if (r.lideres > 0) return tierDe('lideres', r.lideres).cor;
+          // Sem líder: prioridade é onde estão os VOTOS (eleitorado) ou o reduto da família.
+          // Só o índice ≥ 18 deixava 12 pontinhos no mapa — o histórico da família é
+          // concentradíssimo (18 de 645 municípios) e não serve sozinho pra priorizar.
+          return (r.eleitorado >= PRIO_ELEIT || r.indice >= 18) ? '#c9463c' : P.neutro;
+        }
         if (r.lideres > 0 || r.liderados > 0) return tierDe('cobertura', r.porMil).cor;
         return r.status === 'priorizar' ? '#c9463c' : P[r.status];
       };
