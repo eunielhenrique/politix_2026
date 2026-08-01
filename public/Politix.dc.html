@@ -1453,6 +1453,23 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <sc-for list="{{ regiaoOpts }}" as="rm" hint-placeholder-count="4"><option value="{{ rm.v }}">{{ rm.l }}</option></sc-for>
               </select>
               </sc-if>
+              <div style="position:relative">
+                <input type="text" value="{{ buscaCidade }}" onChange="{{ onBuscaCidade }}" onKeyDown="{{ onBuscaKey }}" placeholder="Buscar cidade…" style="height:32px;width:{{ buscaW }};padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                <sc-if value="{{ buscaAberta }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:36px;left:0;min-width:250px;max-height:280px;overflow:auto;z-index:20;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);box-shadow:0 8px 24px rgba(0,0,0,.3)">
+                    <sc-if value="{{ buscaSemResultado }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:10px 12px;font-size:12px;color:var(--color-muted-foreground)">Nenhuma cidade com esse nome.</div>
+                    </sc-if>
+                    <sc-for list="{{ buscaResultados }}" as="bc" hint-placeholder-count="6">
+                      <button onClick="{{ bc.onClick }}" style="display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;border:none;border-bottom:1px solid var(--color-gray-200);background:transparent;cursor:pointer;text-align:left" style-hover="background:var(--color-background)">
+                        <span style="width:8px;height:8px;border-radius:2px;flex-shrink:0;background:{{ bc.cor }}"></span>
+                        <span style="flex:1;min-width:0;font-size:12.5px;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ bc.nome }}</span>
+                        <span style="font-size:10.5px;color:var(--color-gray-600);white-space:nowrap">{{ bc.meta }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
                 <span style="font-size:12px;color:var(--color-muted-foreground)">Camada</span>
@@ -2024,7 +2041,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, muniAba: 'eleitorado', candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -3508,6 +3525,41 @@ class Component extends DCLogic {
       rankFRegiaoSel: this.fltSelVal(st.rankFRegiao), onRankFRegiao: (e) => set({ rankFRegiao: [e.target.value], selLeader: null, rankVisible: 20 }),
       cidFRegiaoSel: this.fltSelVal(st.cidFRegiao), onCidFRegiao: (e) => set({ cidFRegiao: [e.target.value] }),
       mapFRegiaoSel: this.fltSelVal(st.mapFRegiao), onMapFRegiao: (e) => set({ mapFRegiao: [e.target.value], muni: null }),
+      // busca por nome: acha nos 645 de municipio_politico e manda o mapa focar (mesmo
+      // evento do clique, então o painel recebe exatamente o mesmo detalhe)
+      ...(() => {
+        const termo = this._normCid(st.buscaCidade || '');
+        const M = this._muni;
+        const focar = (ibge) => {
+          set({ buscaCidade: '' });
+          if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'focus', ibge } }));
+        };
+        const achados = (termo.length >= 2 && M) ? Object.entries(M)
+          .filter(([, v]) => this._normCid(v.nome).includes(termo))
+          .sort((a, b) => {
+            const ea = this._normCid(a[1].nome).startsWith(termo), eb = this._normCid(b[1].nome).startsWith(termo);
+            if (ea !== eb) return ea ? -1 : 1;
+            return (b[1].eleitorado || 0) - (a[1].eleitorado || 0);
+          }).slice(0, 8) : [];
+        return {
+          buscaCidade: st.buscaCidade || '',
+          buscaW: isMob ? '150px' : '190px',
+          onBuscaCidade: (e) => set({ buscaCidade: e.target.value }),
+          onBuscaKey: (e) => { if (e.key === 'Enter' && achados.length) focar(achados[0][0]); if (e.key === 'Escape') set({ buscaCidade: '' }); },
+          buscaAberta: termo.length >= 2,
+          buscaSemResultado: termo.length >= 2 && achados.length === 0,
+          buscaResultados: achados.map(([ibge, v]) => {
+            const rr = redeByIbge[ibge];
+            const nl = rr ? rr.lideres : 0;
+            return {
+              nome: v.nome,
+              meta: `${v.ra || '—'} · ${fmtN(v.eleitorado || 0)} eleitores${nl ? ' · ' + nl + ' líder(es)' : ''}`,
+              cor: nl >= 5 ? '#2f9e64' : nl >= 3 ? '#7cb342' : nl >= 2 ? '#e3c04a' : nl >= 1 ? '#e08b3c' : ((v.eleitorado || 0) >= 100000 ? '#c9463c' : (v.eleitorado || 0) >= 20000 ? '#7d3b34' : 'var(--color-gray-400)'),
+              onClick: () => focar(ibge),
+            };
+          }),
+        };
+      })(),
       muniNome: mu ? mu.nome : '', muniStatusLabel: muStatusLabel, muniStBg: stTone[0], muniStFg: stTone[1],
       hasMuniEleitorado: !!(_pano && _pano.eleitorado), muniEleitorado: (_pano && _pano.eleitorado) ? fmtN(_pano.eleitorado) : '—',
       hasMuniVV: !!(_pano && _pano.votos_validos_2024), muniVV: (_pano && _pano.votos_validos_2024) ? fmtN(_pano.votos_validos_2024) : '—',

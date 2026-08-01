@@ -96,7 +96,7 @@
     static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra']; }
     connectedCallback() {
       if (this._init) return; this._init = true;
-      this._onCtl = e => this.ctl(e.detail && e.detail.action);
+      this._onCtl = e => this.ctl(e.detail && e.detail.action, e.detail && e.detail.ibge);
       window.addEventListener('politix:mapctl', this._onCtl);
       this.style.display = 'block'; this.style.position = 'relative';
       this.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:420px;font:13px var(--font-mono,monospace);color:var(--color-muted-foreground,#878787)">Carregando os 645 municípios (IBGE)…</div>';
@@ -180,6 +180,7 @@
       const theme = this.getAttribute('theme') === 'light' ? 'light' : 'dark';
       const P = PAL[theme];
       const { rows, maxPot, fonte } = this.values();
+      this._rows = rows; // usado pelo foco por busca de nome
       // RA agora é o nome oficial vindo do banco (municipio_politico.ra, 16 regiões) — string, não índice
       const selRa = this.getAttribute('data-sel-ra') || '';
       const scoped = selRa ? rows.filter(r => r.ra === selRa) : rows; // RA selecionada
@@ -314,9 +315,23 @@
       this._zt = t;
       svg.transition().duration(600).call(zoom.transform, t);
     }
-    ctl(action) {
+    ctl(action, ibge) {
       const d3 = window.d3; const svg = this._svg, zoom = this._zoom;
       if (!d3 || !svg || !zoom) return;
+      if (action === 'focus') {
+        // busca por nome: aproxima o município E dispara o mesmo evento do clique,
+        // pra o painel receber exatamente o mesmo detalhe (nada de dado paralelo)
+        const r = (this._rows || []).find(x => String(x.code) === String(ibge));
+        if (!r) return;
+        this.zoomToFeature(r);
+        window.dispatchEvent(new CustomEvent('politix:muni', { detail: {
+          ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
+          lideres: r.lideres, liderados: r.liderados, ritmo: r.ritmo,
+          historico: r.historico.slice().sort((a, b) => b.votos - a.votos),
+          topLideres: (r.a && r.a.topLideres) || [], fonte: this.getAttribute('fonte') || 'familia',
+        } }));
+        return;
+      }
       if (action === 'in') svg.transition().duration(220).call(zoom.scaleBy, 1.6);
       else if (action === 'out') svg.transition().duration(220).call(zoom.scaleBy, 0.63);
       else if (action === 'reset') svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
