@@ -1421,14 +1421,14 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </sc-for>
               </div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:7px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);font-size:11px;color:var(--color-muted-foreground);box-shadow:0 4px 16px rgba(0,0,0,.08)">
+                <span style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">{{ legendTitulo }}</span>
                 <sc-if value="{{ showDots }}" hint-placeholder-val="{{ true }}">
-                  <span style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">{{ legendTitulo }}</span>
                   <sc-for list="{{ legendTiers }}" as="lt" hint-placeholder-count="5">
                     <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:2px;background:{{ lt.cor }}"></span>{{ lt.label }}</span>
                   </sc-for>
                 </sc-if>
                 <sc-if value="{{ showGrad }}" hint-placeholder-val="{{ false }}">
-                  <span style="display:inline-flex;align-items:center;gap:8px">baixo<span style="width:120px;height:10px;border-radius:var(--radius-sm);background:{{ legendGrad }}"></span>alto</span>
+                  <span style="display:inline-flex;align-items:center;gap:8px">{{ legendMin }}<span style="width:120px;height:10px;border-radius:var(--radius-sm);background:{{ legendGrad }}"></span>{{ legendMax }}</span>
                 </sc-if>
                 <span>{{ legendNote }}</span>
               </div>
@@ -1504,16 +1504,6 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px;font-size:12px">
                       <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Força da família aqui</span><span style="font-weight:600;color:{{ muniForcaCor }}">{{ muniForca }}</span></div>
                       <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Tendência da região</span><span style="font-weight:600;color:{{ muniTrendCor }}">{{ muniTrend }}</span></div>
-                      <sc-if value="{{ hasMuniEleitorado }}" hint-placeholder-val="{{ true }}">
-                        <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Eleitorado 2024 (TSE)</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ muniEleitorado }}</span></div>
-                      </sc-if>
-                      <sc-if value="{{ hasMuniVV }}" hint-placeholder-val="{{ true }}">
-                        <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Votos válidos 2024</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ muniVV }}</span></div>
-                        <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Comparecimento (válidos / eleitorado)</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ muniComparecimento }}</span></div>
-                      </sc-if>
-                      <sc-if value="{{ hasMuniRA }}" hint-placeholder-val="{{ true }}">
-                        <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Região administrativa</span><span style="font-weight:600">{{ muniRA }}</span></div>
-                      </sc-if>
                       <sc-if value="{{ hasMuniPrefeito }}" hint-placeholder-val="{{ false }}">
                         <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Prefeito(a)</span><span style="font-weight:600">{{ muniPrefeito }}</span></div>
                       </sc-if>
@@ -3201,10 +3191,10 @@ class Component extends DCLogic {
       livePanelStyle: st.mapListHidden ? 'display:none' : (isMob
         ? (st.mapFull
           ? (((st.vw ?? 402) > (st.vh ?? 800))
-            ? 'position:absolute;top:10px;right:10px;bottom:10px;width:272px;overflow:auto;z-index:6;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.3)'
+            ? 'position:absolute;top:10px;right:10px;bottom:10px;width:min(400px,52vw);overflow:auto;z-index:6;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.3)'
             : 'position:absolute;left:0;right:0;bottom:0;max-height:42%;overflow:auto;z-index:6;border-top:1px solid var(--color-border);border-radius:12px 12px 0 0;background:var(--color-background);padding:16px 16px 28px')
           : 'border-top:1px solid var(--color-border);background:var(--color-background);padding:16px')
-        : 'position:absolute;top:12px;right:12px;width:320px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.12)'),
+        : 'position:absolute;top:12px;right:12px;width:min(440px,38vw);min-width:340px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.12)'),
       mapListHidden: !!st.mapListHidden,
       toggleMapList: () => set({ mapListHidden: !st.mapListHidden }),
       mapListBtnLabel: st.mapListHidden ? 'Mostrar lista' : 'Ocultar lista',
@@ -3226,7 +3216,11 @@ class Component extends DCLogic {
       // legenda em faixas coloridas (cobertura e 2024); histórico/rede seguem no gradiente
       showDots: st.mapLayer === 'cobertura' || st.mapLayer === 'muni2024',
       showGrad: st.mapLayer === 'historico' || st.mapLayer === 'rede',
-      legendTitulo: st.mapLayer === 'muni2024' ? 'ELEITORADO 2024' : 'COBERTURA DA REDE',
+      // cada camada tem legenda própria: título, faixas (ou gradiente) e extremos reais
+      legendTitulo: { cobertura: 'COBERTURA DA REDE', muni2024: 'ELEITORADO 2024', historico: 'POTENCIAL DA FAMÍLIA (ÍNDICE 0–100)', rede: 'LIDERADOS CADASTRADOS' }[st.mapLayer] || '',
+      legendMin: '0',
+      legendMax: st.mapLayer === 'historico' ? '100'
+        : (ms && ms.top && ms.top.length) ? fmtN(Math.max(...ms.top.map(t => t.liderados || 0))) : '—',
       legendTiers: [
         ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[st.mapLayer === 'muni2024' ? 'muni2024' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
         ...(st.mapLayer === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: 'sem rede e sem histórico' }] : []),

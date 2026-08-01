@@ -228,7 +228,9 @@
           }
         });
       }
-      const zoom = d3.zoom().scaleExtent([1, 14]).on('zoom', ev => { this._zt = ev.transform; g.attr('transform', ev.transform); });
+      // mínimo abaixo de 1: o "−" precisa AFASTAR de verdade (travado em 1 o mapa nunca
+      // encolhia além do enquadramento inicial, e o painel lateral cobria parte do estado)
+      const zoom = d3.zoom().scaleExtent([0.3, 14]).on('zoom', ev => { this._zt = ev.transform; g.attr('transform', ev.transform); });
       svg.call(zoom);
       svg.on('dblclick.zoom', null); // duplo-clique é nosso (zoomToFeature), não o do d3.zoom
       this._svg = svg; this._zoom = zoom; // expõe pros controles +/−/centralizar da barra de cima
