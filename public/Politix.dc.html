@@ -23,7 +23,11 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script>window.PX_SB_URL="https://gmurynexmbbisxpdejmz.supabase.co";window.PX_SB_KEY="sb_publishable_I1_NXNfigx6JY1-7If87HA_bIg160Vj";</script>
+<script>window.PX_SB_URL="https://gmurynexmbbisxpdejmz.supabase.co";window.PX_SB_KEY="sb_publishable_I1_NXNfigx6JY1-7If87HA_bIg160Vj";
+// Enquanto a campanha não cadastra liderados, toda métrica derivada deles (contagem de
+// liderados, ritmo 7d, cobertura por mil eleitores) fica escondida — zero na tela lê como
+// "a rede toda falhou". A leitura passa a ser por LÍDERES. Vira false quando o cadastro abrir.
+window.PX_SEM_LIDERADOS=true;</script>
 <style>
 body{margin:0;font-family:var(--font-sans);background:var(--color-background);color:var(--color-foreground);-webkit-font-smoothing:antialiased;
 --font-sans:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-mono:"Geist Mono","SFMono-Regular",Menlo,monospace;--font-display:"GeistPixel-Line","Geist Mono",monospace;
@@ -1471,16 +1475,21 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <button onClick="{{ fecharMuni }}" title="Voltar ao painel ao vivo" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-muted-foreground);cursor:pointer;font-size:11.5px;font-weight:500;white-space:nowrap;flex-shrink:0">← Lista</button>
                   </div>
                   <sc-if value="{{ hasMuniEleitorado }}" hint-placeholder-val="{{ true }}">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px" class="keep-cols">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px" class="keep-cols-3">
                       <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:12px">
                         <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">ELEITORADO 2024</div>
-                        <div style="font-family:var(--font-mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px">{{ muniEleitorado }}</div>
+                        <div style="font-family:var(--font-mono);font-size:21px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px">{{ muniEleitorado }}</div>
                         <div style="font-size:10px;color:var(--color-gray-600);margin-top:3px">{{ muniShareTxt }}</div>
                       </div>
                       <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:12px">
                         <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">VOTOS VÁLIDOS 2024</div>
-                        <div style="font-family:var(--font-mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px">{{ muniVV }}</div>
-                        <div style="font-size:10px;color:var(--color-gray-600);margin-top:3px">{{ muniComparecimento }} do eleitorado</div>
+                        <div style="font-family:var(--font-mono);font-size:21px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px">{{ muniVV }}</div>
+                        <div style="font-size:10px;color:var(--color-gray-600);margin-top:3px">{{ muniAbstencaoTxt }}</div>
+                      </div>
+                      <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:12px">
+                        <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">COMPARECIMENTO</div>
+                        <div style="font-family:var(--font-mono);font-size:21px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:5px">{{ muniComparecimento }}</div>
+                        <div style="font-size:10px;color:var(--color-gray-600);margin-top:3px">válidos ÷ eleitorado</div>
                       </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;margin-top:8px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
@@ -1517,30 +1526,35 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--color-gray-200);font-size:12px;line-height:1.55;color:var(--color-foreground)">{{ muniLeitura }}</div>
                   </div>
                   <div style="font-size:12px;font-weight:600;margin:16px 0 8px">Rede atual</div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-                    <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniLideres }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">líderes</div></div>
-                    <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniLiderados }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">liderados</div></div>
-                    <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniRitmo }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">ritmo 7d</div></div>
+                  <div style="display:grid;grid-template-columns:{{ redeCols }};gap:8px">
+                    <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniLideres }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">líderes ativos</div></div>
+                    <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniPend }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">convites pendentes</div></div>
+                    <sc-if value="{{ temLiderados }}" hint-placeholder-val="{{ false }}">
+                      <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniLiderados }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">liderados</div></div>
+                      <div style="background:var(--color-background-100);border-radius:var(--radius-sm);padding:10px"><div style="font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ muniRitmo }}</div><div style="font-size:10.5px;color:var(--color-muted-foreground)">ritmo 7d</div></div>
+                    </sc-if>
                   </div>
-                  <div style="margin-top:10px">
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--color-muted-foreground)"><span>Cobertura sobre o eleitorado</span><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--color-foreground)">{{ muniPorMil }} /mil</span></div>
-                    <div style="height:5px;border-radius:var(--radius-sm);background:var(--color-gray-300);margin-top:5px;overflow:hidden"><div style="height:100%;background:var(--color-foreground);width:{{ muniCovW }}"></div></div>
-                    <div style="font-size:10px;color:var(--color-gray-600);margin-top:4px">= {{ muniCovPct }} do alvo · alvo forte ≈ 2 liderados por mil eleitores</div>
-                  </div>
+                  <sc-if value="{{ temLiderados }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px">
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--color-muted-foreground)"><span>Cobertura sobre o eleitorado</span><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--color-foreground)">{{ muniPorMil }} /mil</span></div>
+                      <div style="height:5px;border-radius:var(--radius-sm);background:var(--color-gray-300);margin-top:5px;overflow:hidden"><div style="height:100%;background:var(--color-foreground);width:{{ muniCovW }}"></div></div>
+                      <div style="font-size:10px;color:var(--color-gray-600);margin-top:4px">= {{ muniCovPct }} do alvo · alvo forte ≈ 2 liderados por mil eleitores</div>
+                    </div>
+                  </sc-if>
                   <sc-if value="{{ hasSimilares }}" hint-placeholder-val="{{ true }}">
                     <div style="font-size:12px;font-weight:600;margin:18px 0 3px">Municípios similares</div>
                     <div style="font-size:10.5px;color:var(--color-gray-600);margin-bottom:8px">mesma RA e porte de eleitorado parecido — onde a rede está melhor ou pior que aqui</div>
                     <div style="display:flex;flex-direction:column;gap:4px">
                       <div style="display:flex;gap:8px;padding:0 9px;font-family:var(--font-mono);font-size:9px;letter-spacing:.8px;color:var(--color-gray-600)">
-                        <span style="flex:1">MUNICÍPIO</span><span style="width:62px;text-align:right">ELEITORES</span><span style="width:52px;text-align:right">/MIL</span><span style="width:56px;text-align:right">LÍDERES</span>
+                        <span style="flex:1">MUNICÍPIO</span><span style="width:62px;text-align:right">ELEITORES</span><sc-if value="{{ temLiderados }}" hint-placeholder-val="{{ false }}"><span style="width:52px;text-align:right">/MIL</span></sc-if><span style="width:56px;text-align:right">LÍDERES</span>
                       </div>
                       <sc-for list="{{ similares }}" as="sm" hint-placeholder-count="5">
                         <button onClick="{{ sm.onClick }}" style="display:flex;align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:{{ sm.bg }};cursor:pointer;text-align:left;width:100%">
                           <span style="width:7px;height:7px;border-radius:2px;flex-shrink:0;background:{{ sm.cor }}"></span>
                           <span style="flex:1;min-width:0;font-size:12px;font-weight:500;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sm.nome }}</span>
                           <span style="width:62px;text-align:right;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--color-foreground)">{{ sm.eleitores }}</span>
-                          <span style="width:52px;text-align:right;font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ sm.cor }}">{{ sm.porMil }}</span>
-                          <span style="width:56px;text-align:right;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground)">{{ sm.lideres }}</span>
+                          <sc-if value="{{ temLiderados }}" hint-placeholder-val="{{ false }}"><span style="width:52px;text-align:right;font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ sm.cor }}">{{ sm.porMil }}</span></sc-if>
+                          <span style="width:56px;text-align:right;font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ sm.corLid }}">{{ sm.lideres }}</span>
                         </button>
                       </sc-for>
                     </div>
@@ -1559,8 +1573,29 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                             <div style="font-size:10.5px;color:var(--color-gray-600);margin-top:2px">{{ cl.meta }}</div>
                           </div>
                           <span style="flex-shrink:0;padding:3px 9px;border-radius:var(--radius-sm);font-size:10px;font-weight:600;background:{{ cl.seloBg }};color:{{ cl.seloFg }}">{{ cl.selo }}</span>
+                          <button onClick="{{ cl.msgAbrir }}" title="Enviar mensagem no WhatsApp" style="flex-shrink:0;width:26px;height:24px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.9-.9L3 20.5l1.6-4.8A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4Z"></path></svg>
+                          </button>
                           <button onClick="{{ cl.editar }}" title="Editar líder" style="flex-shrink:0;height:24px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:10.5px;font-weight:500;cursor:pointer">Editar</button>
                         </div>
+                        <sc-if value="{{ cl.msgAberta }}" hint-placeholder-val="{{ false }}">
+                          <div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--color-gray-200);display:flex;flex-direction:column;gap:7px">
+                            <sc-if value="{{ msgSemConexao }}" hint-placeholder-val="{{ false }}">
+                              <div style="font-size:11px;line-height:1.45;color:var(--color-highlight)">WhatsApp não conectado — conecte a instância em Configurações para enviar por aqui.</div>
+                              <a href="{{ cl.waHref }}" target="_blank" rel="noopener" style="height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--color-border);border-radius:var(--radius-sm);color:var(--color-foreground);font-size:12px;text-decoration:none">Abrir conversa no WhatsApp</a>
+                            </sc-if>
+                            <sc-if value="{{ msgConectado }}" hint-placeholder-val="{{ true }}">
+                              <textarea value="{{ msgText }}" onChange="{{ onMsgText }}" placeholder="{{ msgPlaceholder }}" rows="3" style="width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;font-family:inherit;resize:vertical;outline:none"></textarea>
+                              <sc-if value="{{ hasMsgOut }}" hint-placeholder-val="{{ false }}">
+                                <div style="font-size:11px;line-height:1.45;color:var(--color-highlight)">{{ msgOutTxt }}</div>
+                              </sc-if>
+                              <div style="display:flex;gap:6px">
+                                <button onClick="{{ msgEnviar }}" style="flex:1;height:32px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:12px;font-weight:500;cursor:pointer">{{ msgEnviarLabel }}</button>
+                                <button onClick="{{ msgFechar }}" style="height:32px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-muted-foreground);font-size:12px;cursor:pointer">Fechar</button>
+                              </div>
+                            </sc-if>
+                          </div>
+                        </sc-if>
                         <sc-if value="{{ cl.lendo }}" hint-placeholder-val="{{ false }}">
                           <div style="margin-top:8px;font-size:11px;color:var(--color-muted-foreground)">Carregando os dados atuais…</div>
                         </sc-if>
@@ -1896,7 +1931,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edBusy: false, edMsg: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -2092,6 +2127,22 @@ class Component extends DCLogic {
     let rows = [];
     try { const { data } = await sb.rpc('city_leaders', { p_city: cidade }); rows = data || []; } catch (e) {}
     this.setState({ cidLideres: rows, cidLideresCidade: cidade }); // falhou = estado vazio honesto, nunca "carregando" eterno
+  }
+  // ===== Mensagem direta pro líder (WhatsApp via Evolution) =====
+  // Só envia de verdade com a instância conectada; sem conexão cai no wa.me, que é honesto
+  // (abre a conversa no aparelho) em vez de fingir que mandou.
+  _msgAbrir(id, nome, whatsapp) {
+    if (this.state.wppState !== 'connected') this._wppCheck(); // reconsulta a cada abertura: a instância pode ter conectado depois
+    this.setState({ msgId: id, msgNome: nome, msgZap: whatsapp, msgText: '', msgOut: null, msgBusy: false });
+  }
+  async _msgEnviar() {
+    const st = this.state;
+    const to = this._normWa(st.msgZap), text = (st.msgText || '').trim();
+    if (!to || !text) { this.setState({ msgOut: { err: true, txt: 'Escreva a mensagem antes de enviar.' } }); return; }
+    this.setState({ msgBusy: true, msgOut: null });
+    const r = await this._pxWpp('send', { to, text });
+    if (r && r.ok) this.setState({ msgBusy: false, msgId: null, msgOut: null });
+    else this.setState({ msgBusy: false, msgOut: { err: true, txt: 'Não consegui enviar: ' + ((r && r.error) || 'a instância pode ter desconectado.') } });
   }
   // ===== Editar líder (inline, na lista de líderes da cidade) =====
   // Abre com os valores ATUAIS da linha do banco: city_leaders não traz cities/dobrada, e
@@ -3066,12 +3117,20 @@ class Component extends DCLogic {
     const pageTitle = { visao: 'Cockpit da campanha', ranking: 'Ranking de líderes', cadastro: 'Cadastrar líder', cidades: 'Ranking de cidades', grupos: 'Grupos da rede', config: 'Configurações', mapa: 'Mapa Rede' }[st.aTab];
     const pageSub = { visao: 'Meta, ritmo e ranking da rede de lideranças', ranking: 'Pódio e ranking completo — clique num líder para o raio-x', cadastro: 'Convide líderes um a um ou por planilha — dedup por WhatsApp, nunca duplica', cidades: 'Potencial da família × rede atual, cidade a cidade — clique para ver no mapa', grupos: 'Os grupos de WhatsApp de cada líder — envie comunicados sem sair do painel', config: 'Convites e dados oficiais da campanha', mapa: 'Mapa eleitoral do estado — referência histórica (TSE)' }[st.aTab];
     const ms = st.mapStats;
+    // sem cadastro de liderados: toda métrica derivada deles sai da tela (ver PX_SEM_LIDERADOS)
+    const SEM_LID = typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS;
     // na camada 2024 os KPIs são o dado oficial do TSE do escopo (região selecionada ou estado)
     const kpisMapa = st.mapLayer === 'muni2024' ? [
       { label: 'Municípios no escopo', valor: ms ? fmtN(ms.munis) : '…', cor: 'var(--color-foreground)' },
       { label: 'Eleitorado 2024', valor: ms ? fmtN(ms.totalEleitorado) : '…', cor: 'var(--color-gray-1000)' },
       { label: 'Votos válidos 2024', valor: ms ? fmtN(ms.totalVV) : '…', cor: 'var(--color-gray-1000)' },
       { label: 'Comparecimento (válidos / eleitorado)', valor: (ms && ms.totalEleitorado > 0) ? (ms.totalVV / ms.totalEleitorado * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '…', cor: 'var(--color-foreground)' },
+    ] : SEM_LID ? [
+      // sem liderados, o placar do mapa é a distribuição de LÍDERES pelo território
+      { label: 'Cidades com líder', valor: ms ? String(ms.comLider) : '…', sub: 'pelo menos 1 líder ativo', cor: 'var(--color-gray-1000)' },
+      { label: 'Cidades a priorizar', valor: ms ? String(ms.priorizadas) : '…', sub: 'histórico da família e nenhum líder', cor: 'var(--color-highlight)' },
+      { label: 'Líderes no escopo', valor: ms ? fmtN(ms.totalLideres) : '…', sub: 'soma dos líderes ativos das cidades visíveis', cor: 'var(--color-foreground)' },
+      { label: 'Eleitorado alcançado', valor: ms ? fmtN(ms.eleitAlcancado) : '…', sub: 'eleitorado das cidades que já têm líder', cor: 'var(--color-foreground)' },
     ] : [
       { label: 'Cidades a priorizar', valor: ms ? String(ms.priorizadas) : '…', sub: 'alto histórico da família, rede fraca', cor: 'var(--color-highlight)' },
       { label: 'Abaixo do potencial', valor: ms ? String(ms.parciais) : '…', sub: 'têm rede, mas aquém do teto histórico', cor: 'var(--color-gray-700)' },
@@ -3090,6 +3149,7 @@ class Component extends DCLogic {
     const _cl = (mu && st.cidLideresCidade === mu.nome && Array.isArray(st.cidLideres)) ? st.cidLideres : null;
     const _clAtivos = _cl ? _cl.filter(l => l.status === 'active').length : null;
     const _clLiderados = _cl ? _cl.reduce((s, l) => s + Number(l.liderados || 0), 0) : null;
+    const _clPromessa = _cl ? _cl.filter(l => l.status === 'active').reduce((s, l) => s + Number(l.promise_votes || 0), 0) : 0;
     const muLideres = _clAtivos != null ? _clAtivos : (mu ? (mu.lideres || 0) : 0);
     const muLiderados = _clLiderados != null ? _clLiderados : (mu ? (mu.liderados || 0) : 0);
     const _muEleit = _pano ? _pano.eleitorado : 0;
@@ -3099,7 +3159,11 @@ class Component extends DCLogic {
     const stTone = mu ? (({ priorizar: errC, parcial: warnC, coberto: okC, fraco: warnC, neutro: ['var(--color-background-100)', 'var(--color-muted-foreground)'] })[muStatus] || ['var(--color-background-100)', 'var(--color-muted-foreground)']) : errC;
     const _muNiv = mu ? (mu.indice != null ? mu.indice : this.potIdx(mu.pot)) : 0;
     const _muNivW = _muNiv >= 40 ? 'alto' : _muNiv >= 18 ? 'médio' : 'baixo';
-    const gapText = !mu ? '' : (muLideres > 0 || muLiderados > 0)
+    const gapText = !mu ? '' : SEM_LID
+      ? (muLideres > 0
+        ? `${muLideres} líder(es) ativo(s) aqui, com promessa somada de ${fmtN(_clPromessa)} votos. O cadastro de liderados ainda não começou — a leitura por enquanto é de presença de liderança.`
+        : `Nenhum líder cadastrado nesta cidade${_muNiv >= 18 ? `, e a família tem potencial ${_muNivW} aqui (índice ${_muNiv})` : ''}. Convidar um líder é o próximo passo.`)
+      : (muLideres > 0 || muLiderados > 0)
       ? (muStatus === 'coberto'
         ? `Rede forte: ${fmtN(muLiderados)} liderados e ${muLideres} líder(es) ativo(s) sobre um potencial ${_muNivW} da família. Manter o ritmo.`
         : `Há rede aqui (${fmtN(muLiderados)} liderados, ${muLideres} líder(es) ativo(s)), mas ainda abaixo do alvo de 2 liderados por mil eleitores. Reforçar antes de abrir frente nova.`)
@@ -3214,21 +3278,24 @@ class Component extends DCLogic {
       mapFullLabel: st.mapFull ? 'Recolher' : 'Expandir',
       mapFullIcon: st.mapFull ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
       // legenda em faixas coloridas (cobertura e 2024); histórico/rede seguem no gradiente
-      showDots: st.mapLayer === 'cobertura' || st.mapLayer === 'muni2024',
-      showGrad: st.mapLayer === 'historico' || st.mapLayer === 'rede',
+      showDots: st.mapLayer === 'cobertura' || st.mapLayer === 'muni2024' || (SEM_LID && st.mapLayer === 'rede'),
+      showGrad: st.mapLayer === 'historico' || (!SEM_LID && st.mapLayer === 'rede'),
       // cada camada tem legenda própria: título, faixas (ou gradiente) e extremos reais
-      legendTitulo: { cobertura: 'COBERTURA DA REDE', muni2024: 'ELEITORADO 2024', historico: 'POTENCIAL DA FAMÍLIA (ÍNDICE 0–100)', rede: 'LIDERADOS CADASTRADOS' }[st.mapLayer] || '',
+      legendTitulo: { cobertura: SEM_LID ? 'LÍDERES CADASTRADOS' : 'COBERTURA DA REDE', muni2024: 'ELEITORADO 2024', historico: 'POTENCIAL DA FAMÍLIA (ÍNDICE 0–100)', rede: SEM_LID ? 'LÍDERES CADASTRADOS' : 'LIDERADOS CADASTRADOS' }[st.mapLayer] || '',
       legendMin: '0',
       legendMax: st.mapLayer === 'historico' ? '100'
         : (ms && ms.top && ms.top.length) ? fmtN(Math.max(...ms.top.map(t => t.liderados || 0))) : '—',
       legendTiers: [
-        ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[st.mapLayer === 'muni2024' ? 'muni2024' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
-        ...(st.mapLayer === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: 'sem rede e sem histórico' }] : []),
+        ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[st.mapLayer === 'muni2024' ? 'muni2024' : SEM_LID ? 'lideres' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
+        ...(st.mapLayer === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: 'sem líder e sem histórico' }] : []),
       ],
       legendGrad: st.mapLayer === 'historico'
         ? (isDark ? 'linear-gradient(90deg,#181818,#7a4d00,#ffb224,#ffe3ad)' : 'linear-gradient(90deg,#f4f1e8,#eda01f,#cc6f00,#5a2a00)')
         : (isDark ? 'linear-gradient(90deg,#111111,#454545,#ededed)' : 'linear-gradient(90deg,#ededed,#b8b8b8,#171717)'),
-      legendNote: st.mapLayer === 'cobertura' ? 'cor = liderados por mil eleitores · ○ tracejado = líder convidado (pendente)' : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros' : st.mapLayer === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE — sem comparação entre eleições' : 'intensidade e círculos ∝ liderados cadastrados',
+      legendNote: st.mapLayer === 'cobertura' ? (SEM_LID ? 'cor = líderes ativos no município · ○ tracejado = líder convidado (pendente)' : 'cor = liderados por mil eleitores · ○ tracejado = líder convidado (pendente)')
+        : st.mapLayer === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros'
+        : st.mapLayer === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE — sem comparação entre eleições'
+        : (SEM_LID ? 'cor = líderes ativos no município — cadastro de liderados ainda não iniciado' : 'intensidade e círculos ∝ liderados cadastrados'),
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
       liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
         // camada 2024: ranking por eleitorado, com votos válidos no lugar do índice da família
@@ -3246,7 +3313,7 @@ class Component extends DCLogic {
         return {
           pos: i + 1, nome: t.nome, sub: 'potencial ' + nivel,
           dot: iv >= 40 ? 'var(--color-accent)' : iv >= 18 ? '#878787' : 'var(--color-gray-500)',
-          potF: 'índ. ' + iv, lid: fmtN(t.liderados) + ' lid.', onClick: () => set({ muni: t }),
+          potF: 'índ. ' + iv, lid: SEM_LID ? (t.lideres ? t.lideres + ' líder(es)' : '—') : fmtN(t.liderados) + ' lid.', onClick: () => set({ muni: t }),
         };
       }),
       liveEmpty: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).length === 0,
@@ -3262,6 +3329,8 @@ class Component extends DCLogic {
       // comparecimento = razão entre dois números do MESMO ano (2024); não é comparação entre eleições
       muniComparecimento: (_pano && _pano.votos_validos_2024 && _pano.eleitorado) ? (_pano.votos_validos_2024 / _pano.eleitorado * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—',
       hasMuniRA: !!(_pano && _pano.ra), muniRA: (_pano && _pano.ra) || '',
+      // quem não votou/anulou: eleitorado − válidos, o complemento do comparecimento
+      muniAbstencaoTxt: (_pano && _pano.votos_validos_2024 && _pano.eleitorado) ? `${fmtN(_pano.eleitorado - _pano.votos_validos_2024)} não válidos` : '',
       ...(() => {
         // peso do município na própria RA + municípios de porte parecido (mesma RA).
         // Tudo em cima de municipio_politico (eleitorado/vv/ra) e da rede real por IBGE.
@@ -3292,7 +3361,8 @@ class Component extends DCLogic {
               nome: v.nome, eleitores: fmtN(v.eleitorado),
               porMil: pm > 0 ? pm.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '0',
               lideres: String(rr ? rr.lideres : 0),
-              cor: corDe(pm), bg: 'var(--color-background-100)',
+              cor: corDe(pm), corLid: (rr && rr.lideres) ? (rr.lideres >= 5 ? '#2f9e64' : rr.lideres >= 3 ? '#7cb342' : '#e08b3c') : '#c9463c',
+              bg: 'var(--color-background-100)',
               onClick: () => set({ muni: { ibge: k, nome: v.nome, status: mu.status, statusLabel: '', pot: 0, indice: 0, lideres: rr ? rr.lideres : 0, liderados: rr ? rr.liderados : 0, ritmo: 0, historico: [], topLideres: [], fonte: 'familia' } }),
             };
           });
@@ -3340,7 +3410,11 @@ class Component extends DCLogic {
           muniPresenca: h.length ? `${h.length} campanha${h.length > 1 ? 's' : ''} · ${anos.join(', ')}` : 'sem campanha direta aqui',
           muniForca: ['baixa', 'média', 'alta'][forcaN], muniForcaCor: ['var(--color-muted-foreground)', 'var(--color-gray-1000)', 'var(--color-accent)'][forcaN],
           // a leitura segue as contagens REAIS: com líder na cidade, nunca "nenhum líder"
-          muniLeitura: (muLideres > 0 || muLiderados > 0)
+          muniLeitura: SEM_LID
+            ? (muLideres > 0
+              ? `${muLideres} líder(es) ativo(s) para ${temEleit ? fmtN(_muEleit) + ' eleitores' : 'este município'}${temEleit ? ` — 1 líder a cada ${fmtN(Math.round(_muEleit / muLideres))} eleitores` : ''}.`
+              : `Sem líder cadastrado. Potencial ${nivelM} da família (índice ${ind})${temEleit ? ` e ${fmtN(_muEleit)} eleitores` : ''}.`)
+            : (muLideres > 0 || muLiderados > 0)
             ? (muStatus === 'coberto'
               ? `Cobertura forte: ${muLideres} líder(es) ativo(s) e ${fmtN(muLiderados)} liderados${alvoTxt}. Manter o ritmo basta.`
               : `${muLideres} líder(es) ativo(s) e ${fmtN(muLiderados)} liderados nesta cidade${alvoTxt}.${faltaTxt}`)
@@ -3355,7 +3429,9 @@ class Component extends DCLogic {
       muniBairros: (() => { if (mu && !this._bairros && !this._bairrosLoading) this._loadBairros(); const bz = (this._bairros && mu && this._bairros[mu.ibge]) || null; return bz ? bz.slice(0, 24).map(b => ({ nome: b[0], indice: String(b[5]), nivel: 'potencial ' + (b[5] >= 40 ? 'alto' : b[5] >= 18 ? 'médio' : 'baixo'), dot: b[5] >= 40 ? 'var(--color-accent)' : b[5] >= 18 ? '#878787' : 'var(--color-gray-500)' })) : []; })(),
       hasMuniBairros: !!(this._bairros && mu && this._bairros[mu.ibge] && this._bairros[mu.ibge].length > 1),
       muniBairrosN: (this._bairros && mu && this._bairros[mu.ibge]) ? String(this._bairros[mu.ibge].length) : '',
+      temLiderados: !SEM_LID, redeCols: SEM_LID ? '1fr 1fr' : '1fr 1fr 1fr 1fr',
       muniLideres: mu ? String(muLideres) : '', muniLiderados: mu ? fmtN(muLiderados) : '', muniRitmo: mu ? String(mu.ritmo).replace('.', ',') : '',
+      muniPend: mu ? String((_cl ? _cl.filter(l => l.status !== 'active').length : (mu.pend || 0))) : '',
       muniPorMil: mu && _muEleit ? (muLiderados / (_muEleit / 1000)).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '—',
       muniCovPct: mu && _muEleit ? (muLiderados / (_muEleit / 1000) / 2 * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—',
       muniCovW: mu && _muEleit ? Math.min(muLiderados / (_muEleit / 1000) / 2 * 100, 100).toFixed(0) + '%' : '0%',
@@ -3363,12 +3439,21 @@ class Component extends DCLogic {
       cidLideresVazio: !!_cl && _cl.length === 0,
       cidLideresList: (_cl || []).map(l => ({
         nome: l.name || '—', zap: this._fmtWa(l.whatsapp),
-        meta: `${l.parent_name || 'Topo'} · promessa ${fmtN(l.promise_votes || 0)} · ${fmtN(Number(l.liderados || 0))} liderados`,
+        meta: SEM_LID ? `${l.parent_name || 'Topo'} · promessa ${fmtN(l.promise_votes || 0)} votos` : `${l.parent_name || 'Topo'} · promessa ${fmtN(l.promise_votes || 0)} · ${fmtN(Number(l.liderados || 0))} liderados`,
         selo: l.status === 'active' ? 'Ativo' : 'Pendente',
         seloBg: l.status === 'active' ? okC[0] : warnC[0], seloFg: l.status === 'active' ? okC[1] : warnC[1],
         editando: st.edId === l.id, lendo: st.edId === l.id && !st.edLoaded && st.edBusy,
         editar: () => this._editLeaderOpen(l.id),
+        msgAberta: st.msgId === l.id, msgAbrir: () => this._msgAbrir(l.id, l.name, l.whatsapp),
+        waHref: 'https://wa.me/' + (this._normWa(l.whatsapp).length > 11 ? '' : '55') + this._normWa(l.whatsapp),
       })),
+      msgConectado: st.wppState === 'connected',
+      msgSemConexao: st.wppState !== 'connected',
+      msgText: st.msgText, onMsgText: (e) => set({ msgText: e.target.value }),
+      msgEnviarLabel: st.msgBusy ? 'Enviando…' : 'Enviar pelo WhatsApp',
+      msgEnviar: () => this._msgEnviar(), msgFechar: () => set({ msgId: null, msgOut: null }),
+      hasMsgOut: !!st.msgOut, msgOutTxt: st.msgOut ? st.msgOut.txt : '',
+      msgPlaceholder: st.msgNome ? `Mensagem para ${String(st.msgNome).split(' ')[0]}…` : 'Escreva a mensagem…',
       edNome: st.edNome, edZap: st.edZap, edCidades: st.edCidades, edPromessa: st.edPromessa, edDobrada: st.edDobrada,
       edForm: st.edLoaded, edAtivo: st.edStatus === 'active', edPendente: st.edStatus !== 'active',
       edAtivoBg: st.edStatus === 'active' ? 'var(--color-foreground)' : 'transparent', edAtivoFg: st.edStatus === 'active' ? 'var(--color-background)' : 'var(--color-muted-foreground)',

@@ -28,9 +28,16 @@
   // Veredito de cobertura — SEMPRE derivado das contagens REAIS do município
   // (líderes ativos + liderados + eleitorado TSE). Cidade com líder nunca é "Descoberta".
   // Exposto no window pro painel usar a MESMA fonte (nunca dois vereditos divergentes).
+  const semLid = () => !!window.PX_SEM_LIDERADOS;
   function veredito(lideres, liderados, eleitorado) {
     const l = lideres || 0, ld = liderados || 0;
     const porMil = eleitorado ? ld / (eleitorado / 1000) : 0;
+    // sem cadastro de liderados não dá pra falar em cobertura: o veredito é por LÍDERES
+    if (semLid()) {
+      if (l === 0) return { label: 'Sem líder', status: 'priorizar', porMil: 0 };
+      if (l >= 5) return { label: `${l} líderes`, status: 'coberto', porMil: 0 };
+      return { label: `${l} líder(es)`, status: 'parcial', porMil: 0 };
+    }
     if (l === 0 && ld === 0) return { label: 'Descoberta', status: 'priorizar', porMil };
     if (porMil >= 2) return { label: 'Coberta', status: 'coberto', porMil };
     return { label: `Presença · ${l} líder(es)`, status: 'parcial', porMil };
@@ -49,6 +56,14 @@
       // "descoberta", que é exclusivo de município sem rede nenhuma (ver fill()).
       { min: 0, cor: '#e08b3c', label: 'Presença, pouca base' },
       { min: -1, cor: '#c9463c', label: 'Descoberta com potencial' },
+    ],
+    // enquanto não há liderados, a cobertura é lida pelo número de LÍDERES no município
+    lideres: [
+      { min: 5, cor: '#2f9e64', label: '5+ líderes' },
+      { min: 3, cor: '#7cb342', label: '3–4 líderes' },
+      { min: 2, cor: '#e3c04a', label: '2 líderes' },
+      { min: 1, cor: '#e08b3c', label: '1 líder' },
+      { min: -1, cor: '#c9463c', label: 'Sem líder (com potencial)' },
     ],
     muni2024: [
       { min: 200000, cor: '#2f9e64', label: 'Muito alto (200 mil+)' },
@@ -161,11 +176,15 @@
       const fill = r => {
         if (selRa && r.ra !== selRa) return P.neutro; // fora da RA = cinza chapado (sem cor vazando)
         if (layer === 'historico') return hseq(Math.pow(r.indice / 100, 0.6)); // heat âmbar, realça o meio
-        if (layer === 'rede') return r.liderJan > 0 ? seq(0.25 + 0.75 * Math.sqrt(r.liderJan / maxLid)) : P.neutro;
+        if (layer === 'rede') {
+          if (semLid()) return r.lideres > 0 ? tierDe('lideres', r.lideres).cor : P.neutro;
+          return r.liderJan > 0 ? seq(0.25 + 0.75 * Math.sqrt(r.liderJan / maxLid)) : P.neutro;
+        }
         if (layer === 'muni2024') return r.eleitorado > 0 ? tierDe('muni2024', r.eleitorado).cor : P.neutro;
         // Cobertura em faixas verde→vermelho SÓ onde há rede real. Sem rede, vermelho fica
         // reservado a quem tem potencial da família (é o que pede ação); o resto segue cinza,
         // senão o estado inteiro ficaria vermelho e a cor não diria nada.
+        if (semLid()) return r.lideres > 0 ? tierDe('lideres', r.lideres).cor : (r.status === 'priorizar' ? '#c9463c' : P[r.status]);
         if (r.lideres > 0 || r.liderados > 0) return tierDe('cobertura', r.porMil).cor;
         return r.status === 'priorizar' ? '#c9463c' : P[r.status];
       };
@@ -188,6 +207,9 @@
         totalHist: scoped.reduce((s, r) => s + r.pot, 0),
         totalLiderados: scoped.reduce((s, r) => s + r.liderJan, 0),
         munis: scoped.filter(r => r.eleitorado > 0).length,
+        comLider: scoped.filter(r => r.lideres > 0).length,
+        totalLideres: scoped.reduce((s, r) => s + r.lideres, 0),
+        eleitAlcancado: scoped.reduce((s, r) => s + (r.lideres > 0 ? r.eleitorado : 0), 0),
         totalEleitorado: scoped.reduce((s, r) => s + r.eleitorado, 0),
         totalVV: scoped.reduce((s, r) => s + r.vv, 0),
         top,
@@ -288,22 +310,23 @@
 <div style="color:var(--color-muted-foreground,#878787)">${r.ra ? 'RA ' + r.ra : 'região não informada'}</div>
 <div style="color:var(--color-muted-foreground,#878787)">Eleitorado 2024: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.eleitorado ? fmt(r.eleitorado) : '—'}</b></div>
 <div style="color:var(--color-muted-foreground,#878787)">Votos válidos 2024: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.vv ? fmt(r.vv) : '—'}</b> · ${comp} do eleitorado</div>
-<div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)</div>`;
+<div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.lideres}</b> líder(es)${semLid() ? '' : ' · ' + fmt(r.liderados) + ' liderados'}</div>`;
         return place();
       }
       const fl = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão', familia: 'Família Cezar' }[fonte];
       const porMilF = (r.porMil || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
-      const alvoF = r.eleitorado ? ` · ${porMilF}/mil eleitores (alvo 2/mil)` : '';
+      const alvoF = (r.eleitorado && !semLid()) ? ` · ${porMilF}/mil eleitores (alvo 2/mil)` : '';
       let verdict, vc;
       // a contagem real manda: com líder/liderado na cidade, nunca dizer "nenhum líder"
-      if (r.status === 'coberto') { verdict = `Coberta — ${r.lideres} líder(es) ativo(s)${alvoF}`; vc = '#2f9e64'; }
+      if (semLid() && r.lideres > 0) { verdict = `${r.lideres} líder(es) ativo(s) nesta cidade`; vc = r.lideres >= 5 ? '#2f9e64' : '#b06a12'; }
+      else if (r.status === 'coberto') { verdict = `Coberta — ${r.lideres} líder(es) ativo(s)${alvoF}`; vc = '#2f9e64'; }
       else if (r.lideres > 0 || r.liderados > 0) { verdict = `Presença · ${r.lideres} líder(es) ativo(s) · ${fmt(r.liderados)} liderado(s)${alvoF}`; vc = '#b06a12'; }
       else if (r.pend > 0) { verdict = `${r.pend} líder(es) convidado(s) — aguardando ativar (pendente)`; vc = '#b06a12'; }
       else if (r.status === 'neutro' || r.status === 'fraco') { verdict = 'Histórico baixo da família aqui — prioridade baixa'; vc = 'var(--mutedsoft,#93939f)'; }
       else { const nv = r.indice >= 40 ? 'alto' : 'médio'; verdict = `Descoberta — nenhum líder cadastrado. Potencial ${nv}`; vc = r.indice >= 40 ? '#c23b3b' : '#b06a12'; }
       t.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${r.nome}</div>
 <div style="color:var(--color-muted-foreground,#878787)">Potencial da família (${fl}): <b style="color:var(--color-foreground,#ededed)">${r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'} · índice ${r.indice}</b></div>
-<div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${fmt(r.liderados)}</b> liderados · ${r.lideres} líder(es)${r.pend ? ' · <b style="color:#ffb224">' + r.pend + ' pendente(s)</b>' : ''}</div>
+<div style="color:var(--color-muted-foreground,#878787)">Rede atual: ${semLid() ? '' : '<b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">' + fmt(r.liderados) + '</b> liderados · '}<b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.lideres}</b> líder(es)${r.pend ? ' · <b style="color:#ffb224">' + r.pend + ' pendente(s)</b>' : ''}</div>
 <div style="margin-top:3px;font-weight:600;color:${vc}">${verdict}</div>`;
       place();
     }
