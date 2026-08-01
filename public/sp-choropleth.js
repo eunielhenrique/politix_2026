@@ -93,7 +93,7 @@
   window.PXTiers = TIERS;
 
   class SPChoropleth extends HTMLElement {
-    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra']; }
+    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra', 'data-filtros']; }
     connectedCallback() {
       if (this._init) return; this._init = true;
       this._onCtl = e => this.ctl(e.detail && e.detail.action, e.detail && e.detail.ibge);
@@ -108,6 +108,24 @@
       if (this._feats) this.render();
     }
     get anchors() { try { return JSON.parse(this.getAttribute('data-anchors') || '[]'); } catch (e) { return []; } }
+    get filtros() { try { return JSON.parse(this.getAttribute('data-filtros') || '{}'); } catch (e) { return {}; } }
+    // cruzamento dos filtros do drawer — tudo em E. 'todos' (ou ausente) não restringe.
+    passaFiltros(r) {
+      const f = this.filtros;
+      if (f.cob === 'com' && !(r.lideres > 0)) return false;
+      if (f.cob === 'sem' && r.lideres > 0) return false;
+      if (f.cob === 'alta' && !(r.lideres === 0 && prioridadeDe(r) === 'alta')) return false;
+      if (f.cob === 'media' && !(r.lideres === 0 && prioridadeDe(r) === 'media')) return false;
+      if (f.porte === 'g' && !(r.eleitorado >= 100000)) return false;
+      if (f.porte === 'm' && !(r.eleitorado >= 20000 && r.eleitorado < 100000)) return false;
+      if (f.porte === 'p' && !(r.eleitorado > 0 && r.eleitorado < 20000)) return false;
+      if (f.pot === 'alto' && !(r.indice >= 40)) return false;
+      if (f.pot === 'medio' && !(r.indice >= 18 && r.indice < 40)) return false;
+      if (f.pot === 'baixo' && !(r.indice < 18)) return false;
+      if (f.comp === 'acima' && !(r.eleitorado > 0 && r.vv / r.eleitorado >= 0.6725)) return false;
+      if (f.comp === 'abaixo' && !(r.eleitorado > 0 && r.vv / r.eleitorado < 0.6725)) return false;
+      return true;
+    }
     async load() {
       try {
         const [mesh, names] = await Promise.all([fetch(MESH_URL).then(r => { if (!r.ok) throw 0; return r.json(); }), fetch(NAMES_URL).then(r => { if (!r.ok) throw 0; return r.json(); })]);
@@ -183,7 +201,9 @@
       this._rows = rows; // usado pelo foco por busca de nome
       // RA agora é o nome oficial vindo do banco (municipio_politico.ra, 16 regiões) — string, não índice
       const selRa = this.getAttribute('data-sel-ra') || '';
-      const scoped = selRa ? rows.filter(r => r.ra === selRa) : rows; // RA selecionada
+      // "fora" = fora da RA escolhida OU reprovado no cruzamento de filtros
+      const fora = r => (selRa && r.ra !== selRa) || !this.passaFiltros(r);
+      const scoped = rows.filter(r => !fora(r)); // RA + filtros
       const maxLid = Math.max(...rows.map(r => r.liderJan), 1);
       const maxEl = Math.max(...rows.map(r => r.eleitorado), 1);
       // eleitorado é MUITO desigual (capital ~9M × cidade de 1k): escala log pra não achatar o mapa
@@ -191,7 +211,7 @@
       const seq = d3.interpolateRgbBasis(P.seq);
       const hseq = d3.interpolateRgbBasis(P.hseq);
       const fill = r => {
-        if (selRa && r.ra !== selRa) return P.neutro; // fora da RA = cinza chapado (sem cor vazando)
+        if (fora(r)) return P.neutro; // fora da RA/filtro = cinza chapado (sem cor vazando)
         if (layer === 'historico') return hseq(Math.pow(r.indice / 100, 0.6)); // heat âmbar, realça o meio
         if (layer === 'rede') {
           if (semLid()) return r.lideres > 0 ? tierDe('lideres', r.lideres).cor : P.neutro;
@@ -217,7 +237,8 @@
       // lista: 2024 → todo município com eleitorado, ranqueado por eleitorado;
       // RA selecionada → TODAS as cidades da região (ranking por índice); sem RA → só as de foco (índice ≥ 18)
       const m24 = layer === 'muni2024';
-      const listRows = m24 ? scoped.filter(r => r.eleitorado > 0) : selRa ? scoped.filter(r => r.indice > 0) : hi;
+      const temFiltro = selRa || Object.values(this.filtros).some(v => v && v !== 'todos');
+      const listRows = m24 ? scoped.filter(r => r.eleitorado > 0) : temFiltro ? scoped.filter(r => r.eleitorado > 0 || r.indice > 0) : hi;
       const top = listRows.slice().sort((a, b) => m24 ? b.eleitorado - a.eleitorado : b.indice - a.indice).map(r => ({
         ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
         liderados: r.liderados, lideres: r.lideres, ritmo: r.ritmo, eleitorado: r.eleitorado, vv: r.vv, ra: r.ra,
@@ -248,7 +269,7 @@
       g.selectAll('path').data(rows).join('path')
         .attr('d', r => r.d)
         .attr('fill', r => fill(r))
-        .attr('fill-opacity', r => (selRa && r.ra !== selRa) ? 0.35 : 1)
+        .attr('fill-opacity', r => fora(r) ? 0.35 : 1)
         .attr('stroke', P.line).attr('stroke-width', 0.4)
         .style('cursor', 'pointer')
         .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })
@@ -264,7 +285,7 @@
         .on('dblclick', (ev, r) => { ev.stopPropagation(); self.zoomToFeature(r); }); // clique simples abre o painel; duplo aproxima
       if (layer !== 'historico') {
         const pg = g.append('g').attr('pointer-events', 'none');
-        rows.filter(r => r.c && (!selRa || r.ra === selRa)).forEach(r => {
+        rows.filter(r => r.c && !fora(r)).forEach(r => {
           const [x, y] = r.c;
           if (!isFinite(x) || !isFinite(y)) return;
           if (r.pend > 0 && r.liderados === 0 && r.lideres === 0) {
