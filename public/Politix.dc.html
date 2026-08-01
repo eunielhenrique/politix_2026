@@ -1474,6 +1474,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </div>
                 </sc-if>
               </div>
+              <sc-if value="{{ showForca }}" hint-placeholder-val="{{ true }}">
               <div style="position:relative">
                 <button onClick="{{ toggleForca }}" title="Filtrar a força da família por membro" style="position:relative;z-index:21;height:28px;padding:0 10px;border:1px solid {{ forcaBd }};border-radius:var(--radius-sm);background:{{ forcaBg }};color:{{ forcaFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap">
                   <span>{{ forcaLabel }}</span>
@@ -1497,6 +1498,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </div>
                 </sc-if>
               </div>
+              </sc-if>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
                 <span style="font-size:12px;color:var(--color-muted-foreground)">Camada</span>
@@ -1674,7 +1676,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                         <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Prefeito(a)</span><span style="font-weight:600">{{ muniPrefeito }}</span></div>
                       </sc-if>
                       <sc-if value="{{ hasMuniVotos }}" hint-placeholder-val="{{ false }}">
-                        <div style="color:var(--color-muted-foreground);margin-top:3px;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Votos da família (2022)</div>
+                        <div style="color:var(--color-muted-foreground);margin-top:3px;font-size:11px;text-transform:uppercase;letter-spacing:.04em">{{ muniVotosTit }}</div>
                         <sc-for list="{{ muniVotos }}" as="mv" hint-placeholder-count="3">
                           <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">{{ mv.label }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ mv.votos }}</span></div>
                         </sc-for>
@@ -3386,7 +3388,10 @@ class Component extends DCLogic {
     const _forcaLabel = _membSel.length === 3 ? 'Família Cezar (os três)' : _membSel.map(m => _membCurto[m]).join(' + ');
     // "Rede atual" era liderados; sem eles vira cópia de "Cobertura" — some enquanto o flag estiver ligado
     const _camadas = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ...(SEM_LID ? [] : [['rede', 'Rede atual']]), ['muni2024', 'Município 2024']];
-    const layerPills = _camadas.map(([k, label]) => ({ label, onClick: () => set({ mapLayer: k }), ...pill(_layerAtual === k) }));
+    // sair do Histórico volta a seleção pra família inteira: o seletor de membro some
+    // junto com a camada, e filtro invisível continuaria torcendo ranking e prioridade
+    const layerPills = _camadas.map(([k, label]) => ({ label, ...pill(_layerAtual === k),
+      onClick: () => set(k === 'historico' ? { mapLayer: k } : { mapLayer: k, forcaOpen: false, mapMembros: ['candidato', 'irmao', 'pai'] }) }));
     const mu = st.muni;
     if (mu && mu.ibge) this._loadPanorama(mu.ibge); // panorama TSE (eleitorado) via RPC
     if (mu && mu.nome) this._loadCityLeaders(mu.nome); // líderes reais da cidade (city_leaders)
@@ -3499,7 +3504,10 @@ class Component extends DCLogic {
           linhaBg: marcado ? 'var(--color-highlight-dim)' : 'transparent',
         });
         return {
-          forcaAberto: !!st.forcaOpen,
+          // o seletor só existe na camada Histórico da família — é a única onde a força
+          // da família é o que o mapa está pintando
+          showForca: _layerAtual === 'historico',
+          forcaAberto: !!st.forcaOpen && _layerAtual === 'historico',
           toggleForca: () => set({ forcaOpen: !st.forcaOpen }),
           fecharForca: () => set({ forcaOpen: false }),
           forcaBg: todos ? 'var(--color-background)' : 'var(--color-foreground)',
@@ -3817,7 +3825,7 @@ class Component extends DCLogic {
       })(),
       hasMuniPrefeito: !!(_pano && _pano.prefeito), muniPrefeito: (_pano && _pano.prefeito) ? (_pano.prefeito + (_pano.prefeito_partido ? ' (' + _pano.prefeito_partido + ')' : '')) : '',
       ...(() => {
-        if (!mu) return { muniBest: '', muniTrend: '', muniTrendCor: '', muniPresenca: '', muniForca: '', muniForcaCor: '', muniLeitura: '', hasMuniCand: false, muniCandAno: '', muniCandVotos: '', hasMuniVotos: false, muniVotos: [] };
+        if (!mu) return { muniBest: '', muniTrend: '', muniTrendCor: '', muniPresenca: '', muniForca: '', muniForcaCor: '', muniLeitura: '', hasMuniCand: false, muniCandAno: '', muniCandVotos: '', hasMuniVotos: false, muniVotos: [], muniVotosTit: '' };
         this._loadFamMuni(String(mu.ibge));
         const h = mu.historico || [];
         const cand = h.filter(x => /Wesley/.test(x.membro)).sort((a, b) => b.ano - a.ano)[0] || null;
@@ -3853,16 +3861,27 @@ class Component extends DCLogic {
             const ORD = { candidato: 0, irmao: 1, pai: 2 };
             const NOME = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão' };
             const rpc = (this._famMuIbge === String(mu.ibge) && this._famMu) ? this._famMu : null;
-            if (rpc) return {
-              hasMuniVotos: rpc.length > 0,
-              muniVotos: [...rpc].sort((a, b) => (ORD[a.membro] ?? 9) - (ORD[b.membro] ?? 9)).map(x => ({
-                label: `${NOME[x.membro] || x.membro} · ${x.cargo} ${x.ano}`,
-                votos: fmtN(x.votos) + (x.pct_eleitorado != null ? ` (${Number(x.pct_eleitorado).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%)` : ''),
-              })),
-            };
+            // só os membros LIGADOS no seletor — o índice ao lado é dessa mesma combinação,
+            // então listar quem está de fora daria a impressão de que ele entrou na conta
+            const titulo = _membSel.length === 3 ? 'Votos da família' : 'Votos de ' + _forcaLabel;
+            if (rpc) {
+              const sel = rpc.filter(x => _membSel.includes(x.membro));
+              const anos = [...new Set(sel.map(x => x.ano))].sort();
+              return {
+                hasMuniVotos: sel.length > 0,
+                muniVotosTit: titulo + (anos.length ? ` (${anos.join(', ')})` : ''),
+                muniVotos: sel.sort((a, b) => (ORD[a.membro] ?? 9) - (ORD[b.membro] ?? 9)).map(x => ({
+                  label: `${NOME[x.membro] || x.membro} · ${x.cargo} ${x.ano}`,
+                  votos: fmtN(x.votos) + (x.pct_eleitorado != null ? ` (${Number(x.pct_eleitorado).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%)` : ''),
+                })),
+              };
+            }
+            const CHV = { candidato: /Wesley/, irmao: /Elvis/, pai: /Cez(ão|ar \(Cezão\))/ };
+            const hs = h.filter(x => _membSel.some(m => CHV[m].test(x.membro)));
             return {
-              hasMuniVotos: h.length > 0,
-              muniVotos: [...h].sort((a, b) => (/Wesley/.test(a.membro) ? 0 : /Elvis/.test(a.membro) ? 1 : 2) - (/Wesley/.test(b.membro) ? 0 : /Elvis/.test(b.membro) ? 1 : 2)).map(x => ({ label: `${x.membro.split(' ')[0]} · ${x.cargo} ${x.ano}`, votos: fmtN(x.votos) })),
+              hasMuniVotos: hs.length > 0,
+              muniVotosTit: titulo + ' (2022)',
+              muniVotos: hs.sort((a, b) => (/Wesley/.test(a.membro) ? 0 : /Elvis/.test(a.membro) ? 1 : 2) - (/Wesley/.test(b.membro) ? 0 : /Elvis/.test(b.membro) ? 1 : 2)).map(x => ({ label: `${x.membro.split(' ')[0]} · ${x.cargo} ${x.ano}`, votos: fmtN(x.votos) })),
             };
           })(),
           muniPresenca: h.length ? `${h.length} campanha${h.length > 1 ? 's' : ''} · ${anos.join(', ')}` : 'sem campanha direta aqui',
