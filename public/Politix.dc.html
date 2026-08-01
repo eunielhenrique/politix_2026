@@ -1441,31 +1441,34 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </sc-if>
             <sc-if value="{{ mapCtlShow }}" hint-placeholder-val="{{ true }}">
             <div style="{{ mapCtlStyle }}">
-              <button onClick="{{ mapZoomIn }}" title="Aproximar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">+</button>
-              <button onClick="{{ mapZoomOut }}" title="Afastar" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);font-size:19px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(0,0,0,.12)">−</button>
-              <button onClick="{{ mapCenter }}" title="Centralizar o mapa" style="width:34px;height:34px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.12)">
+              <button onClick="{{ mapCenter }}" title="Centralizar o mapa" style="width:36px;height:36px;border:none;background:transparent;color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="3.4"></circle></svg>
               </button>
+              <button onClick="{{ mapZoomIn }}" title="Aproximar" style="width:36px;height:36px;border:none;border-top:1px solid var(--color-border);background:transparent;color:var(--color-foreground);font-size:18px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1">+</button>
+              <button onClick="{{ mapZoomOut }}" title="Afastar" style="width:36px;height:36px;border:none;border-top:1px solid var(--color-border);background:transparent;color:var(--color-foreground);font-size:18px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1">−</button>
             </div>
             </sc-if>
+            <div style="{{ mapLegendStyle }}">
+              <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.3px;color:var(--color-gray-600);margin-bottom:8px">{{ legendTitulo }}</div>
+              <sc-if value="{{ showDots }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <sc-for list="{{ legendTiers }}" as="lt" hint-placeholder-count="6">
+                    <span style="display:inline-flex;align-items:center;gap:8px;font-size:11.5px;color:var(--color-foreground);white-space:nowrap"><span style="width:12px;height:12px;border-radius:2px;flex-shrink:0;background:{{ lt.cor }}"></span>{{ lt.label }}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ showGrad }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--color-muted-foreground)">{{ legendMin }}<span style="width:104px;height:10px;border-radius:var(--radius-sm);background:{{ legendGrad }}"></span>{{ legendMax }}</div>
+              </sc-if>
+              <div style="font-size:10px;color:var(--color-gray-600);line-height:1.45;margin-top:9px;max-width:210px">{{ legendNote }}</div>
+            </div>
             <div style="{{ mapKpiStyle }}">
               <div style="display:flex;gap:18px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.08)">
                 <sc-for list="{{ kpisMapa }}" as="km" hint-placeholder-count="4">
                   <div><div style="font-size:17px;font-weight:600;letter-spacing:-.3px;font-variant-numeric:tabular-nums;line-height:1;color:{{ km.cor }}">{{ km.valor }}</div><div style="font-size:10px;color:var(--color-muted-foreground);margin-top:4px;max-width:130px;line-height:1.3">{{ km.label }}</div></div>
                 </sc-for>
               </div>
-              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:7px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);font-size:11px;color:var(--color-muted-foreground);box-shadow:0 4px 16px rgba(0,0,0,.08)">
-                <span style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600)">{{ legendTitulo }}</span>
-                <sc-if value="{{ showDots }}" hint-placeholder-val="{{ true }}">
-                  <sc-for list="{{ legendTiers }}" as="lt" hint-placeholder-count="5">
-                    <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:2px;background:{{ lt.cor }}"></span>{{ lt.label }}</span>
-                  </sc-for>
-                </sc-if>
-                <sc-if value="{{ showGrad }}" hint-placeholder-val="{{ false }}">
-                  <span style="display:inline-flex;align-items:center;gap:8px">{{ legendMin }}<span style="width:120px;height:10px;border-radius:var(--radius-sm);background:{{ legendGrad }}"></span>{{ legendMax }}</span>
-                </sc-if>
-                <span>{{ legendNote }}</span>
-              </div>
+            </div>
             </div>
             <div style="{{ livePanelStyle }}">
               <sc-if value="{{ noMuni }}" hint-placeholder-val="{{ true }}">
@@ -3302,8 +3305,14 @@ class Component extends DCLogic {
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })(), // nome da RA (banco), não índice
-      // controles empilhados no canto inferior ESQUERDO; os KPIs saem da frente (left:60px)
-      mapCtlStyle: 'position:absolute;left:12px;bottom:12px;z-index:6;display:flex;flex-direction:column;gap:6px;align-items:flex-start',
+      // controles = uma pill vertical única, colada no painel (direita), meia altura do mapa
+      mapCtlStyle: isMob
+        ? 'position:absolute;right:12px;bottom:12px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden'
+        : `position:absolute;right:${st.mapListHidden ? 12 : _painelW + 24}px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`,
+      // legenda em card VERTICAL na área vazia à esquerda, logo acima da faixa de KPIs
+      mapLegendStyle: isMob
+        ? (st.mapFull ? 'display:none' : 'margin:0 16px 12px;padding:11px 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)')
+        : 'position:absolute;left:12px;bottom:88px;z-index:5;padding:12px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.12)',
       mapZoomIn: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'in' } })),
       mapZoomOut: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'out' } })),
       mapCenter: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'reset' } })),
@@ -3326,7 +3335,7 @@ class Component extends DCLogic {
       mapListBtnLabel: st.mapListHidden ? 'Mostrar lista' : 'Ocultar lista',
       mapKpiStyle: isMob
         ? (st.mapFull ? 'display:none' : 'padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;align-items:stretch;border-top:1px solid var(--color-gray-200);padding-top:12px')
-        : 'position:absolute;left:60px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
+        : 'position:absolute;left:12px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
       mapToolbarMaxW: isMob ? 'calc(100% - 24px)' : 'calc(100% - 360px)',
       mapRotateHint: isMob && st.mapFull && ((st.vh ?? (typeof window !== 'undefined' ? window.innerHeight : 800)) > (st.vw ?? 402)),
       toggleMapFull: () => {
