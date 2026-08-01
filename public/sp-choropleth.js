@@ -29,7 +29,13 @@
   // (líderes ativos + liderados + eleitorado TSE). Cidade com líder nunca é "Descoberta".
   // Exposto no window pro painel usar a MESMA fonte (nunca dois vereditos divergentes).
   const semLid = () => !!window.PX_SEM_LIDERADOS;
-  const PRIO_ELEIT = 20000; // piso de eleitorado pra município sem líder virar prioridade no mapa
+  // Prioridade de um município SEM líder: onde há voto pra buscar.
+  // ALTA = 100 mil+ eleitores ou reduto da família (índice >= 18) — 57 + redutos.
+  // MÉDIA = 20 mil a 100 mil eleitores. Abaixo disso não entra no mapa de prioridade.
+  const PRIO_ALTA = 100000, PRIO_MEDIA = 20000;
+  const prioridadeDe = r => (r.eleitorado >= PRIO_ALTA || r.indice >= 18) ? 'alta'
+    : (r.eleitorado >= PRIO_MEDIA ? 'media' : null);
+  window.PXPrioridade = prioridadeDe;
   function veredito(lideres, liderados, eleitorado) {
     const l = lideres || 0, ld = liderados || 0;
     const porMil = eleitorado ? ld / (eleitorado / 1000) : 0;
@@ -57,6 +63,15 @@
       // "descoberta", que é exclusivo de município sem rede nenhuma (ver fill()).
       { min: 0, cor: '#e08b3c', label: 'Presença, pouca base' },
       { min: -1, cor: '#c9463c', label: 'Descoberta com potencial' },
+    ],
+    // faixas exibidas na legenda do modo sem liderados
+    lideresLegenda: [
+      { cor: '#2f9e64', label: '5+ líderes' },
+      { cor: '#7cb342', label: '3–4 líderes' },
+      { cor: '#e3c04a', label: '2 líderes' },
+      { cor: '#e08b3c', label: '1 líder' },
+      { cor: '#c9463c', label: 'Sem líder · 100 mil+ eleitores' },
+      { cor: '#7d3b34', label: 'Sem líder · 20–100 mil' },
     ],
     // enquanto não há liderados, a cobertura é lida pelo número de LÍDERES no município
     lideres: [
@@ -190,7 +205,8 @@
           // Sem líder: prioridade é onde estão os VOTOS (eleitorado) ou o reduto da família.
           // Só o índice ≥ 18 deixava 12 pontinhos no mapa — o histórico da família é
           // concentradíssimo (18 de 645 municípios) e não serve sozinho pra priorizar.
-          return (r.eleitorado >= PRIO_ELEIT || r.indice >= 18) ? '#c9463c' : P.neutro;
+          const pr = prioridadeDe(r);
+          return pr === 'alta' ? '#c9463c' : pr === 'media' ? '#7d3b34' : P.neutro;
         }
         if (r.lideres > 0 || r.liderados > 0) return tierDe('cobertura', r.porMil).cor;
         return r.status === 'priorizar' ? '#c9463c' : P[r.status];
@@ -215,6 +231,10 @@
         totalLiderados: scoped.reduce((s, r) => s + r.liderJan, 0),
         munis: scoped.filter(r => r.eleitorado > 0).length,
         comLider: scoped.filter(r => r.lideres > 0).length,
+        // mesma regra do vermelho no mapa — KPI e cor nunca podem discordar
+        prioAlta: scoped.filter(r => r.lideres === 0 && prioridadeDe(r) === 'alta').length,
+        prioMedia: scoped.filter(r => r.lideres === 0 && prioridadeDe(r) === 'media').length,
+        eleitPrio: scoped.reduce((s, r) => s + ((r.lideres === 0 && prioridadeDe(r)) ? r.eleitorado : 0), 0),
         totalLideres: scoped.reduce((s, r) => s + r.lideres, 0),
         eleitAlcancado: scoped.reduce((s, r) => s + (r.lideres > 0 ? r.eleitorado : 0), 0),
         totalEleitorado: scoped.reduce((s, r) => s + r.eleitorado, 0),

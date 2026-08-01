@@ -1601,6 +1601,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                             <div style="font-size:12.5px;font-weight:600;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cl.nome }}</div>
                             <div style="font-family:var(--font-mono);font-size:10.5px;color:var(--color-gray-600);font-variant-numeric:tabular-nums">{{ cl.zap }}</div>
                             <div style="font-size:10.5px;color:var(--color-gray-600);margin-top:2px">{{ cl.meta }}</div>
+                            <sc-if value="{{ cl.temObs }}" hint-placeholder-val="{{ false }}">
+                              <div style="font-size:10.5px;color:var(--color-muted-foreground);margin-top:4px;padding-left:7px;border-left:2px solid var(--color-gray-300);line-height:1.4">{{ cl.obs }}</div>
+                            </sc-if>
                           </div>
                           <span style="flex-shrink:0;padding:3px 9px;border-radius:var(--radius-sm);font-size:10px;font-weight:600;background:{{ cl.seloBg }};color:{{ cl.seloFg }}">{{ cl.selo }}</span>
                           <button onClick="{{ cl.msgAbrir }}" title="Enviar mensagem no WhatsApp" style="flex-shrink:0;width:26px;height:24px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
@@ -1638,8 +1641,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                               <label style="font-size:10px;color:var(--color-gray-600)">Nome<input type="text" value="{{ edNome }}" onChange="{{ onEdNome }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"></label>
                               <label style="font-size:10px;color:var(--color-gray-600)">WhatsApp<input type="tel" value="{{ edZap }}" onChange="{{ onEdZap }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-family:var(--font-mono);font-size:12.5px;outline:none"></label>
                               <label style="font-size:10px;color:var(--color-gray-600)">Cidades (separadas por vírgula)<input type="text" value="{{ edCidades }}" onChange="{{ onEdCidades }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"></label>
-                              <label style="font-size:10px;color:var(--color-gray-600)">Promessa de votos<input type="number" value="{{ edPromessa }}" onChange="{{ onEdPromessa }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-variant-numeric:tabular-nums;font-size:12.5px;outline:none"></label>
+                              <label style="font-size:10px;color:var(--color-gray-600)">Expectativa de voto<input type="number" value="{{ edPromessa }}" onChange="{{ onEdPromessa }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-variant-numeric:tabular-nums;font-size:12.5px;outline:none"></label>
                               <label style="font-size:10px;color:var(--color-gray-600)">Dobrada<input type="text" value="{{ edDobrada }}" onChange="{{ onEdDobrada }}" placeholder="ex.: vereador de dobrada" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"></label>
+                              <label style="font-size:10px;color:var(--color-gray-600)">Observação<textarea value="{{ edObs }}" onChange="{{ onEdObs }}" rows="2" placeholder="anotações sobre o líder" style="width:100%;box-sizing:border-box;margin-top:3px;padding:7px 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;font-family:inherit;resize:vertical;outline:none"></textarea></label>
                               <div>
                                 <div style="font-size:10px;color:var(--color-gray-600);margin-bottom:3px">Status</div>
                                 <div style="display:flex;gap:6px">
@@ -1961,7 +1965,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -2178,19 +2182,19 @@ class Component extends DCLogic {
   // Abre com os valores ATUAIS da linha do banco: city_leaders não traz cities/dobrada, e
   // salvar com o form vazio apagaria as outras cidades do líder.
   async _editLeaderOpen(id) {
-    this.setState({ edId: id, edLoaded: false, edBusy: true, edMsg: null, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active' });
+    this.setState({ edId: id, edLoaded: false, edBusy: true, edMsg: null, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edObs: '', edStatus: 'active' });
     const sb = this._pxClient();
     if (!sb) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Sem conexão com o backend.' } }); return; }
     let row = null;
     try {
-      const { data } = await sb.from('leader').select('name,whatsapp,cities,promise_votes,dobrada,status').eq('id', id).limit(1);
+      const { data } = await sb.from('leader').select('name,whatsapp,cities,promise_votes,dobrada,status,observacao').eq('id', id).limit(1);
       row = Array.isArray(data) ? data[0] : data;
     } catch (e) {}
     if (!row) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Não consegui carregar os dados atuais deste líder — não dá pra editar sem eles.' } }); return; }
     this._edZapOrig = this._fmtWa(row.whatsapp); // campo intocado = não reescreve o número guardado
     this.setState({
       edLoaded: true, edBusy: false,
-      edNome: row.name || '', edZap: this._edZapOrig,
+      edNome: row.name || '', edZap: this._edZapOrig, edObs: row.observacao || '',
       edCidades: (row.cities || []).join(', '), edPromessa: String(row.promise_votes || 0),
       edDobrada: row.dobrada || '', edStatus: row.status || 'active',
     });
@@ -2212,6 +2216,7 @@ class Component extends DCLogic {
       p_promise: parseInt(st.edPromessa, 10) || 0,
       p_dobrada: (st.edDobrada || '').trim(),
       p_status: st.edStatus,
+      p_observacao: (st.edObs || '').trim(),
     });
     if (error) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Não consegui salvar: ' + error.message } }); return; }
     const cidade = st.cidLideresCidade || (st.muni && st.muni.nome);
@@ -2270,7 +2275,7 @@ class Component extends DCLogic {
   _autoMap(headers) {
     const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
     const find = (pats) => { for (let i = 0; i < headers.length; i++) { const h = norm(headers[i]); if (pats.some(p => h.includes(p))) return i; } return -1; };
-    return { nome: find(['nome', 'name', 'lider', 'lÝder']), whatsapp: find(['whatsapp', 'telefone', 'celular', 'zap', 'fone', 'contato', 'numero']), cities: find(['cidade', 'municip', 'atuacao', 'atua']), promise: find(['promessa', 'meta', 'voto']), parent: find(['responsavel', 'pai', 'superior', 'lider resp']) };
+    return { nome: find(['nome', 'name', 'lider', 'lÝder']), whatsapp: find(['whatsapp', 'telefone', 'celular', 'zap', 'fone', 'contato', 'numero']), cities: find(['cidade', 'municip', 'atuacao', 'atua']), promise: find(['expectativa', 'promessa', 'meta', 'voto']), parent: find(['responsavel', 'pai', 'superior', 'lider resp']), dobrada: find(['dobrada', 'dobradinha']), observacao: find(['observa', 'obs', 'nota', 'coment']) };
   }
   _bulkComputed() {
     const st = this.state; if (!st.bulkRawRows || !st.bulkMap) return null;
@@ -2280,16 +2285,17 @@ class Component extends DCLogic {
       const nome = g(m.nome); const waN = this._normWa(g(m.whatsapp));
       const cities = g(m.cities).split(/[;,]/).map(s => s.trim()).filter(Boolean);
       const promise = parseInt((g(m.promise) || '').replace(/\D/g, ''), 10) || 0; const parentRef = g(m.parent);
+      const dobrada = g(m.dobrada); const observacao = g(m.observacao);
       let status = 'pronto';
       if (!nome || waN.length < 10) status = 'incompleto';
       else if (known.has(waN) || seen.has(waN)) status = 'dup';
       if (status === 'pronto') seen.add(waN);
-      return { i, nome, waN, waF: waN ? this._fmtWa(waN) : g(m.whatsapp), cities, promise, parentRef, status };
+      return { i, nome, waN, waF: waN ? this._fmtWa(waN) : g(m.whatsapp), cities, promise, parentRef, dobrada, observacao, status };
     });
   }
   async _confirmBulk() {
     const st = this.state; const sb = this._pxClient(); const rows = this._bulkComputed(); if (!rows || !sb) return;
-    const prontos = rows.filter(r => r.status === 'pronto').map(r => ({ name: r.nome, whatsapp: r.waN, cities: r.cities, promise: r.promise, parent_ref: r.parentRef || null }));
+    const prontos = rows.filter(r => r.status === 'pronto').map(r => ({ name: r.nome, whatsapp: r.waN, cities: r.cities, promise: r.promise, parent_ref: r.parentRef || null, dobrada: r.dobrada || null, observacao: r.observacao || null }));
     if (!prontos.length) { this.setState({ bulkResult: { error: 'Nenhuma linha pronta para cadastrar. Corrija os incompletos ou confira as duplicatas.' } }); return; }
     this.setState({ bulkBusy: true, bulkResult: null });
     const { data, error } = await sb.rpc('invite_leaders_bulk', { rows: prontos });
@@ -3181,9 +3187,9 @@ class Component extends DCLogic {
     ] : SEM_LID ? [
       // sem liderados, o placar do mapa é a distribuição de LÍDERES pelo território
       { label: 'Cidades com líder', valor: ms ? String(ms.comLider) : '…', sub: 'pelo menos 1 líder ativo', cor: 'var(--color-gray-1000)' },
-      { label: 'Cidades a priorizar', valor: ms ? String(ms.priorizadas) : '…', sub: 'histórico da família e nenhum líder', cor: 'var(--color-highlight)' },
-      { label: 'Líderes no escopo', valor: ms ? fmtN(ms.totalLideres) : '…', sub: 'soma dos líderes ativos das cidades visíveis', cor: 'var(--color-foreground)' },
-      { label: 'Eleitorado alcançado', valor: ms ? fmtN(ms.eleitAlcancado) : '…', sub: 'eleitorado das cidades que já têm líder', cor: 'var(--color-foreground)' },
+      { label: 'Prioridade alta', valor: ms ? String(ms.prioAlta) : '…', sub: 'sem líder e 100 mil+ eleitores (ou reduto da família)', cor: '#c9463c' },
+      { label: 'Prioridade média', valor: ms ? String(ms.prioMedia) : '…', sub: 'sem líder e 20–100 mil eleitores', cor: '#e08b3c' },
+      { label: 'Eleitorado sem líder', valor: ms ? fmtN(ms.eleitPrio) : '…', sub: 'votos nas cidades prioritárias descobertas', cor: 'var(--color-foreground)' },
     ] : [
       { label: 'Cidades a priorizar', valor: ms ? String(ms.priorizadas) : '…', sub: 'alto histórico da família, rede fraca', cor: 'var(--color-highlight)' },
       { label: 'Abaixo do potencial', valor: ms ? String(ms.parciais) : '…', sub: 'têm rede, mas aquém do teto histórico', cor: 'var(--color-gray-700)' },
@@ -3342,8 +3348,8 @@ class Component extends DCLogic {
       legendMax: _layerAtual === 'historico' ? '100'
         : (ms && ms.top && ms.top.length) ? fmtN(Math.max(...ms.top.map(t => t.liderados || 0))) : '—',
       legendTiers: [
-        ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[_layerAtual === 'muni2024' ? 'muni2024' : SEM_LID ? 'lideres' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
-        ...(_layerAtual === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: 'sem líder e sem histórico' }] : []),
+        ...((typeof window !== 'undefined' && window.PXTiers) ? (window.PXTiers[_layerAtual === 'muni2024' ? 'muni2024' : SEM_LID ? 'lideresLegenda' : 'cobertura'] || []) : []).map(t => ({ cor: t.cor, label: t.label })),
+        ...(_layerAtual === 'cobertura' ? [{ cor: 'var(--color-gray-300)', label: SEM_LID ? 'sem líder e menos de 20 mil eleitores' : 'sem rede e sem histórico' }] : []),
       ],
       legendGrad: _layerAtual === 'historico'
         ? (isDark ? 'linear-gradient(90deg,#181818,#7a4d00,#ffb224,#ffe3ad)' : 'linear-gradient(90deg,#f4f1e8,#eda01f,#cc6f00,#5a2a00)')
@@ -3523,7 +3529,8 @@ class Component extends DCLogic {
       cidLideresVazio: !!_cl && _cl.length === 0,
       cidLideresList: (_cl || []).map(l => ({
         nome: l.name || '—', zap: this._fmtWa(l.whatsapp),
-        meta: SEM_LID ? `${l.parent_name || 'Topo'} · promessa ${fmtN(l.promise_votes || 0)} votos` : `${l.parent_name || 'Topo'} · promessa ${fmtN(l.promise_votes || 0)} · ${fmtN(Number(l.liderados || 0))} liderados`,
+        meta: SEM_LID ? `${l.parent_name || 'Topo'} · expectativa ${fmtN(l.promise_votes || 0)} votos${l.dobrada ? ' · dobrada: ' + l.dobrada : ''}` : `${l.parent_name || 'Topo'} · expectativa ${fmtN(l.promise_votes || 0)} · ${fmtN(Number(l.liderados || 0))} liderados`,
+        temObs: !!l.observacao, obs: l.observacao || '',
         selo: l.status === 'active' ? 'Ativo' : 'Pendente',
         seloBg: l.status === 'active' ? okC[0] : warnC[0], seloFg: l.status === 'active' ? okC[1] : warnC[1],
         editando: st.edId === l.id, lendo: st.edId === l.id && !st.edLoaded && st.edBusy,
@@ -3538,14 +3545,14 @@ class Component extends DCLogic {
       msgEnviar: () => this._msgEnviar(), msgFechar: () => set({ msgId: null, msgOut: null }),
       hasMsgOut: !!st.msgOut, msgOutTxt: st.msgOut ? st.msgOut.txt : '',
       msgPlaceholder: st.msgNome ? `Mensagem para ${String(st.msgNome).split(' ')[0]}…` : 'Escreva a mensagem…',
-      edNome: st.edNome, edZap: st.edZap, edCidades: st.edCidades, edPromessa: st.edPromessa, edDobrada: st.edDobrada,
+      edNome: st.edNome, edZap: st.edZap, edCidades: st.edCidades, edPromessa: st.edPromessa, edDobrada: st.edDobrada, edObs: st.edObs,
       edForm: st.edLoaded, edAtivo: st.edStatus === 'active', edPendente: st.edStatus !== 'active',
       edAtivoBg: st.edStatus === 'active' ? 'var(--color-foreground)' : 'transparent', edAtivoFg: st.edStatus === 'active' ? 'var(--color-background)' : 'var(--color-muted-foreground)',
       edPendBg: st.edStatus !== 'active' ? 'var(--color-foreground)' : 'transparent', edPendFg: st.edStatus !== 'active' ? 'var(--color-background)' : 'var(--color-muted-foreground)',
       setEdAtivo: () => set({ edStatus: 'active' }), setEdPendente: () => set({ edStatus: 'invited' }),
       onEdNome: (e) => set({ edNome: e.target.value }), onEdZap: (e) => set({ edZap: e.target.value }),
       onEdCidades: (e) => set({ edCidades: e.target.value }), onEdPromessa: (e) => set({ edPromessa: e.target.value }),
-      onEdDobrada: (e) => set({ edDobrada: e.target.value }),
+      onEdDobrada: (e) => set({ edDobrada: e.target.value }), onEdObs: (e) => set({ edObs: e.target.value }),
       edSalvar: () => this._editLeaderSave(), edCancelar: () => set({ edId: null, edLoaded: false, edMsg: null }),
       edSalvarLabel: st.edBusy ? 'Salvando…' : 'Salvar',
       hasEdMsg: !!st.edMsg, edMsgTxt: st.edMsg ? st.edMsg.txt : '', edMsgCor: (st.edMsg && st.edMsg.err) ? 'var(--color-highlight)' : 'var(--color-gray-1000)',
