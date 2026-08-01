@@ -1531,6 +1531,37 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     </div>
                     <button onClick="{{ fecharMuni }}" title="Voltar ao painel ao vivo" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-muted-foreground);cursor:pointer;font-size:11.5px;font-weight:500;white-space:nowrap;flex-shrink:0">← Lista</button>
                   </div>
+                  <div style="display:flex;gap:4px;margin-top:12px;padding:3px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
+                    <sc-for list="{{ muniAbas }}" as="ma" hint-placeholder-count="3">
+                      <button onClick="{{ ma.onClick }}" style="flex:1;height:30px;border:none;border-radius:var(--radius-sm);background:{{ ma.bg }};color:{{ ma.fg }};font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap">{{ ma.label }}</button>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ abaCandidatos }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px">
+                      <sc-if value="{{ candVazio }}" hint-placeholder-val="{{ true }}">
+                        <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:14px">
+                          <div style="font-size:12.5px;font-weight:600;margin-bottom:5px">{{ candVazioTitulo }}</div>
+                          <p style="font-size:11.5px;color:var(--color-muted-foreground);line-height:1.5;margin:0">{{ candVazioTexto }}</p>
+                        </div>
+                      </sc-if>
+                      <div style="display:flex;flex-direction:column;gap:5px;max-height:340px;overflow:auto">
+                        <sc-for list="{{ candLista }}" as="cd" hint-placeholder-count="6">
+                          <div style="display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
+                            <span style="width:18px;font-size:11px;color:var(--color-gray-600);font-variant-numeric:tabular-nums;flex-shrink:0">{{ cd.pos }}</span>
+                            <div style="flex:1;min-width:0">
+                              <div style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cd.nome }}</div>
+                              <div style="font-size:10.5px;color:var(--color-gray-600)">{{ cd.meta }}</div>
+                            </div>
+                            <sc-if value="{{ cd.eleito }}" hint-placeholder-val="{{ false }}">
+                              <span style="flex-shrink:0;padding:2px 8px;border-radius:var(--radius-sm);font-size:9.5px;font-weight:600;background:var(--color-muted);color:var(--color-gray-1000)">eleito</span>
+                            </sc-if>
+                            <span style="flex-shrink:0;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ cd.votos }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ abaEleitorado }}" hint-placeholder-val="{{ true }}">
                   <sc-if value="{{ hasMuniEleitorado }}" hint-placeholder-val="{{ true }}">
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px" class="keep-cols-3">
                       <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:12px">
@@ -1560,6 +1591,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                         <div style="font-size:10.5px;color:var(--color-gray-600);margin-top:2px;line-height:1.45">{{ muniRankRA }}</div>
                       </div>
                     </div>
+                  </sc-if>
                   </sc-if>
                   <div style="font-size:12px;font-weight:600;margin:16px 0 8px">Potencial da região <span style="font-weight:400;color:var(--color-gray-600)">(base: votos da família, ref. TSE — nunca soma com cadastros)</span></div>
                   <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:14px">
@@ -1992,7 +2024,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, muniAba: 'eleitorado', candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -2188,6 +2220,17 @@ class Component extends DCLogic {
     let rows = [];
     try { const { data } = await sb.rpc('city_leaders', { p_city: cidade }); rows = data || []; } catch (e) {}
     this.setState({ cidLideres: rows, cidLideresCidade: cidade }); // falhou = estado vazio honesto, nunca "carregando" eterno
+  }
+  // votação nominal de 2024 do município (prefeito / vereador), sob demanda por aba
+  async _loadCandidatos(ibge, cargo) {
+    const chave = ibge + ':' + cargo;
+    if (!ibge || this._candKey === chave) return;
+    this._candKey = chave;
+    const sb = this._pxClient();
+    if (!sb) { this.setState({ candLista: [], candChave: chave }); return; }
+    let rows = [];
+    try { const { data } = await sb.rpc('municipio_candidatos', { p_ibge: String(ibge), p_cargo: cargo }); rows = data || []; } catch (e) {}
+    this.setState({ candLista: rows, candChave: chave });
   }
   // ===== Mensagem direta pro líder (WhatsApp via Evolution) =====
   // Só envia de verdade com a instância conectada; sem conexão cai no wa.me, que é honesto
@@ -3232,6 +3275,9 @@ class Component extends DCLogic {
     const mu = st.muni;
     if (mu && mu.ibge) this._loadPanorama(mu.ibge); // panorama TSE (eleitorado) via RPC
     if (mu && mu.nome) this._loadCityLeaders(mu.nome); // líderes reais da cidade (city_leaders)
+    const _aba = mu ? (st.muniAba || 'eleitorado') : 'eleitorado';
+    if (mu && mu.ibge && _aba !== 'eleitorado') this._loadCandidatos(mu.ibge, _aba);
+    const _cand = (mu && st.candChave === mu.ibge + ':' + _aba && Array.isArray(st.candLista)) ? st.candLista : null;
     const _pano = (mu && st.muniPano && String(st.muniPano.ibge) === String(mu.ibge)) ? st.muniPano : null;
     // ── contagens REAIS da cidade: veredito, cor e números do painel saem todos daqui ──
     const _cl = (mu && st.cidLideresCidade === mu.nome && Array.isArray(st.cidLideres)) ? st.cidLideres : null;
@@ -3468,6 +3514,21 @@ class Component extends DCLogic {
       // comparecimento = razão entre dois números do MESMO ano (2024); não é comparação entre eleições
       muniComparecimento: (_pano && _pano.votos_validos_2024 && _pano.eleitorado) ? (_pano.votos_validos_2024 / _pano.eleitorado * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—',
       hasMuniRA: !!(_pano && _pano.ra), muniRA: (_pano && _pano.ra) || '',
+      muniAbas: [['eleitorado', 'Eleitorado'], ['vereador', 'Vereadores'], ['prefeito', 'Prefeitos']].map(([k, label]) => ({
+        label, onClick: () => set({ muniAba: k }),
+        bg: _aba === k ? 'var(--color-foreground)' : 'transparent',
+        fg: _aba === k ? 'var(--color-background)' : 'var(--color-muted-foreground)',
+      })),
+      abaEleitorado: _aba === 'eleitorado', abaCandidatos: _aba !== 'eleitorado',
+      candVazio: _aba !== 'eleitorado' && (!_cand || _cand.length === 0),
+      candVazioTitulo: !_cand ? 'Carregando…' : (_aba === 'vereador' ? 'Sem votação de vereadores carregada' : 'Sem votação de prefeitos carregada'),
+      candVazioTexto: !_cand ? 'Buscando a votação de 2024 deste município.'
+        : `A votação nominal de 2024 ainda não foi importada para ${mu ? mu.nome : 'este município'}. A tabela existe e a tela já lê dela — falta a carga do TSE.`,
+      candLista: (_cand || []).map((c, i) => ({
+        pos: String(i + 1), nome: c.nome_urna || c.nome_completo || '—',
+        meta: [c.partido, c.numero, c.situacao].filter(Boolean).join(' · ') || '—',
+        votos: fmtN(Number(c.votos || 0)), eleito: !!c.eleito,
+      })),
       // quem não votou/anulou: eleitorado − válidos, o complemento do comparecimento
       muniAbstencaoTxt: (_pano && _pano.votos_validos_2024 && _pano.eleitorado) ? `${fmtN(_pano.eleitorado - _pano.votos_validos_2024)} não válidos` : '',
       ...(() => {
