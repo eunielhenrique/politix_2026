@@ -3119,6 +3119,9 @@ class Component extends DCLogic {
     const ms = st.mapStats;
     // sem cadastro de liderados: toda métrica derivada deles sai da tela (ver PX_SEM_LIDERADOS)
     const SEM_LID = typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS;
+    // largura do painel do mapa em px — os controles +/−/centralizar se afastam por ela,
+    // senão ficam por baixo do painel (o offset era fixo, da época em que ele tinha 320)
+    const _painelW = Math.max(400, Math.min(560, Math.round((st.vw || 1440) * 0.46)));
     // na camada 2024 os KPIs são o dado oficial do TSE do escopo (região selecionada ou estado)
     const kpisMapa = st.mapLayer === 'muni2024' ? [
       { label: 'Municípios no escopo', valor: ms ? fmtN(ms.munis) : '…', cor: 'var(--color-foreground)' },
@@ -3241,7 +3244,7 @@ class Component extends DCLogic {
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })(), // nome da RA (banco), não índice
-      mapCtlRight: (isMob || st.mapListHidden) ? '12px' : '344px',
+      mapCtlRight: (isMob || st.mapListHidden) ? '12px' : (_painelW + 24) + 'px',
       mapZoomIn: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'in' } })),
       mapZoomOut: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'out' } })),
       mapCenter: () => window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'reset' } })),
@@ -3258,7 +3261,7 @@ class Component extends DCLogic {
             ? 'position:absolute;top:10px;right:10px;bottom:10px;width:min(400px,52vw);overflow:auto;z-index:6;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.3)'
             : 'position:absolute;left:0;right:0;bottom:0;max-height:42%;overflow:auto;z-index:6;border-top:1px solid var(--color-border);border-radius:12px 12px 0 0;background:var(--color-background);padding:16px 16px 28px')
           : 'border-top:1px solid var(--color-border);background:var(--color-background);padding:16px')
-        : 'position:absolute;top:12px;right:12px;width:min(440px,38vw);min-width:340px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.12)'),
+        : `position:absolute;top:12px;right:12px;width:${_painelW}px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.12)`),
       mapListHidden: !!st.mapListHidden,
       toggleMapList: () => set({ mapListHidden: !st.mapListHidden }),
       mapListBtnLabel: st.mapListHidden ? 'Mostrar lista' : 'Ocultar lista',
