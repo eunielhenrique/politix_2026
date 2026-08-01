@@ -14,6 +14,18 @@
   const ANO_SYNTH = { '2024': 0.35, '2022': 0.6, '2018': 0.35, '2012': 0.2 };
   const MEMBROS = { candidato: ['candidato'], irmao: ['irmao'], pai: ['pai'], familia: ['candidato', 'irmao', 'pai'] };
   const MEMBRO_L = { candidato: 'Wesley Cezar (Lelinho)', irmao: 'Elvis Cezar', pai: 'Cezar (Cezão)' };
+  const MEMBRO_C = { candidato: 'Candidato', irmao: 'Irmão', pai: 'Pai' };
+  // `fonte` aceita um apelido ('familia') OU a combinação escolhida nos chips
+  // ('pai,irmao'). O índice já vem pronto por município nas anchors — aqui só
+  // os VOTOS e o histórico são somados, nunca índices (índice não soma).
+  const membrosDe = fonte => {
+    const m = MEMBROS[fonte] || String(fonte || '').split(',').filter(x => MEMBROS[x]);
+    return m.length ? m : MEMBROS.familia;
+  };
+  const fonteLabel = fonte => {
+    const m = membrosDe(fonte);
+    return m.length === 3 ? 'Família Cezar' : m.map(x => MEMBRO_C[x]).join(' + ');
+  };
 
   function rewind(feature) {
     const d3 = window.d3;
@@ -156,14 +168,15 @@
     values() {
       const fonte = this.getAttribute('fonte') || 'familia';
       const ano = this.getAttribute('ano') || 'todos';
-      const membros = MEMBROS[fonte] || MEMBROS.familia;
+      const membros = membrosDe(fonte);
+      const anosSel = (ano && ano !== 'todos') ? String(ano).split(',') : null;
       const A = {}; this.anchors.forEach(a => { A[String(a.ibge)] = a; });
       const rows = this._feats.map(ft => {
         const a = A[ft.code];
         let pot = 0, historico = [];
         if (a) {
           membros.forEach(m => (a.hist[m] || []).forEach(hh => {
-            if (ano !== 'todos' && String(hh.ano) !== ano) return;
+            if (anosSel && !anosSel.includes(String(hh.ano))) return;
             pot += hh.votos; historico.push({ membro: MEMBRO_L[m], cargo: hh.cargo, ano: hh.ano, votos: hh.votos });
           }));
         } else pot = Math.round(this.synthPot(ft.code, membros) * (ano === 'todos' ? 1 : (ANO_SYNTH[ano] || 0.3)));
@@ -376,7 +389,7 @@
 <div style="color:var(--color-muted-foreground,#878787)">Rede atual: <b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.lideres}</b> líder(es)${semLid() ? '' : ' · ' + fmt(r.liderados) + ' liderados'}</div>`;
         return place();
       }
-      const fl = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão', familia: 'Família Cezar' }[fonte];
+      const fl = fonteLabel(fonte);
       const porMilF = (r.porMil || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
       const alvoF = (r.eleitorado && !semLid()) ? ` · ${porMilF}/mil eleitores (alvo 2/mil)` : '';
       let verdict, vc;

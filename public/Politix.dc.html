@@ -1474,6 +1474,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </div>
                 </sc-if>
               </div>
+              <sc-if value="{{ showForca }}" hint-placeholder-val="{{ true }}">
+                <span title="Combinação de membros ligada nos chips de filtro" style="height:28px;display:inline-flex;align-items:center;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);font-size:11.5px;font-weight:500;color:var(--color-foreground);white-space:nowrap">{{ forcaLabel }}</span>
+              </sc-if>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
                 <span style="font-size:12px;color:var(--color-muted-foreground)">Camada</span>
@@ -2066,7 +2069,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapFonte: 'familia', mapAno: 'todos', muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     this._onMuni = (e) => this.setState({ muni: e.detail });
@@ -2252,6 +2255,46 @@ class Component extends DCLogic {
       this._raList = [...ras].sort((a, b) => a.localeCompare(b, 'pt-BR'));
       this._muniLoading = false; this.setState({ muniV: (this.state.muniV || 0) + 1 });
     }, () => { this._muniLoading = false; });
+  }
+  // Índice de força da família COMBINÁVEL (RPC familia_indice).
+  // REGRA: índice NÃO soma — VOTO soma. Toda troca de chip refaz a chamada, que soma os
+  // votos dos membros escolhidos e só então normaliza entre os 645 municípios.
+  // Nunca somar/mediar os índices de dois membros no front.
+  _loadFamIdx(membros, anos) {
+    const chave = membros.slice().sort().join(',') + '|' + (anos.length ? anos.slice().sort().join(',') : 'todos');
+    if (this._famKey === chave || this._famLoading === chave) return;
+    const sb = this._pxClient(); if (!sb) return;
+    this._famLoading = chave;
+    sb.rpc('familia_indice', { p_membros: membros, p_anos: anos.length ? anos : null }).then(({ data, error }) => {
+      this._famLoading = null;
+      if (error) return;
+      const idx = {};
+      (data || []).forEach(r => { idx[String(r.ibge)] = { indice: r.indice || 0, nivel: r.nivel, votos: Number(r.votos || 0), pen: Number(r.penetracao || 0) }; });
+      this._famIdx = idx; this._famKey = chave;
+      this.setState({ famV: (this.state.famV || 0) + 1 });
+    }, () => { this._famLoading = null; });
+  }
+  // anos realmente carregados na base — o filtro de ano só aparece quando há mais de um
+  _loadFamAnos() {
+    if (this._famAnos || this._famAnosLoading) return;
+    const sb = this._pxClient(); if (!sb) return;
+    this._famAnosLoading = true;
+    sb.from('municipio_votos_familia').select('ano').then(({ data }) => {
+      this._famAnosLoading = false;
+      this._famAnos = [...new Set((data || []).map(r => r.ano))].sort();
+      this.setState({ famV: (this.state.famV || 0) + 1 });
+    }, () => { this._famAnosLoading = false; });
+  }
+  // quebra por membro de UM município (RPC familia_indice_municipio) — de quem é a força aqui
+  _loadFamMuni(ibge) {
+    if (!ibge || this._famMuIbge === ibge) return;
+    this._famMuIbge = ibge; this._famMu = null;
+    const sb = this._pxClient(); if (!sb) return;
+    sb.rpc('familia_indice_municipio', { p_ibge: String(ibge) }).then(({ data, error }) => {
+      if (error) return;
+      this._famMu = data || [];
+      this.setState({ famV: (this.state.famV || 0) + 1 });
+    }, () => {});
   }
   // líderes REAIS da cidade selecionada (RPC city_leaders) — fonte do veredito do painel
   async _loadCityLeaders(cidade) {
@@ -2859,12 +2902,17 @@ class Component extends DCLogic {
       AR.forEach(ld => { const k = ld.status === 'active' ? 'lideres' : ld.status === 'invited' ? 'pend' : null; if (k) (ld.cities || []).forEach(c => _addRede(c, k)); });
     }
     this._loadMunis();
-    if (this._ajRemote !== st.remote || this._ajMuni !== this._muni) {
+    const _memb = (st.mapMembros && st.mapMembros.length) ? st.mapMembros : ['candidato', 'irmao', 'pai'];
+    this._loadFamIdx(_memb, st.mapAnos || []); this._loadFamAnos();
+    if (this._ajRemote !== st.remote || this._ajMuni !== this._muni || this._ajFam !== this._famKey) {
+      const FI = this._famIdx || null;
       const anchorsReal = this.anchorsData.map(a => {
         const rr = redeByIbge[a.ibge], mm = (this._muni && this._muni[a.ibge]) || null;
-        return { ...a, ra: this.raDeIbge(a.ibge), eleitorado: mm ? mm.eleitorado : 0, vv: mm ? mm.vv : 0, rede: rr ? { lideres: rr.lideres, liderados: rr.liderados, pend: rr.pend, ritmo: 0 } : a.rede };
+        // índice recalculado pela combinação de chips; município fora do recorte = 0 (honesto)
+        const fi = FI ? FI[a.ibge] : null;
+        return { ...a, indice: FI ? (fi ? fi.indice : 0) : a.indice, ra: this.raDeIbge(a.ibge), eleitorado: mm ? mm.eleitorado : 0, vv: mm ? mm.vv : 0, rede: rr ? { lideres: rr.lideres, liderados: rr.liderados, pend: rr.pend, ritmo: 0 } : a.rede };
       });
-      this._aj = JSON.stringify(anchorsReal); this._ajRemote = st.remote; this._ajMuni = this._muni;
+      this._aj = JSON.stringify(anchorsReal); this._ajRemote = st.remote; this._ajMuni = this._muni; this._ajFam = this._famKey;
     }
     const _cidMock = this.anchorsData.map(a => {
       const pot = consolidadoPot[a.ibge];
@@ -3275,7 +3323,6 @@ class Component extends DCLogic {
     // ---- tela Mapa Rede × Família ----
     const fmtN = (n) => (n ?? 0).toLocaleString('pt-BR');
     const fmtMil = (n) => n >= 1e6 ? (n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : n >= 1000 ? Math.round(n / 1000) + ' mil' : String(n);
-    const fonteLabels = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão', familia: 'Consolidado' };
     const assessorTabs = [['visao', 'Visão geral', I.target], ['mapa', 'Mapa Rede', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Ranking de líderes', I.award], ['cadastro', 'Cadastrar líder', 'M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6'], ['cidades', 'Ranking de cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]].map(([k, label, icon]) => ({
       label, icon, onClick: () => set({ aTab: k }),
       bg: st.aTab === k ? 'var(--color-gray-300)' : 'transparent', fg: st.aTab === k ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
@@ -3309,8 +3356,11 @@ class Component extends DCLogic {
       { label: 'Potencial × Rede', valor: ms ? fmtN(ms.totalLiderados) + ' liderados' : '…', sub: 'rede real sobre o potencial da família — nunca somados', cor: 'var(--color-foreground)' },
     ];
     const pill = (on) => on ? { bg: 'var(--color-foreground)', fg: 'var(--color-background)', bd: 'var(--color-foreground)' } : { bg: 'transparent', fg: 'var(--color-muted-foreground)', bd: 'var(--color-border)' };
-    const anosPorMembro = { candidato: ['2022'], irmao: ['2024', '2022'], pai: ['2018', '2012'], familia: ['2024', '2022', '2018', '2012'] };
-    const anoPills = ['todos', ...(anosPorMembro[st.mapFonte] || [])].map(j => ({ label: j === 'todos' ? 'Todos' : j, onClick: () => set({ mapAno: j }), ...pill(st.mapAno === j) }));
+    // membros selecionados nos chips → string pro <sp-choropleth> e rótulo honesto do mapa
+    const _membSel = (st.mapMembros && st.mapMembros.length) ? st.mapMembros : ['candidato', 'irmao', 'pai'];
+    const _anosSel = st.mapAnos || [];
+    const _membCurto = { candidato: 'Candidato', irmao: 'Irmão', pai: 'Pai' };
+    const _forcaLabel = _membSel.length === 3 ? 'Família Cezar (os três)' : _membSel.map(m => _membCurto[m]).join(' + ');
     // "Rede atual" era liderados; sem eles vira cópia de "Cobertura" — some enquanto o flag estiver ligado
     const _camadas = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ...(SEM_LID ? [] : [['rede', 'Rede atual']]), ['muni2024', 'Município 2024']];
     const layerPills = _camadas.map(([k, label]) => ({ label, onClick: () => set({ mapLayer: k }), ...pill(_layerAtual === k) }));
@@ -3406,12 +3456,11 @@ class Component extends DCLogic {
       })(),
       toggleSide: () => set({ sideCollapsed: !st.sideCollapsed }),
       sideToggleTitle: st.sideCollapsed ? 'Expandir menu' : 'Recolher menu',
-      assessorTabs, pageTitle, pageSub, kpisMapa, anoPills, layerPills,
-      fonteSel: st.mapFonte, onFonte: (e) => { const f = e.target.value; set({ mapFonte: f, mapAno: (anosPorMembro[f] || []).includes(st.mapAno) ? st.mapAno : 'todos' }); },
-      fonteOpts: Object.keys(fonteLabels).map(v => ({ v, l: fonteLabels[v] })),
-      fonteLabelSel: fonteLabels[st.mapFonte],
-      livePanelSub: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? (rn + ' · cidades por índice') : ('prioridade de investimento · ' + fonteLabels[st.mapFonte]); })(),
-      mapLayer: _layerAtual, mapFonte: st.mapFonte, mapAno: st.mapAno, themeName: isDark ? 'dark' : 'light',
+      assessorTabs, pageTitle, pageSub, kpisMapa, layerPills,
+      forcaLabel: 'Força de: ' + _forcaLabel + (_anosSel.length ? ' · ' + _anosSel.join(', ') : ''),
+      showForca: _layerAtual === 'historico' || _membSel.length < 3 || _anosSel.length > 0,
+      livePanelSub: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? (rn + ' · cidades por índice') : ('prioridade de investimento · ' + _forcaLabel); })(),
+      mapLayer: _layerAtual, mapFonte: _membSel.join(','), mapAno: _anosSel.length ? _anosSel.join(',') : 'todos', themeName: isDark ? 'dark' : 'light',
       toggleTema: () => set({ temaOverride: isDark ? 'claro' : 'escuro' }),
       temaIcon: isDark ? 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4' : 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z',
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
@@ -3559,7 +3608,39 @@ class Component extends DCLogic {
           ['pot', 'POTENCIAL DA FAMÍLIA', [['todos', 'Todos'], ['alto', 'Alto (40+)'], ['medio', 'Médio (18–40)'], ['baixo', 'Baixo']]],
           ['comp', 'COMPARECIMENTO 2024', [['todos', 'Todos'], ['acima', 'Acima da média (67,25%)'], ['abaixo', 'Abaixo da média']]],
         ];
-        const ativos = grupos.filter(([k]) => F[k] && F[k] !== 'todos').length;
+        const ativos = grupos.filter(([k]) => F[k] && F[k] !== 'todos').length
+          + (_membSel.length < 3 ? 1 : 0) + (_anosSel.length ? 1 : 0);
+        // chips MULTI-seleção: qualquer combinação de membros (1, 2 ou 3) e de anos.
+        // Trocar um chip só muda o p_membros/p_anos da RPC — o índice é sempre recalculado
+        // lá, a partir da SOMA DOS VOTOS. Nunca se soma índice de membro no front.
+        const _togMemb = (m) => {
+          const on = _membSel.includes(m);
+          const nx = on ? _membSel.filter(x => x !== m) : [..._membSel, m];
+          if (!nx.length) return; // pelo menos um membro sempre ligado
+          set({ mapMembros: ['candidato', 'irmao', 'pai'].filter(x => nx.includes(x)), muni: null });
+        };
+        const _togAno = (a) => {
+          const nx = _anosSel.includes(a) ? _anosSel.filter(x => x !== a) : [..._anosSel, a];
+          set({ mapAnos: nx.sort(), muni: null });
+        };
+        const _chip = (on) => ({
+          bg: on ? 'var(--color-foreground)' : 'transparent',
+          fg: on ? 'var(--color-background)' : 'var(--color-muted-foreground)',
+          bd: on ? 'var(--color-foreground)' : 'var(--color-border)',
+        });
+        const _anosBase = [...new Set((this._famAnos || [2022]))].sort();
+        const gruposMulti = [
+          { titulo: 'MEMBRO DA FAMÍLIA (COMBINÁVEL)', opcoes: [
+            { label: 'Todos', onClick: () => set({ mapMembros: ['candidato', 'irmao', 'pai'], muni: null }), ..._chip(_membSel.length === 3) },
+            { label: 'Candidato · Wesley', onClick: () => _togMemb('candidato'), ..._chip(_membSel.includes('candidato')) },
+            { label: 'Irmão · Elvis', onClick: () => _togMemb('irmao'), ..._chip(_membSel.includes('irmao')) },
+            { label: 'Pai · Cezão', onClick: () => _togMemb('pai'), ..._chip(_membSel.includes('pai')) },
+          ] },
+          ..._anosBase.length > 1 ? [{ titulo: 'ANO DA ELEIÇÃO', opcoes: [
+            { label: 'Todos', onClick: () => set({ mapAnos: [], muni: null }), ..._chip(!_anosSel.length) },
+            ..._anosBase.map(a => ({ label: String(a), onClick: () => _togAno(a), ..._chip(_anosSel.includes(a)) })),
+          ] }] : [],
+        ];
         return {
           fltMapaAberto: !!st.fltMapaOpen,
           toggleFltMapa: () => set({ fltMapaOpen: !st.fltMapaOpen }),
@@ -3570,7 +3651,7 @@ class Component extends DCLogic {
           fltDrawerStyle: isMob
             ? 'position:absolute;left:10px;right:10px;top:10px;max-height:calc(100% - 20px);overflow:auto;z-index:12;padding:16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);box-shadow:0 8px 24px rgba(0,0,0,.4)'
             : 'position:absolute;left:12px;top:56px;width:292px;max-height:calc(100% - 80px);overflow:auto;z-index:12;padding:16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,.3)',
-          fltGrupos: grupos.map(([k, titulo, ops]) => ({
+          fltGrupos: [...gruposMulti, ...grupos.map(([k, titulo, ops]) => ({
             titulo,
             opcoes: ops.map(([v, label]) => {
               const on = (F[k] || 'todos') === v;
@@ -3581,9 +3662,9 @@ class Component extends DCLogic {
                 bd: on ? 'var(--color-foreground)' : 'var(--color-border)',
               };
             }),
-          })),
+          }))],
           fltResumo: ms ? `${fmtN(ms.munis)} municípios no recorte` : 'aplicando…',
-          limparFltMapa: () => set({ mapFiltros: {}, muni: null }),
+          limparFltMapa: () => set({ mapFiltros: {}, mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null }),
           mapFiltrosJson: JSON.stringify(st.mapFiltros || {}),
         };
       })(),
@@ -3691,6 +3772,7 @@ class Component extends DCLogic {
       hasMuniPrefeito: !!(_pano && _pano.prefeito), muniPrefeito: (_pano && _pano.prefeito) ? (_pano.prefeito + (_pano.prefeito_partido ? ' (' + _pano.prefeito_partido + ')' : '')) : '',
       ...(() => {
         if (!mu) return { muniBest: '', muniTrend: '', muniTrendCor: '', muniPresenca: '', muniForca: '', muniForcaCor: '', muniLeitura: '', hasMuniCand: false, muniCandAno: '', muniCandVotos: '', hasMuniVotos: false, muniVotos: [] };
+        this._loadFamMuni(String(mu.ibge));
         const h = mu.historico || [];
         const cand = h.filter(x => /Wesley/.test(x.membro)).sort((a, b) => b.ano - a.ano)[0] || null;
         const best = h.length ? h.reduce((a, b) => b.votos > a.votos ? b : a) : null;
@@ -3719,8 +3801,24 @@ class Component extends DCLogic {
           muniBest: best ? `${best.membro.split(' (')[0]} — ${best.cargo} ${best.ano} (${fMil(best.votos)})` : 'referência estimada da base histórica',
           muniTrend: trend, muniTrendCor: trendCor,
           hasMuniCand: !!cand, muniCandAno: cand ? `última eleição · ${cand.ano}` : '', muniCandVotos: cand ? fmtN(cand.votos) : '',
-          hasMuniVotos: h.length > 0,
-          muniVotos: [...h].sort((a, b) => (/Wesley/.test(a.membro) ? 0 : /Elvis/.test(a.membro) ? 1 : 2) - (/Wesley/.test(b.membro) ? 0 : /Elvis/.test(b.membro) ? 1 : 2)).map(x => ({ label: `${x.membro.split(' ')[0]} · ${x.cargo} ${x.ano}`, votos: fmtN(x.votos) })),
+          // quebra REAL por membro/eleição vinda da RPC familia_indice_municipio — mostra de
+          // quem é a força na cidade, com o % do eleitorado de cada um (o total nunca é índice).
+          ...(() => {
+            const ORD = { candidato: 0, irmao: 1, pai: 2 };
+            const NOME = { candidato: 'Wesley Cezar', irmao: 'Elvis Cezar', pai: 'Cezão' };
+            const rpc = (this._famMuIbge === String(mu.ibge) && this._famMu) ? this._famMu : null;
+            if (rpc) return {
+              hasMuniVotos: rpc.length > 0,
+              muniVotos: [...rpc].sort((a, b) => (ORD[a.membro] ?? 9) - (ORD[b.membro] ?? 9)).map(x => ({
+                label: `${NOME[x.membro] || x.membro} · ${x.cargo} ${x.ano}`,
+                votos: fmtN(x.votos) + (x.pct_eleitorado != null ? ` (${Number(x.pct_eleitorado).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%)` : ''),
+              })),
+            };
+            return {
+              hasMuniVotos: h.length > 0,
+              muniVotos: [...h].sort((a, b) => (/Wesley/.test(a.membro) ? 0 : /Elvis/.test(a.membro) ? 1 : 2) - (/Wesley/.test(b.membro) ? 0 : /Elvis/.test(b.membro) ? 1 : 2)).map(x => ({ label: `${x.membro.split(' ')[0]} · ${x.cargo} ${x.ano}`, votos: fmtN(x.votos) })),
+            };
+          })(),
           muniPresenca: h.length ? `${h.length} campanha${h.length > 1 ? 's' : ''} · ${anos.join(', ')}` : 'sem campanha direta aqui',
           muniForca: ['baixa', 'média', 'alta'][forcaN], muniForcaCor: ['var(--color-muted-foreground)', 'var(--color-gray-1000)', 'var(--color-accent)'][forcaN],
           // a leitura segue as contagens REAIS: com líder na cidade, nunca "nenhum líder"
