@@ -78,7 +78,10 @@ body{--pin-coberto:#ededed;--pin-parcial:#878787;--pin-priorizar:#ffb224}
 .px-touch select { padding-right: 34px !important; }
 /* texto de apoio some numa tela vista de longe */
 .px-touch { font-size: 16px; }
-.px-touch svg { pointer-events: none; }  /* o alvo do toque é o botão, não o ícone */
+/* ícone dentro de BOTÃO não intercepta o toque — o alvo é o botão.
+   Restrito a button > svg de propósito: a regra genérica pegava o SVG do mapa
+   e matava arraste, pinça e clique nos municípios. */
+.px-touch button > svg { pointer-events: none; }
 }
 .px-sel{stroke-dasharray:9 6;animation:pxDash 1.1s linear infinite}
 a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-decoration:underline}
