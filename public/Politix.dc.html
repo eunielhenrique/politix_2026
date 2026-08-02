@@ -1447,7 +1447,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </button>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}"><span style="width:1px;height:20px;background:var(--color-border)"></span></sc-if>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
-              <select value="{{ mapFRegiaoSel }}" onChange="{{ onMapFRegiao }}" style="height:32px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none;max-width:230px">
+              <select value="{{ mapFRegiaoSel }}" onChange="{{ onMapFRegiao }}" style="height:32px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none;max-width:150px">
                 <sc-for list="{{ regiaoOpts }}" as="rm" hint-placeholder-count="4"><option value="{{ rm.v }}">{{ rm.l }}</option></sc-for>
               </select>
               </sc-if>
@@ -3444,7 +3444,7 @@ class Component extends DCLogic {
     const _membSel = (st.mapMembros && st.mapMembros.length) ? st.mapMembros : ['candidato', 'irmao', 'pai'];
     const _anosSel = st.mapAnos || [];
     const _membCurto = { candidato: 'Candidato', irmao: 'Irmão', pai: 'Pai' };
-    const _forcaLabel = _membSel.length === 3 ? 'Família Cezar (os três)' : _membSel.map(m => _membCurto[m]).join(' + ');
+    const _forcaLabel = _membSel.length === 3 ? 'Família Cezar' : _membSel.map(m => _membCurto[m]).join(' + ');
     // "Rede atual" era liderados; sem eles vira cópia de "Cobertura" — some enquanto o flag estiver ligado
     const _camadas = [['cobertura', 'Cobertura'], ['historico', 'Histórico da família'], ...(SEM_LID ? [] : [['rede', 'Rede atual']]), ['muni2024', 'Município 2024']];
     // sair do Histórico volta a seleção pra família inteira: o seletor de membro some
@@ -3800,7 +3800,7 @@ class Component extends DCLogic {
         };
       })(),
       podio, rankingResto, rankingTotal, rankHasMore, cidadesRank: cidResto, cidPodio, cidadesTotal: String(cidadesRank.length),
-      regiaoOpts: [{ v: 'todos', l: `Todas as regiões (${RA15.length} RAs)` }, ...RA15.map(v => ({ v, l: v }))],
+      regiaoOpts: [{ v: 'todos', l: 'Todas as regiões' }, ...RA15.map(v => ({ v, l: v }))],
       rankFRegiaoSel: this.fltSelVal(st.rankFRegiao), onRankFRegiao: (e) => set({ rankFRegiao: [e.target.value], selLeader: null, rankVisible: 20 }),
       cidFRegiaoSel: this.fltSelVal(st.cidFRegiao), onCidFRegiao: (e) => set({ cidFRegiao: [e.target.value] }),
       mapFRegiaoSel: this.fltSelVal(st.mapFRegiao), onMapFRegiao: (e) => set({ mapFRegiao: [e.target.value], muni: null }),
@@ -3877,7 +3877,7 @@ class Component extends DCLogic {
           }).slice(0, 8) : [];
         return {
           buscaCidade: st.buscaCidade || '',
-          buscaW: isMob ? '150px' : '190px',
+          buscaW: isMob ? '150px' : '140px',
           onBuscaCidade: (e) => set({ buscaCidade: e.target.value }),
           onBuscaKey: (e) => { if (e.key === 'Enter' && achados.length) focar(achados[0][0]); if (e.key === 'Escape') set({ buscaCidade: '' }); },
           buscaAberta: termo.length >= 2,
