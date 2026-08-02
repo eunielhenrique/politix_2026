@@ -2223,11 +2223,17 @@ class Component extends DCLogic {
     this.setState({ iaBusy: true, iaChave: alvo.chave });
     const sb = this._pxClient();
     const escopo = alvo.tipo === 'ra' ? 'REGIÃO' : 'MUNICÍPIO';
-    const pergunta = `Em no máximo 4 frases curtas, oriente a campanha sobre este(a) ${escopo}, LENDO PELO RECORTE ATIVO (camada, força medida, região e filtros informados no contexto). `
-      + (alvo.tipo === 'ra'
-        ? 'Diga onde concentrar esforço, o que o número de líderes indica e qual o próximo passo concreto. '
-        : 'Diga o potencial da família aqui, o que a rede atual cobre ou deixa aberto, e qual o próximo passo concreto. ')
-      + 'Se o recorte muda a leitura, diga isso. Não repita os números, interprete-os.';
+    // Três eixos e só: LIDERANÇA (rede), CANDIDATO (o que ele mesmo fez ali) e VOTO
+    // (prometido × necessário). O histórico do irmão e do pai é pano de fundo de
+    // tamanho da oportunidade — sem essa trava a leitura vira aula de eleição passada.
+    const pergunta = `Você orienta a operação de campo da campanha de Wesley Cezar (Lelinho). Em no máximo 4 frases curtas, `
+      + `oriente sobre este(a) ${escopo} LENDO PELO RECORTE ATIVO (camada, força medida, região e filtros do contexto). `
+      + `Fale de três coisas e só: (1) LIDERANÇA — quantos líderes existem, quantos faltam, quem está sem meta; `
+      + `(2) CANDIDATO — como o próprio Wesley se saiu aqui e o que isso exige da rede agora; `
+      + `(3) VOTO — se a meta declarada cobre o que a campanha precisa, e qual o PRÓXIMO PASSO concreto de campo `
+      + `(convidar líder, cobrar meta de quem não declarou, priorizar outra cidade). `
+      + `NÃO analise o histórico eleitoral do irmão nem do pai e não descreva eleições passadas — esses números servem no máximo como referência de tamanho, em meia frase. `
+      + `Se o recorte muda a leitura, diga isso. Não repita os números, interprete-os.`;
     let txt = null;
     if (sb && this.state.remote && this.state.remote.session) {
       try {
@@ -3753,21 +3759,51 @@ class Component extends DCLogic {
         if (mu) {
           const fi = this._famIdx && this._famIdx[String(mu.ibge)];
           const cl = _cl || [];
-          const prom = cl.filter(l => l.status === 'active').reduce((x, l) => x + Number(l.promise_votes || 0), 0);
-          alvo = { tipo: 'muni', chave: 'm:' + mu.ibge + '|' + chaveRecorte, ctx: [
+          const ativos = cl.filter(l => l.status === 'active');
+          const prom = ativos.reduce((x, l) => x + Number(l.promise_votes || 0), 0);
+          const pend = cl.length - ativos.length;
+          const rpcMu = (this._famMuIbge === String(mu.ibge) && this._famMu) ? this._famMu : null;
+          const votoCand = rpcMu ? ((rpcMu.find(x => x.membro === 'candidato') || {}).votos || 0) : null;
+          const semMeta = ativos.filter(l => !(l.promise_votes > 0)).length;
+          // LIDERANÇA e VOTO primeiro; o histórico da família entra só como pano de
+          // fundo do tamanho da oportunidade, nunca como assunto da leitura.
+          alvo = { tipo: 'muni', temCand: !!rpcMu, chave: 'm:' + mu.ibge + '|' + chaveRecorte, ctx: [
             recorte,
             `Município: ${mu.nome}`,
+            `LIDERANÇA: ${muLideres} líder(es) ativo(s)` + (pend ? `, ${pend} convite(s) pendente(s)` : ', nenhum convite pendente')
+              + (semMeta ? `, ${semMeta} sem meta declarada` : '')
+              + (_muEleit && muLideres ? ` · 1 líder a cada ${fmtN(Math.round(_muEleit / muLideres))} eleitores` : ''),
+            `VOTO PROMETIDO pela rede: ${fmtN(prom)}` + (_muEleit ? ` (${(prom / _muEleit * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% do eleitorado)` : ''),
+            votoCand != null ? `VOTO DO CANDIDATO aqui em 2022 (TSE): ${fmtN(votoCand)} · diferença para o prometido: ${prom - votoCand >= 0 ? '+' : '−'}${fmtN(Math.abs(prom - votoCand))}` : null,
             _muEleit ? `Eleitorado 2024: ${fmtN(_muEleit)}` : null,
-            `Força de ${_forcaLabel}: índice ${fi ? fi.indice : (mu.indice || 0)} de 100${fi ? ` (${fi.votos} votos, ${Number(fi.pen || 0).toFixed(2)}% do eleitorado)` : ''}`,
-            `Rede atual: ${muLideres} líder(es) ativo(s), ${fmtN(prom)} votos prometidos`,
-            `Estado: ${mu.statusLabel || ''}`,
+            `Contexto histórico (só para dimensionar a oportunidade, não é o assunto): força de ${_forcaLabel} com índice ${fi ? fi.indice : (mu.indice || 0)} de 100`,
           ].filter(Boolean).join(' · ') };
         } else if (raSel) {
-          alvo = { tipo: 'ra', chave: 'r:' + raSel + '|' + chaveRecorte,
-            ctx: `${recorte} · Região aberta: ${raSel}, com os agregados do painel (eleitorado, votos de ${_forcaLabel}, concentração, municípios com base e líderes cadastrados).` };
+          const M2 = this._muni || {};
+          let nMun = 0, comLider = 0, lid = 0, pend2 = 0, eleit = 0;
+          Object.entries(M2).forEach(([ibge, m]) => {
+            if (m.ra !== raSel) return;
+            nMun++; eleit += m.eleitorado || 0;
+            const rr = redeByIbge[ibge];
+            if (rr) { lid += rr.lideres || 0; pend2 += rr.pend || 0; if (rr.lideres > 0) comLider++; }
+          });
+          alvo = { tipo: 'ra', chave: 'r:' + raSel + '|' + chaveRecorte, ctx: [
+            recorte,
+            `Região: ${raSel}`,
+            `LIDERANÇA: ${fmtN(lid)} líder(es) ativo(s) em ${fmtN(comLider)} de ${fmtN(nMun)} municípios` +
+              (pend2 ? `, ${fmtN(pend2)} convite(s) pendente(s)` : '') +
+              ` · ${fmtN(nMun - comLider)} cidade(s) sem ninguém`,
+            `VOTO em jogo: ${fmtN(eleit)} eleitores na região` +
+              (comLider && eleit ? ` · a parte já com líder soma ${(comLider / nMun * 100).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}% dos municípios` : ''),
+            `Contexto histórico (só para dimensionar, não é o assunto): força de ${_forcaLabel} na região`,
+          ].join(' · ') };
         }
-        if (alvo) this._iaResumo(alvo);
-        const pronto = st.iaChave === (alvo && alvo.chave);
+        // Espera a quebra por membro chegar antes de pedir a leitura: sem ela o voto do
+        // PRÓPRIO candidato falta no contexto, e o candidato é um dos três eixos da
+        // resposta. Um disparo com dado completo em vez de dois com dado pela metade.
+        const prontoPraLer = !alvo || alvo.tipo !== 'muni' || alvo.temCand;
+        if (alvo && prontoPraLer) this._iaResumo(alvo);
+        const pronto = st.iaChave === (alvo && alvo.chave) && prontoPraLer;
         return {
           iaTem: !!alvo,
           iaTitulo: alvo && alvo.tipo === 'ra' ? 'Leitura da região' : 'Leitura da cidade',
