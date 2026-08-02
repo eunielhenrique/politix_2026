@@ -2223,9 +2223,12 @@ class Component extends DCLogic {
     this._iaBusy = alvo.chave;
     this.setState({ iaBusy: true, iaChave: alvo.chave });
     const sb = this._pxClient();
-    const pergunta = alvo.tipo === 'ra'
-      ? `Em no máximo 4 frases curtas, oriente a campanha sobre esta REGIÃO: onde concentrar esforço, o que o número de líderes indica e qual o próximo passo concreto. Não repita os números, interprete-os.`
-      : `Em no máximo 4 frases curtas, oriente a campanha sobre este MUNICÍPIO: o potencial da família aqui, o que a rede atual cobre ou deixa aberto, e qual o próximo passo concreto. Não repita os números, interprete-os.`;
+    const escopo = alvo.tipo === 'ra' ? 'REGIÃO' : 'MUNICÍPIO';
+    const pergunta = `Em no máximo 4 frases curtas, oriente a campanha sobre este(a) ${escopo}, LENDO PELO RECORTE ATIVO (camada, força medida, região e filtros informados no contexto). `
+      + (alvo.tipo === 'ra'
+        ? 'Diga onde concentrar esforço, o que o número de líderes indica e qual o próximo passo concreto. '
+        : 'Diga o potencial da família aqui, o que a rede atual cobre ou deixa aberto, e qual o próximo passo concreto. ')
+      + 'Se o recorte muda a leitura, diga isso. Não repita os números, interprete-os.';
     let txt = null;
     if (sb && this.state.remote && this.state.remote.session) {
       try {
@@ -3725,12 +3728,35 @@ class Component extends DCLogic {
       // ── contexto do resumo de IA: os MESMOS números que a tela mostra ──
       ...(() => {
         const raSel = (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })();
+        // A leitura tem de falar do RECORTE em vigor, não do município solto: camada,
+        // filtros, região e anos entram no contexto E na chave de cache, senão trocar
+        // de camada ou de filtro devolveria a mesma resposta de antes.
+        const CAMADA = { cobertura: 'Cobertura da rede', historico: 'Histórico da família', muni2024: 'Município 2024 (eleitorado)', rede: 'Rede atual' };
+        const FLT = {
+          cob: { com: 'só com líder', sem: 'só sem líder' },
+          prio: { alta: 'prioridade alta', media: 'prioridade média', baixa: 'prioridade baixa' },
+          porte: { g: '100 mil+ eleitores', m: '20 a 100 mil eleitores', p: 'até 20 mil eleitores' },
+          pot: { alto: 'potencial da família alto', medio: 'potencial médio', baixo: 'potencial baixo' },
+          comp: { acima: 'comparecimento acima da média', abaixo: 'comparecimento abaixo da média' },
+        };
+        const F = st.mapFiltros || {};
+        const fltTxt = Object.keys(FLT).map(k => (FLT[k][F[k]] || null)).filter(Boolean);
+        const recorte = [
+          `Camada em foco: ${CAMADA[_layerAtual] || _layerAtual}`,
+          `Força medida: ${_forcaLabel}${_anosSel.length ? ' · anos ' + _anosSel.join(', ') : ''}`,
+          raSel ? `Região filtrada: ${raSel}` : 'Sem filtro de região (estado inteiro)',
+          fltTxt.length ? `Filtros ativos: ${fltTxt.join(', ')}` : 'Sem filtros de recorte',
+          ms ? `${fmtN(ms.munis)} municípios no recorte` : null,
+        ].filter(Boolean).join(' · ');
+        const chaveRecorte = [_layerAtual, _membSel.join(','), _anosSel.join(','), raSel,
+          Object.keys(FLT).map(k => F[k] || '').join('')].join('|');
         let alvo = null;
         if (mu) {
           const fi = this._famIdx && this._famIdx[String(mu.ibge)];
           const cl = _cl || [];
           const prom = cl.filter(l => l.status === 'active').reduce((x, l) => x + Number(l.promise_votes || 0), 0);
-          alvo = { tipo: 'muni', chave: 'm:' + mu.ibge + ':' + _membSel.join(','), ctx: [
+          alvo = { tipo: 'muni', chave: 'm:' + mu.ibge + '|' + chaveRecorte, ctx: [
+            recorte,
             `Município: ${mu.nome}`,
             _muEleit ? `Eleitorado 2024: ${fmtN(_muEleit)}` : null,
             `Força de ${_forcaLabel}: índice ${fi ? fi.indice : (mu.indice || 0)} de 100${fi ? ` (${fi.votos} votos, ${Number(fi.pen || 0).toFixed(2)}% do eleitorado)` : ''}`,
@@ -3738,7 +3764,8 @@ class Component extends DCLogic {
             `Estado: ${mu.statusLabel || ''}`,
           ].filter(Boolean).join(' · ') };
         } else if (raSel) {
-          alvo = { tipo: 'ra', chave: 'r:' + raSel + ':' + _membSel.join(','), ctx: `Região: ${raSel} · dados agregados dos municípios da região (eleitorado, votos da família da seleção ${_forcaLabel}, concentração e líderes cadastrados) mostrados no painel.` };
+          alvo = { tipo: 'ra', chave: 'r:' + raSel + '|' + chaveRecorte,
+            ctx: `${recorte} · Região aberta: ${raSel}, com os agregados do painel (eleitorado, votos de ${_forcaLabel}, concentração, municípios com base e líderes cadastrados).` };
         }
         if (alvo) this._iaResumo(alvo);
         const pronto = st.iaChave === (alvo && alvo.chave);
@@ -4073,9 +4100,14 @@ class Component extends DCLogic {
           const foraDaRa = !!(alvo && raAtual && raAtual !== 'todos' && alvo.ra !== raAtual);
           const F = st.mapFiltros || {};
           const temFiltro = Object.values(F).some(v => v && v !== 'todos');
+          // só limpa o que de fato esconde a cidade: quem passa no recorte o mantém,
+          // senão buscar uma cidade zerava filtros que o assessor acabou de montar
+          const foraDoRecorte = typeof window !== 'undefined' && window.PXEstaFora ? window.PXEstaFora(ibge) : (foraDaRa || temFiltro);
           const nx = { buscaCidade: '' };
-          if (foraDaRa) nx.mapFRegiao = ['todos'];
-          if (temFiltro) nx.mapFiltros = {};
+          if (foraDoRecorte) {
+            if (foraDaRa) nx.mapFRegiao = ['todos'];
+            if (temFiltro) nx.mapFiltros = {};
+          }
           set(nx);
           if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'focus', ibge } }));
         };

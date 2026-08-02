@@ -242,6 +242,12 @@
       const selIbge = this.getAttribute('data-sel-muni') || ''; // cidade aberta no painel
       // "fora" = fora da RA escolhida OU reprovado no cruzamento de filtros
       const fora = r => (selRa && r.ra !== selRa) || !this.passaFiltros(r);
+      // exposto para a busca por nome decidir se PRECISA limpar o recorte:
+      // limpar sempre era exagero — a cidade procurada muitas vezes já passa nele
+      window.PXEstaFora = (ibge) => {
+        const r = (this._rows || []).find(x => String(x.code) === String(ibge));
+        return r ? fora(r) : false;
+      };
       const scoped = rows.filter(r => !fora(r)); // RA + filtros
       const maxLid = Math.max(...rows.map(r => r.liderJan), 1);
       const maxEl = Math.max(...rows.map(r => r.eleitorado), 1);
