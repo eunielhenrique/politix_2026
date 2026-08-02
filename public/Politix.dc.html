@@ -1786,12 +1786,28 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </div>
                   <sc-if value="{{ nlAberto }}" hint-placeholder-val="{{ false }}">
                     <div style="margin-bottom:10px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);display:flex;flex-direction:column;gap:8px">
-                      <div style="font-size:11px;color:var(--color-muted-foreground)">{{ nlSub }}</div>
+                      <div style="font-size:11px;color:var(--color-muted-foreground);line-height:1.45">{{ nlSub }}</div>
+                      <div style="font-size:11px;color:var(--color-gray-600);margin-top:2px">Nome</div>
                       <input type="text" value="{{ nlNome }}" onChange="{{ onNlNome }}" placeholder="Nome do líder" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <div style="font-size:11px;color:var(--color-gray-600)">WhatsApp</div>
                       <input type="text" value="{{ nlZap }}" onChange="{{ onNlZap }}" placeholder="WhatsApp com DDD" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-family:var(--font-mono);outline:none" style-focus="border-color:var(--color-gray-500)">
-                      <input type="text" value="{{ nlPromessa }}" onChange="{{ onNlPromessa }}" placeholder="Expectativa de votos (opcional)" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <div style="font-size:11px;color:var(--color-gray-600)">Cidades (separadas por vírgula)</div>
+                      <input type="text" value="{{ nlCidades }}" onChange="{{ onNlCidades }}" placeholder="{{ nlCidadePh }}" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <div style="font-size:11px;color:var(--color-gray-600)">Expectativa de voto</div>
+                      <input type="text" value="{{ nlPromessa }}" onChange="{{ onNlPromessa }}" placeholder="0" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <div style="font-size:11px;color:var(--color-gray-600)">Dobrada</div>
+                      <input type="text" value="{{ nlDobrada }}" onChange="{{ onNlDobrada }}" placeholder="ex.: vereador de dobrada" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <div style="font-size:11px;color:var(--color-gray-600)">Observação</div>
+                      <textarea value="{{ nlObs }}" onChange="{{ onNlObs }}" placeholder="anotações sobre o líder" rows="2" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-family:inherit;resize:vertical;outline:none" style-focus="border-color:var(--color-gray-500)"></textarea>
+                      <div style="font-size:11px;color:var(--color-gray-600);line-height:1.45">Status: entra como <b style="color:var(--color-foreground)">Pendente</b> até aceitar o convite.</div>
                       <sc-if value="{{ nlTemMsg }}" hint-placeholder-val="{{ false }}">
                         <div style="font-size:11.5px;line-height:1.45;color:{{ nlMsgCor }}">{{ nlMsgTxt }}</div>
+                      </sc-if>
+                      <sc-if value="{{ nlTemLink }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;gap:6px;align-items:center">
+                          <input type="text" value="{{ nlLink }}" readonly style="flex:1;min-width:0;height:32px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-muted-foreground);font-size:11.5px;font-family:var(--font-mono);outline:none">
+                          <button onClick="{{ nlCopiar }}" style="height:32px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap">{{ nlCopiarLabel }}</button>
+                        </div>
                       </sc-if>
                       <button onClick="{{ nlSalvar }}" style="height:34px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:12.5px;font-weight:600;cursor:pointer">{{ nlBotao }}</button>
                     </div>
@@ -2174,7 +2190,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], forcaOpen: false, muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], forcaOpen: false, muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     // clicar numa cidade com a lista recolhida ABRE o painel já no raio-x dela —
@@ -2480,13 +2496,35 @@ class Component extends DCLogic {
     const nome = (st.nlNome || '').trim(), wa = this._normWa(st.nlZap);
     if (!nome || wa.length < 10) { this.setState({ nlMsg: { err: true, txt: 'Preencha o nome e um WhatsApp válido (com DDD).' } }); return; }
     if (!sb || !cidade) { this.setState({ nlMsg: { err: true, txt: 'Sem conexão com o backend.' } }); return; }
+    // campo vazio cai na cidade aberta, mas dá pra listar mais de uma como na edição
+    const cts = (st.nlCidades || '').split(',').map(x => x.trim()).filter(Boolean);
     this.setState({ nlBusy: true, nlMsg: null });
-    const { error } = await sb.rpc('invite_leader', {
-      p_name: nome, p_whatsapp: wa, p_cities: [cidade],
+    const { data, error } = await sb.rpc('invite_leader', {
+      p_name: nome, p_whatsapp: wa, p_cities: cts.length ? cts : [cidade],
       p_promise: parseInt(st.nlPromessa, 10) || 0, p_parent: null,
     });
-    if (error) { this.setState({ nlBusy: false, nlMsg: { err: true, txt: 'Não consegui incluir: ' + error.message } }); return; }
-    this.setState({ nlBusy: false, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlMsg: null });
+    if (error) {
+      const dup = (error.code === '23505') || /duplicate|unique/i.test(error.message || '');
+      this.setState({ nlBusy: false, nlMsg: { err: true, txt: dup ? 'Esse WhatsApp já está cadastrado como líder (nunca duplica).' : ('Não consegui incluir: ' + error.message) } });
+      return;
+    }
+    const row = Array.isArray(data) ? data[0] : data;
+    // invite_leader não aceita dobrada/observação: completa num update, só se houver algo
+    const dob = (st.nlDobrada || '').trim(), obs = (st.nlObs || '').trim();
+    if (row && row.leader_id && (dob || obs)) {
+      try {
+        await sb.rpc('update_leader', {
+          p_id: row.leader_id, p_name: nome, p_whatsapp: null,
+          p_cities: cts.length ? cts : [cidade], p_promise: parseInt(st.nlPromessa, 10) || 0,
+          p_dobrada: dob, p_status: 'invited', p_observacao: obs,
+        });
+      } catch (e) {}
+    }
+    this.setState({
+      nlBusy: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '',
+      nlLink: (row && row.token) ? this._inviteUrl(row.token) : null, nlLinkNome: nome, nlCopied: false,
+      nlMsg: { err: false, txt: 'Líder incluído. Envie o link de convite abaixo para ele entrar.' },
+    });
     this._clCidade = null; this._loadCityLeaders(cidade);
     this._reloadRede();
   }
@@ -4158,7 +4196,13 @@ class Component extends DCLogic {
       nlToggle: () => set({ nlOpen: !st.nlOpen, nlMsg: null }),
       nlLabel: st.nlOpen ? 'Cancelar' : 'Incluir líder',
       nlIcone: st.nlOpen ? 'M6 6l12 12M18 6L6 18' : 'M12 5v14M5 12h14',
-      nlSub: mu ? `O líder entra já vinculado a ${mu.nome} e recebe o convite no WhatsApp.` : '',
+      nlSub: mu ? `Entra vinculado a ${mu.nome}. Ao salvar, o painel gera um link de convite para você enviar a ele — o envio não é automático.` : '',
+      nlCidadePh: mu ? mu.nome : 'Cidade',
+      nlCidades: st.nlCidades || '', onNlCidades: (e) => set({ nlCidades: e.target.value }),
+      nlDobrada: st.nlDobrada || '', onNlDobrada: (e) => set({ nlDobrada: e.target.value }),
+      nlObs: st.nlObs || '', onNlObs: (e) => set({ nlObs: e.target.value }),
+      nlTemLink: !!st.nlLink, nlLink: st.nlLink || '',
+      nlCopiar: () => copy(st.nlLink, 'nlCopied'), nlCopiarLabel: st.nlCopied ? 'Copiado' : 'Copiar link',
       nlNome: st.nlNome || '', onNlNome: (e) => set({ nlNome: e.target.value }),
       nlZap: st.nlZap || '', onNlZap: (e) => set({ nlZap: e.target.value }),
       nlPromessa: st.nlPromessa || '', onNlPromessa: (e) => set({ nlPromessa: e.target.value }),
