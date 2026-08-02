@@ -479,11 +479,11 @@
       let verdict, vc;
       // a contagem real manda: com líder/liderado na cidade, nunca dizer "nenhum líder"
       if (semLid() && r.lideres > 0) { verdict = `${r.lideres} líder(es) ativo(s) nesta cidade`; vc = r.lideres >= 5 ? '#2f9e64' : '#b06a12'; }
-      else if (r.status === 'coberto') { verdict = `Coberta — ${r.lideres} líder(es) ativo(s)${alvoF}`; vc = '#2f9e64'; }
+      else if (r.status === 'coberto') { verdict = `Coberta · ${r.lideres} líder(es) ativo(s)${alvoF}`; vc = '#2f9e64'; }
       else if (r.lideres > 0 || r.liderados > 0) { verdict = `Presença · ${r.lideres} líder(es) ativo(s) · ${fmt(r.liderados)} liderado(s)${alvoF}`; vc = '#b06a12'; }
-      else if (r.pend > 0) { verdict = `${r.pend} líder(es) convidado(s) — aguardando ativar (pendente)`; vc = '#b06a12'; }
-      else if (r.status === 'neutro' || r.status === 'fraco') { verdict = 'Histórico baixo da família aqui — prioridade baixa'; vc = 'var(--mutedsoft,#93939f)'; }
-      else { const nv = r.indice >= 40 ? 'alto' : 'médio'; verdict = `Descoberta — nenhum líder cadastrado. Potencial ${nv}`; vc = r.indice >= 40 ? '#c23b3b' : '#b06a12'; }
+      else if (r.pend > 0) { verdict = `${r.pend} líder(es) convidado(s) · aguardando ativar (pendente)`; vc = '#b06a12'; }
+      else if (r.status === 'neutro' || r.status === 'fraco') { verdict = 'Histórico baixo da família aqui · prioridade baixa'; vc = 'var(--mutedsoft,#93939f)'; }
+      else { const nv = r.indice >= 40 ? 'alto' : 'médio'; verdict = `Descoberta · nenhum líder cadastrado. Potencial ${nv}`; vc = r.indice >= 40 ? '#c23b3b' : '#b06a12'; }
       t.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${r.nome}</div>
 <div style="color:var(--color-muted-foreground,#878787)">Potencial da família (${fl}): <b style="color:var(--color-foreground,#ededed)">${r.indice >= 40 ? 'alto' : r.indice >= 18 ? 'médio' : 'baixo'} · índice ${r.indice}</b></div>
 <div style="color:var(--color-muted-foreground,#878787)">Rede atual: ${semLid() ? '' : '<b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">' + fmt(r.liderados) + '</b> liderados · '}<b style="font-variant-numeric:tabular-nums;color:var(--color-foreground,#ededed)">${r.lideres}</b> líder(es)${r.pend ? ' · <b style="color:#ffb224">' + r.pend + ' pendente(s)</b>' : ''}</div>

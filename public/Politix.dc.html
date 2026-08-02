@@ -42,7 +42,7 @@ body{margin:0;font-family:var(--font-sans);background:var(--color-background);co
 --overlay:rgba(0,0,0,.85);
 --map-fill:#111111;--map-stroke:#454545;--map-halo:#878787;--map-pin-ring:#000000;--map-label:#ededed;--map-label-halo:#000000}
 html{color-scheme:dark}
-/* Versão clara (DESIGN.md §2.1) — ativada via body[data-theme="light"] */
+/* Versão clara (DESIGN.md §2.1) · ativada via body[data-theme="light"] */
 body[data-theme="light"]{color-scheme:light;
 --color-background:#ffffff;--color-background-100:#fafafa;--color-background-200:#f5f5f5;--color-card:#fafafa;--color-muted:#f0f0f0;
 --color-foreground:#171717;--color-card-foreground:#171717;--color-muted-foreground:#6f6f6f;
@@ -282,10 +282,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   <button onClick="{{ closeScreen }}" style="width:32px;height:32px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5 7.5 12l7.5 7.5"></path></svg></button>
                   <span style="font-family:var(--font-sans);font-weight:500;font-size:24px;letter-spacing:-.3px">Convidar sub-líder</span>
                 </div>
-                <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5;margin:0 0 16px">Quem você convidar entra na árvore abaixo de você — a rede dele soma no seu placar.</p>
+                <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5;margin:0 0 16px">Quem você convidar entra na árvore abaixo de você · a rede dele soma no seu placar.</p>
                 <div style="display:flex;flex-direction:column;gap:12px">
                   <input type="text" placeholder="Nome" value="{{ cNome }}" onChange="{{ onCNome }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none" style-focus="border-color:var(--color-gray-500)">
-                  <input type="tel" placeholder="WhatsApp — (11) 9…" value="{{ cZap }}" onChange="{{ onCZap }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
+                  <input type="tel" placeholder="WhatsApp · (11) 9…" value="{{ cZap }}" onChange="{{ onCZap }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
                   <input type="text" placeholder="Cidades (separe por vírgula)" value="{{ cCidades }}" onChange="{{ onCCidades }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none" style-focus="border-color:var(--color-gray-500)">
                   <input type="number" placeholder="Promessa de votos" value="{{ cPromessa }}" onChange="{{ onCPromessa }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
                   <button onClick="{{ geraConvite }}" style="width:100%;height:40px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:14px;font-weight:500;cursor:pointer" style-active="background:#ffffff">Gerar link de convite</button>
@@ -309,7 +309,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   <div style="width:42px;height:42px;border-radius:var(--radius-sm);background:var(--color-gray-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-sans);font-weight:600;font-size:19px">{{ liderInicial }}</div>
                   <div style="flex:1;min-width:0">
                     <div style="font-family:var(--font-sans);font-weight:500;font-size:23px;letter-spacing:-.3px;line-height:1.1">Boas-vindas, {{ liderNome }}</div>
-                    <div style="font-size:12px;color:var(--color-muted-foreground)">Zona Leste — São Paulo</div>
+                    <div style="font-size:12px;color:var(--color-muted-foreground)">Zona Leste · São Paulo</div>
                   </div>
                 </div>
                 <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:20px;background:var(--color-background-200)">
@@ -427,7 +427,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <div>
                 <div style="display:flex;flex-direction:column;gap:12px">
                   <input type="text" placeholder="Nome completo" value="{{ fNome }}" onChange="{{ onFNome }}" style="width:100%;height:44px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none" style-focus="border-color:var(--color-gray-500)">
-                  <input type="tel" placeholder="WhatsApp — (11) 9…" value="{{ fZap }}" onChange="{{ onFZap }}" style="width:100%;height:44px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
+                  <input type="tel" placeholder="WhatsApp · (11) 9…" value="{{ fZap }}" onChange="{{ onFZap }}" style="width:100%;height:44px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
                   <select value="{{ fCidade }}" onChange="{{ onFCidade }}" style="width:100%;height:44px;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none">
                     <sc-for list="{{ cidadesOpts }}" as="c" hint-placeholder-count="3"><option value="{{ c.v }}">{{ c.v }}</option></sc-for>
                   </select>
@@ -751,7 +751,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         </div>
         <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden;display:flex;flex-direction:column">
           <div style="display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;justify-content:space-between;padding:16px 20px 8px">
-            <span style="font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-foreground);white-space:nowrap">Cobertura — São Paulo</span>
+            <span style="font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-foreground);white-space:nowrap">Cobertura · São Paulo</span>
             <span style="font-size:11px;color:var(--color-gray-600)">contorno oficial IBGE</span>
           </div>
           <x-import component-from-global-scope="sp-map" from="./sp-map.js" data-cities="{{ citiesJson }}" hint-size="100%,330px" style="display:block;width:100%;flex:1 1 auto;min-height:0;height:{{ vgMapH }}"></x-import>
@@ -815,7 +815,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   <span style="font-weight:600;font-variant-numeric:tabular-nums">{{ vg.n }}</span>
                 </div>
               </sc-for>
-              <div style="font-size:10.5px;color:var(--color-gray-600);line-height:1.45;margin-top:2px">maior gap: {{ vgGapCidade }} — potencial {{ vgGapPot }} da família, sem líder</div>
+              <div style="font-size:10.5px;color:var(--color-gray-600);line-height:1.45;margin-top:2px">maior gap: {{ vgGapCidade }} · potencial {{ vgGapPot }} da família, sem líder</div>
             </div>
           </div>
         </div>
@@ -846,7 +846,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
       </div>
       <div style="margin-top:18px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px 10px">
-          <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">AS 16 REGIÕES — ELEIÇÕES MUNICIPAIS 2024</span>
+          <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">AS 16 REGIÕES · ELEIÇÕES MUNICIPAIS 2024</span>
           <span style="font-size:11px;color:var(--color-gray-600)">clique numa região para abrir o mapa filtrado</span>
         </div>
         <div style="overflow-x:auto">
@@ -938,9 +938,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <sc-if value="{{ cadTabUm }}" hint-placeholder-val="{{ true }}">
             <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:20px;max-width:540px">
               <div style="font-size:14px;font-weight:600;margin-bottom:3px">Convidar um líder</div>
-              <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-bottom:16px;line-height:1.5">Preencha os dados e gere o link — envie pelo WhatsApp. Quem ativar entra na árvore da campanha.</div>
+              <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-bottom:16px;line-height:1.5">Preencha os dados e gere o link · envie pelo WhatsApp. Quem ativar entra na árvore da campanha.</div>
               <input value="{{ cCN }}" onChange="{{ onCCN }}" placeholder="Nome do líder" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;margin-bottom:10px">
-              <input value="{{ cCZ }}" onChange="{{ onCCZ }}" inputmode="tel" placeholder="WhatsApp — (11) 9…" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;font-variant-numeric:tabular-nums;outline:none;margin-bottom:10px">
+              <input value="{{ cCZ }}" onChange="{{ onCCZ }}" inputmode="tel" placeholder="WhatsApp · (11) 9…" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;font-variant-numeric:tabular-nums;outline:none;margin-bottom:10px">
               <input value="{{ cCC }}" onChange="{{ onCCC }}" placeholder="Cidades de atuação (separe por vírgula)" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;margin-bottom:10px">
               <input value="{{ cCP }}" onChange="{{ onCCP }}" inputmode="numeric" placeholder="Promessa de votos" style="width:100%;height:44px;padding:0 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;font-variant-numeric:tabular-nums;outline:none;margin-bottom:10px">
               <select value="{{ cCParent }}" onChange="{{ onCCParent }}" style="width:100%;height:44px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13.5px;outline:none;margin-bottom:14px">
@@ -951,7 +951,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </div>
             <sc-if value="{{ hasCadInvite }}" hint-placeholder-val="{{ false }}">
               <div style="border:1px solid var(--color-gray-500);border-radius:var(--radius-sm);background:var(--color-background-100);padding:16px;max-width:540px;margin-top:14px">
-                <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-bottom:8px">Convite gerado para <b style="color:var(--color-foreground)">{{ cadInvNome }}</b> — link único, válido por 30 dias.</div>
+                <div style="font-size:12.5px;color:var(--color-muted-foreground);margin-bottom:8px">Convite gerado para <b style="color:var(--color-foreground)">{{ cadInvNome }}</b> · link único, válido por 30 dias.</div>
                 <div style="font-family:var(--font-mono);font-size:12px;color:var(--color-foreground);word-break:break-all;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);margin-bottom:10px">{{ cadInviteLink }}</div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
                   <button onClick="{{ copyCadInvite }}" style="height:38px;padding:0 16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-weight:500;cursor:pointer">{{ cadCopyLabel }}</button>
@@ -983,7 +983,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   <label style="font-size:11px;color:var(--color-muted-foreground)">Promessa<select value="{{ mapPromise }}" onChange="{{ onMapPromise }}" style="display:block;width:100%;height:38px;margin-top:4px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ hdrOptsN }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
                   <label style="font-size:11px;color:var(--color-muted-foreground)">Líder responsável<select value="{{ mapParent }}" onChange="{{ onMapParent }}" style="display:block;width:100%;height:38px;margin-top:4px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"><sc-for list="{{ hdrOptsN }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
                 </div>
-                <sc-if value="{{ bulkNeedMap }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--color-highlight);margin-top:10px">Selecione as colunas de <b>Nome</b> e <b>WhatsApp</b> — são obrigatórias.</div></sc-if>
+                <sc-if value="{{ bulkNeedMap }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--color-highlight);margin-top:10px">Selecione as colunas de <b>Nome</b> e <b>WhatsApp</b> · são obrigatórias.</div></sc-if>
                 <div style="display:flex;gap:16px;align-items:baseline;margin:14px 0 10px;font-size:12.5px;font-variant-numeric:tabular-nums">
                   <span style="color:var(--color-foreground);font-weight:600">{{ bulkCntPronto }} prontos</span>
                   <span style="color:var(--color-gray-600)">{{ bulkCntDup }} já na campanha</span>
@@ -1037,7 +1037,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <button onClick="{{ recarregarLideres }}" style="height:34px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:12px;font-weight:500;cursor:pointer">Atualizar</button>
             </div>
             <sc-if value="{{ ldrLoading }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:var(--color-muted-foreground);padding:16px 0">Carregando líderes…</div></sc-if>
-            <sc-if value="{{ ldrZero }}" hint-placeholder-val="{{ true }}"><div style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.6;padding:20px;border:1px dashed var(--color-border);border-radius:var(--radius-sm);text-align:center">Nenhum líder ainda. Convide o primeiro acima — um a um ou por planilha.</div></sc-if>
+            <sc-if value="{{ ldrZero }}" hint-placeholder-val="{{ true }}"><div style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.6;padding:20px;border:1px dashed var(--color-border);border-radius:var(--radius-sm);text-align:center">Nenhum líder ainda. Convide o primeiro acima · um a um ou por planilha.</div></sc-if>
             <sc-if value="{{ ldrEmpty }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:var(--color-muted-foreground);padding:16px 0">Nenhum líder neste filtro/busca.</div></sc-if>
             <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden">
               <sc-for list="{{ ldrRows }}" as="lr" hint-placeholder-count="4">
@@ -1157,7 +1157,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </div>
             <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:20px 22px">
               <div style="font-size:14px;font-weight:600;margin-bottom:4px">Eleição</div>
-              <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.55;margin:0 0 10px">Dado oficial da campanha — definido pelo backend, não editável.</p>
+              <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.55;margin:0 0 10px">Dado oficial da campanha · definido pelo backend, não editável.</p>
               <div style="display:flex;align-items:baseline;gap:10px">
                 <span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">{{ electionDateFmt }}</span>
                 <span style="font-size:12px;color:var(--color-gray-600)">faltam {{ electionDaysLeft }} dias · início oficial 15/08/2026</span>
@@ -1186,10 +1186,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <sc-if value="{{ cfgConvites }}" hint-placeholder-val="{{ false }}">
             <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:20px 22px">
               <div style="font-size:14px;font-weight:600;margin-bottom:4px">Convidar líder</div>
-            <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.55;margin:0 0 14px">Preencha os dados do líder e gere o link — envie pelo WhatsApp. Quem ativar entra na árvore como líder de primeiro nível da campanha.</p>
+            <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.55;margin:0 0 14px">Preencha os dados do líder e gere o link · envie pelo WhatsApp. Quem ativar entra na árvore como líder de primeiro nível da campanha.</p>
             <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;max-width:420px">
               <input type="text" placeholder="Nome do líder" value="{{ aCN }}" onChange="{{ onACN }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none" style-focus="border-color:var(--color-gray-500)">
-              <input type="tel" placeholder="WhatsApp — (11) 9…" value="{{ aCZ }}" onChange="{{ onACZ }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
+              <input type="tel" placeholder="WhatsApp · (11) 9…" value="{{ aCZ }}" onChange="{{ onACZ }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
               <input type="text" placeholder="Cidades (separe por vírgula)" value="{{ aCC }}" onChange="{{ onACC }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none" style-focus="border-color:var(--color-gray-500)">
               <input type="number" placeholder="Promessa de votos" value="{{ aCP }}" onChange="{{ onACP }}" style="width:100%;height:40px;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:14px;outline:none;font-variant-numeric:tabular-nums" style-focus="border-color:var(--color-gray-500)">
             </div>
@@ -1345,7 +1345,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </div>
             </sc-if>
             <sc-if value="{{ semGrupos }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:20px 16px;font-size:12.5px;color:var(--color-gray-600);line-height:1.5">Nenhum grupo nesse recorte — a região ainda não tem líder com grupo ativo.</div>
+              <div style="padding:20px 16px;font-size:12.5px;color:var(--color-gray-600);line-height:1.5">Nenhum grupo nesse recorte · a região ainda não tem líder com grupo ativo.</div>
             </sc-if>
             <sc-for list="{{ gruposList }}" as="gl" hint-placeholder-count="5">
               <button onClick="{{ gl.onClick }}" style="display:flex;align-items:center;gap:11px;width:100%;padding:12px 16px;border:none;border-bottom:1px solid var(--color-gray-200);background:{{ gl.bg }};cursor:pointer;text-align:left" style-hover="background:var(--color-background-100)">
@@ -1396,7 +1396,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <sc-if value="{{ bcOn }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:1px solid var(--color-border);background:var(--color-background-100)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2M7 9v6M11 6v12M15 4v16M19 8v8"></path></svg>
-                  <span style="flex:1;font-size:12px;color:var(--color-foreground)">Mensagem em massa — <b>{{ bcCount }}</b> grupo(s) selecionado(s) na lista ao lado</span>
+                  <span style="flex:1;font-size:12px;color:var(--color-foreground)">Mensagem em massa · <b>{{ bcCount }}</b> grupo(s) selecionado(s) na lista ao lado</span>
                   <button onClick="{{ bcTodos }}" style="height:26px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:11px;cursor:pointer">Selecionar todos</button>
                 </div>
               </sc-if>
@@ -1434,7 +1434,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <div style="position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);text-align:center">
                 <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="animation:pxRotate 2.4s ease-in-out infinite"><rect x="7" y="3" width="10" height="18" rx="2"></rect><path d="M11 18.5h2"></path></svg>
                 <div style="font-family:var(--font-sans);font-weight:500;font-size:19px;color:var(--color-foreground)">Vire o celular</div>
-                <p style="font-size:13px;color:var(--color-muted-foreground);line-height:1.55;max-width:260px;margin:0">O mapa de São Paulo é mais largo do que alto — vire para a horizontal para ver o estado inteiro e os controles com folga.</p>
+                <p style="font-size:13px;color:var(--color-muted-foreground);line-height:1.55;max-width:260px;margin:0">O mapa de São Paulo é mais largo do que alto · vire para a horizontal para ver o estado inteiro e os controles com folga.</p>
                 <button onClick="{{ toggleMapFull }}" style="height:40px;padding:0 18px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:13px;font-weight:500;cursor:pointer">Voltar ao painel</button>
               </div>
             </sc-if>
@@ -1628,7 +1628,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                       </button>
                     </sc-for>
                   </div>
-                  <p style="font-size:10.5px;color:var(--color-gray-600);line-height:1.5;margin:10px 0 0">Potencial = índice 0–100 derivado da força da família (ref. TSE) · clique numa cidade — aqui ou no mapa — para o raio-x.</p>
+                  <p style="font-size:10.5px;color:var(--color-gray-600);line-height:1.5;margin:10px 0 0">Potencial = índice 0–100 derivado da força da família (ref. TSE) · clique numa cidade · aqui ou no mapa · para o raio-x.</p>
                 </div>
               </sc-if>
               <sc-if value="{{ hasMuni }}" hint-placeholder-val="{{ false }}">
@@ -1706,7 +1706,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     </div>
                   </sc-if>
                   </sc-if>
-                  <div style="font-size:12px;font-weight:600;margin:16px 0 8px">Potencial da região <span style="font-weight:400;color:var(--color-gray-600)">(base: votos da família, ref. TSE — nunca soma com cadastros)</span></div>
+                  <div style="font-size:12px;font-weight:600;margin:16px 0 8px">Potencial da região <span style="font-weight:400;color:var(--color-gray-600)">(base: votos da família, ref. TSE · nunca soma com cadastros)</span></div>
                   <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:14px">
                     <div style="display:flex;align-items:baseline;gap:8px">
                       <span style="font-family:var(--font-mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px">{{ muniPotF }}</span>
@@ -1745,7 +1745,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </sc-if>
                   <sc-if value="{{ hasSimilares }}" hint-placeholder-val="{{ true }}">
                     <div style="font-size:12px;font-weight:600;margin:18px 0 3px">Municípios similares</div>
-                    <div style="font-size:10.5px;color:var(--color-gray-600);margin-bottom:8px">mesma RA e porte de eleitorado parecido — onde a rede está melhor ou pior que aqui</div>
+                    <div style="font-size:10.5px;color:var(--color-gray-600);margin-bottom:8px">mesma RA e porte de eleitorado parecido · onde a rede está melhor ou pior que aqui</div>
                     <div style="display:flex;flex-direction:column;gap:4px">
                       <div style="display:flex;gap:8px;padding:0 9px;font-family:var(--font-mono);font-size:9px;letter-spacing:.8px;color:var(--color-gray-600)">
                         <span style="flex:1">MUNICÍPIO</span><span style="width:62px;text-align:right">ELEITORES</span><sc-if value="{{ temLiderados }}" hint-placeholder-val="{{ false }}"><span style="width:52px;text-align:right">/MIL</span></sc-if><span style="width:56px;text-align:right">LÍDERES</span>
@@ -1775,6 +1775,19 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                         </sc-for>
                       </div>
                       <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--color-gray-200);font-size:12px;line-height:1.55;color:var(--color-foreground)">{{ perspLeitura }}</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ hasMuniBairros }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:12px;font-weight:600;margin:18px 0 3px">Bairros · onde a família puxa voto na cidade</div>
+                    <div style="font-size:10.5px;color:var(--color-gray-600);margin-bottom:8px">{{ muniBairrosN }} bairros · penetração TSE 2022 (voto por seção) · maior índice primeiro</div>
+                    <div style="display:flex;flex-direction:column;gap:5px;max-height:300px;overflow:auto">
+                      <sc-for list="{{ muniBairros }}" as="bz" hint-placeholder-count="6">
+                        <div style="display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
+                          <span style="width:7px;height:7px;border-radius:var(--radius-full);background:{{ bz.dot }};flex-shrink:0"></span>
+                          <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ bz.nome }}</div><div style="font-size:10.5px;color:var(--color-gray-600)">{{ bz.nivel }}</div></div>
+                          <span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;flex-shrink:0">índ. {{ bz.indice }}</span>
+                        </div>
+                      </sc-for>
                     </div>
                   </sc-if>
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 8px">
@@ -1845,7 +1858,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                         <sc-if value="{{ cl.msgAberta }}" hint-placeholder-val="{{ false }}">
                           <div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--color-gray-200);display:flex;flex-direction:column;gap:7px">
                             <sc-if value="{{ msgSemConexao }}" hint-placeholder-val="{{ false }}">
-                              <div style="font-size:11px;line-height:1.45;color:var(--color-highlight)">WhatsApp não conectado — conecte a instância em Configurações para enviar por aqui.</div>
+                              <div style="font-size:11px;line-height:1.45;color:var(--color-highlight)">WhatsApp não conectado · conecte a instância em Configurações para enviar por aqui.</div>
                               <a href="{{ cl.waHref }}" target="_blank" rel="noopener" style="height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--color-border);border-radius:var(--radius-sm);color:var(--color-foreground);font-size:12px;text-decoration:none">Abrir conversa no WhatsApp</a>
                             </sc-if>
                             <sc-if value="{{ msgConectado }}" hint-placeholder-val="{{ true }}">
@@ -1892,19 +1905,6 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                       </div>
                     </sc-for>
                   </div>
-                  <sc-if value="{{ hasMuniBairros }}" hint-placeholder-val="{{ false }}">
-                    <div style="font-size:12px;font-weight:600;margin:18px 0 3px">Bairros — onde a família puxa voto na cidade</div>
-                    <div style="font-size:10.5px;color:var(--color-gray-600);margin-bottom:8px">{{ muniBairrosN }} bairros · penetração TSE 2022 (voto por seção) · maior índice primeiro</div>
-                    <div style="display:flex;flex-direction:column;gap:5px;max-height:300px;overflow:auto">
-                      <sc-for list="{{ muniBairros }}" as="bz" hint-placeholder-count="6">
-                        <div style="display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
-                          <span style="width:7px;height:7px;border-radius:var(--radius-full);background:{{ bz.dot }};flex-shrink:0"></span>
-                          <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ bz.nome }}</div><div style="font-size:10.5px;color:var(--color-gray-600)">{{ bz.nivel }}</div></div>
-                          <span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;flex-shrink:0">índ. {{ bz.indice }}</span>
-                        </div>
-                      </sc-for>
-                    </div>
-                  </sc-if>
                   <sc-if value="{{ hasTop }}" hint-placeholder-val="{{ false }}">
                     <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
                       <span style="font-size:11px;color:var(--color-gray-600)">Top líderes:</span>
@@ -1914,7 +1914,6 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     </div>
                   </sc-if>
                   <div style="margin-top:14px;background:var(--color-background-100);border-radius:var(--radius-sm);padding:12px;font-size:12.5px;line-height:1.55;color:var(--color-foreground)">{{ gapText }}</div>
-                  <button onClick="{{ convidarCidade }}" style="width:100%;height:38px;margin-top:12px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer" style-active="background:#ffffff">Convidar líder para esta cidade</button>
                 </div>
               </sc-if>
             </div>
@@ -2142,7 +2141,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-top:6px"><span style="color:var(--color-muted-foreground)">Conversão sobre o teto</span><span style="font-weight:600;font-variant-numeric:tabular-nums;color:{{ dlConvCor }}">{{ dlConv }}/mil</span></div>
               </div>
               <div style="font-size:12.5px;font-weight:600;margin:18px 0 8px">Subárvore</div>
-              <sc-if value="{{ dlSemSubs }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--color-gray-600)">Sem sub-líderes — todo o realizado é de cadastro direto.</div></sc-if>
+              <sc-if value="{{ dlSemSubs }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--color-gray-600)">Sem sub-líderes · todo o realizado é de cadastro direto.</div></sc-if>
               <div style="display:flex;flex-direction:column;gap:8px">
                 <sc-for list="{{ dlSubs }}" as="ds" hint-placeholder-count="2">
                   <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm)">
@@ -2179,12 +2178,12 @@ class Component extends DCLogic {
   state = {
     view: (typeof location !== 'undefined' && ['leader', 'assessor', 'login', 'onboarding', 'convite'].includes(new URLSearchParams(location.search).get('vista'))) ? new URLSearchParams(location.search).get('vista') : 'login',
     tab: 'inicio', screen: null, email: '', vw: null,
-    fNome: '', fZap: '', fCidade: 'Zona Leste — São Paulo', cadMsg: null, cadTipo: null,
+    fNome: '', fZap: '', fCidade: 'Zona Leste · São Paulo', cadMsg: null, cadTipo: null,
     cadModo: 'um', bulkText: '', bulkPrev: null, bulkMsg: null, drawerOpen: false, temaOverride: null,
     extraRecentes: [],
     cNome: '', cZap: '', cCidades: '', cPromessa: '', invite: null, copied: false,
     obNome: '', obZap: '', obCidades: 'Campinas, Jundiaí', obPromessa: '40', obErro: null,
-    pFoto: null, pNome: 'Marcos Tavares', pZap: '(11) 98765-4321', pEmail: 'marcos@exemplo.com.br', pCidades: 'Zona Leste — São Paulo, Itaquera', pPromessa: '300', pPend: null, pMsg: null,
+    pFoto: null, pNome: 'Marcos Tavares', pZap: '(11) 98765-4321', pEmail: 'marcos@exemplo.com.br', pCidades: 'Zona Leste · São Paulo, Itaquera', pPromessa: '300', pPend: null, pMsg: null,
     aInvite: null, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '', aCParent: '', aCMsg: null, aCBusy: false,
     cadTab: 'um', cadInvite: null, cadInviteNome: '', cadCopied: false, bulkBusy: false, bulkFileName: '', bulkHeaders: null, bulkRawRows: null, bulkMap: null, bulkResult: null, bulkResCopied: false,
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
@@ -2281,7 +2280,7 @@ class Component extends DCLogic {
       return [
         `Campanha: ${r.tenantName}. Eleição: ${r.electionDate}.`,
         `Meta total (soma das promessas): ${metaTotal}. Realizado (liderados dedup por WhatsApp): ${real}. % da meta: ${pct}%.`,
-        `Total de líderes: ${r.ranking.length}. Sem ritmo (parados 7 dias+): ${parados.length}${parados.length ? ' — ' + parados.map(x => x.name).join(', ') : ''}.`,
+        `Total de líderes: ${r.ranking.length}. Sem ritmo (parados 7 dias+): ${parados.length}${parados.length ? ' · ' + parados.map(x => x.name).join(', ') : ''}.`,
         `Ranking por % da meta:`,
         ...top.map(x => `- ${x.name} (${(x.cities || []).join(', ') || 'sem cidade'}): ${x.realizado}/${x.meta} = ${Math.round(x.pct || 0)}%, ritmo ${Number(x.rate_7d || 0).toFixed(1)}/dia`),
       ].join('\n');
@@ -2468,7 +2467,7 @@ class Component extends DCLogic {
       const { data } = await sb.from('leader').select('name,whatsapp,cities,promise_votes,dobrada,status,observacao').eq('id', id).limit(1);
       row = Array.isArray(data) ? data[0] : data;
     } catch (e) {}
-    if (!row) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Não consegui carregar os dados atuais deste líder — não dá pra editar sem eles.' } }); return; }
+    if (!row) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Não consegui carregar os dados atuais deste líder · não dá pra editar sem eles.' } }); return; }
     this._edZapOrig = this._fmtWa(row.whatsapp); // campo intocado = não reescreve o número guardado
     this.setState({
       edLoaded: true, edBusy: false,
@@ -2536,7 +2535,7 @@ class Component extends DCLogic {
     const mudouZap = (st.edZap || '') !== (this._edZapOrig || '');
     const wa = mudouZap ? this._normWa(st.edZap) : null;
     if (!nome) { this.setState({ edMsg: { err: true, txt: 'O nome não pode ficar vazio.' } }); return; }
-    if (mudouZap && wa.length < 10) { this.setState({ edMsg: { err: true, txt: 'WhatsApp inválido — informe com DDD.' } }); return; }
+    if (mudouZap && wa.length < 10) { this.setState({ edMsg: { err: true, txt: 'WhatsApp inválido · informe com DDD.' } }); return; }
     const cts = (st.edCidades || '').split(',').map(s => s.trim()).filter(Boolean);
     this.setState({ edBusy: true, edMsg: null });
     const { error } = await sb.rpc('update_leader', {
@@ -2664,7 +2663,7 @@ class Component extends DCLogic {
   aiResponde(q, ctx) {
     // Fallback usado só se a Politix IA (Gemini) não responder — sem dados inventados.
     return ctx === 'assessor'
-      ? 'Não consegui falar com a Politix IA agora. Tente de novo em instantes — eu leio placar, ranking, mapa e grupos da campanha ao vivo.'
+      ? 'Não consegui falar com a Politix IA agora. Tente de novo em instantes · eu leio placar, ranking, mapa e grupos da campanha ao vivo.'
       : 'Não consegui responder agora. Tente de novo em instantes.';
   }
   aiVals(st, set, ctx) {
@@ -2688,7 +2687,7 @@ class Component extends DCLogic {
     const chipsA = ['Quem parou?', 'Quais cidades priorizar?', 'Vamos bater a meta?'];
     const chipsL = ['Vou bater a meta?', 'Quem da minha rede parou?', 'Como subir uma lista?'];
     const abertura = ctx === 'assessor'
-      ? 'Oi! Eu leio os dados da campanha em tempo real — placar, ranking, mapa e grupos. Pergunte "quem parou?", "quais cidades priorizar?" ou "vamos bater a meta?".'
+      ? 'Oi! Eu leio os dados da campanha em tempo real · placar, ranking, mapa e grupos. Pergunte "quem parou?", "quais cidades priorizar?" ou "vamos bater a meta?".'
       : 'Boas-vindas! Eu acompanho seu placar em tempo real. Quer ver o que falta para a meta?';
     return {
       aiOpen: ctx === 'assessor' ? st.aiOpenA : st.aiOpenL,
@@ -2730,8 +2729,8 @@ class Component extends DCLogic {
         { nome: 'Renan Costa', email: 'renan@lelinho.com.br', ini: 'RC', papel: 'Analista', papelCor: 'var(--color-muted-foreground)', ultimo: 'ontem' },
       ],
       cfgConvitesPend: [
-        { nome: 'Luiz Antunes — Ribeirão Preto', link: 'politix.app/convite/x7Kq9dTz', status: 'enviado há 5d', stCor: 'var(--color-highlight)' },
-        { nome: 'Sandra Melo — Bauru', link: 'politix.app/convite/p2Rw8vLm', status: 'enviado ontem', stCor: 'var(--color-muted-foreground)' },
+        { nome: 'Luiz Antunes · Ribeirão Preto', link: 'politix.app/convite/x7Kq9dTz', status: 'enviado há 5d', stCor: 'var(--color-highlight)' },
+        { nome: 'Sandra Melo · Bauru', link: 'politix.app/convite/p2Rw8vLm', status: 'enviado ontem', stCor: 'var(--color-muted-foreground)' },
         { nome: 'Convite aberto (sem nome)', link: 'politix.app/convite/e7bfz1vl', status: 'criado hoje', stCor: 'var(--color-muted-foreground)' },
       ],
       cfgNotifItems: [
@@ -2743,9 +2742,9 @@ class Component extends DCLogic {
       ].map(([k, label, desc]) => { const t = tg(st.cfgNotif[k]); return { label, desc, onClick: () => set({ cfgNotif: { ...st.cfgNotif, [k]: !st.cfgNotif[k] } }), tgBg: t.Bg, tgKnob: t.Knob, tgLeft: t.Left }; }),
       cfgToggle2fa: () => set({ cfg2fa: !st.cfg2fa }), cfg2faBg: t2.Bg, cfg2faKnob: t2.Knob, cfg2faLeft: t2.Left,
       cfgSessoes: [
-        { dev: 'MacBook — Chrome', meta: 'São Paulo, SP · agora', atual: true, podeEncerrar: false },
-        { dev: 'iPhone — PWA', meta: 'São Paulo, SP · há 40 min', atual: false, podeEncerrar: true },
-        { dev: 'Windows — Edge', meta: 'Campinas, SP · há 3 dias', atual: false, podeEncerrar: true },
+        { dev: 'MacBook · Chrome', meta: 'São Paulo, SP · agora', atual: true, podeEncerrar: false },
+        { dev: 'iPhone · PWA', meta: 'São Paulo, SP · há 40 min', atual: false, podeEncerrar: true },
+        { dev: 'Windows · Edge', meta: 'Campinas, SP · há 3 dias', atual: false, podeEncerrar: true },
       ],
       cfgServicos: [
         { nome: 'API / RPCs (placar, ranking, série)', desc: 'leader_scoreboard · tenant_ranking', valor: '38 ms', cor: 'var(--color-gray-1000)' },
@@ -2798,7 +2797,7 @@ class Component extends DCLogic {
       bulkText: st.bulkText, onBulkText: (e) => set({ bulkText: e.target.value, bulkPrev: null, bulkMsg: null }),
       bulkFileRef: this._fileRef,
       abrirArquivo: () => this._fileRef.current && this._fileRef.current.click(),
-      onBulkFile: (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; f.text().then(t => this.setState({ bulkText: t.replace(/,\s*/g, ', '), bulkPrev: null, bulkMsg: `Arquivo "${f.name}" carregado — toque em Conferir a lista.` })); e.target.value = ''; },
+      onBulkFile: (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; f.text().then(t => this.setState({ bulkText: t.replace(/,\s*/g, ', '), bulkPrev: null, bulkMsg: `Arquivo "${f.name}" carregado · toque em Conferir a lista.` })); e.target.value = ''; },
       conferirLista: () => { const p = this.parseBulk(st.bulkText); set({ bulkPrev: p.length ? p : null, bulkMsg: p.length ? null : 'Não encontrei contatos. Cole um por linha: nome e WhatsApp.' }); },
       hasBulkPrev: prev.length > 0, bulkPrev: prev.slice(0, 30).map(p => ({ ...p, dot: p.tipo === 'ok' ? 'var(--color-gray-1000)' : p.tipo === 'dup' ? 'var(--color-gray-600)' : 'var(--color-highlight)' })),
       bulkOkN: String(okRows.length), bulkDupN: String(prev.filter(p => p.tipo === 'dup').length), bulkErrN: String(prev.filter(p => p.tipo === 'err').length),
@@ -2806,8 +2805,8 @@ class Component extends DCLogic {
       addBulk: () => {
         if (!okRows.length) return;
         okRows.forEach(p => this.zaps.add(p.zapD));
-        const novos = okRows.slice(0, 5).map(p => ({ nome: p.nome, cidade: st.fCidade.split(' — ')[0], zap: p.zap, quando: 'agora' }));
-        set({ extraRecentes: [...novos, ...st.extraRecentes], bulkPrev: null, bulkText: '', bulkMsg: `${okRows.length} contato${okRows.length > 1 ? 's entraram' : ' entrou'} na sua rede. Os repetidos e incompletos ficaram de fora — ninguém conta duas vezes.` });
+        const novos = okRows.slice(0, 5).map(p => ({ nome: p.nome, cidade: st.fCidade.split(' · ')[0], zap: p.zap, quando: 'agora' }));
+        set({ extraRecentes: [...novos, ...st.extraRecentes], bulkPrev: null, bulkText: '', bulkMsg: `${okRows.length} contato${okRows.length > 1 ? 's entraram' : ' entrou'} na sua rede. Os repetidos e incompletos ficaram de fora · ninguém conta duas vezes.` });
       },
       hasBulkMsg: !!st.bulkMsg, bulkMsg: st.bulkMsg,
     };
@@ -2892,12 +2891,12 @@ class Component extends DCLogic {
       { nome: 'Bateu a meta', desc: '100% da promessa', icon: I.target, on: false },
     ].map(s => ({ ...s, op: s.on ? '1' : '.45', bg: s.on ? 'var(--color-muted)' : 'var(--color-background-100)', fg: s.on ? 'var(--color-gray-700)' : 'var(--color-gray-600)' }));
     const notifs = [
-      { titulo: 'Tiago Souza está voando', corpo: 'Seu sub-líder fez 12 cadastros nesta semana — 2× o ritmo dele.', tempo: 'há 2h', icon: I.trend, ...{ bg: 'var(--color-muted)', fg: 'var(--color-gray-1000)' } },
-      { titulo: bate ? 'Projeção: você bate a meta' : 'Sua projeção está furando a meta', corpo: bate ? `No ritmo atual você chega a ${projetado} votos — ${projetado - meta} acima da promessa.` : `No ritmo atual você chega a ${projetado} de ${meta}. Faltam ${(meta - projetado)} votos de folga — acelere os cadastros.`, tempo: 'há 5h', icon: bate ? I.trend : I.alert, bg: bate ? 'var(--color-muted)' : 'var(--color-muted)', fg: bate ? 'var(--color-gray-1000)' : 'var(--color-gray-700)' },
+      { titulo: 'Tiago Souza está voando', corpo: 'Seu sub-líder fez 12 cadastros nesta semana · 2× o ritmo dele.', tempo: 'há 2h', icon: I.trend, ...{ bg: 'var(--color-muted)', fg: 'var(--color-gray-1000)' } },
+      { titulo: bate ? 'Projeção: você bate a meta' : 'Sua projeção está furando a meta', corpo: bate ? `No ritmo atual você chega a ${projetado} votos · ${projetado - meta} acima da promessa.` : `No ritmo atual você chega a ${projetado} de ${meta}. Faltam ${(meta - projetado)} votos de folga · acelere os cadastros.`, tempo: 'há 5h', icon: bate ? I.trend : I.alert, bg: bate ? 'var(--color-muted)' : 'var(--color-muted)', fg: bate ? 'var(--color-gray-1000)' : 'var(--color-gray-700)' },
       { titulo: 'Neide Campos parou há 9 dias', corpo: 'Sua sub-líder de Itaquera está sem cadastros desde 10/jul. Que tal mandar um oi?', tempo: 'ontem', icon: I.alert, bg: 'var(--color-highlight-dim)', fg: 'var(--color-highlight)' },
       { titulo: 'Selo desbloqueado: Recrutador', corpo: 'Você ativou 3 sub-líderes. Continue expandindo a árvore.', tempo: 'há 2 dias', icon: I.award, bg: 'var(--color-muted)', fg: 'var(--color-gray-700)' },
     ];
-    const cidadesOpts = ['Zona Leste — São Paulo', 'Itaquera — São Paulo', 'São Miguel Paulista — São Paulo', 'Guarulhos', 'Campinas', 'Osasco', 'Santo André', 'Sorocaba', 'Santos'].map(v => ({ v }));
+    const cidadesOpts = ['Zona Leste · São Paulo', 'Itaquera · São Paulo', 'São Miguel Paulista · São Paulo', 'Guarulhos', 'Campinas', 'Osasco', 'Santo André', 'Sorocaba', 'Santos'].map(v => ({ v }));
     const baseRecentes = [
       { nome: 'Rosana Alves', cidade: 'Zona Leste', zap: '(11) 98765-4321', quando: 'hoje' },
       { nome: 'Gilberto Nunes', cidade: 'Itaquera', zap: '(11) 99111-2233', quando: 'hoje' },
@@ -2909,19 +2908,19 @@ class Component extends DCLogic {
       if (!st.fNome.trim() || d.length < 10) { set({ cadMsg: 'Preencha nome e um WhatsApp válido (DDD + número).', cadTipo: 'warn' }); return; }
       const sb = this._pxClient();
       if (sb && st.remote && st.remote.leaderId) {
-        const { error } = await sb.from('liderado').insert({ tenant_id: st.remote.tenantId, leader_id: st.remote.leaderId, name: st.fNome.trim(), whatsapp: d, city: (st.fCidade || '').split(' — ')[0] || null });
+        const { error } = await sb.from('liderado').insert({ tenant_id: st.remote.tenantId, leader_id: st.remote.leaderId, name: st.fNome.trim(), whatsapp: d, city: (st.fCidade || '').split(' · ')[0] || null });
         if (error) {
           const dup = error.code === '23505' || /duplicate|unique/i.test(error.message || '');
-          set({ cadMsg: dup ? 'Esse WhatsApp já está na campanha. Cada número conta uma vez — o voto continua garantido, só não soma de novo.' : ('Não consegui cadastrar: ' + error.message), cadTipo: dup ? 'err' : 'warn' });
+          set({ cadMsg: dup ? 'Esse WhatsApp já está na campanha. Cada número conta uma vez · o voto continua garantido, só não soma de novo.' : ('Não consegui cadastrar: ' + error.message), cadTipo: dup ? 'err' : 'warn' });
           return;
         }
-        set({ extraRecentes: [{ nome: st.fNome.trim(), cidade: (st.fCidade || '').split(' — ')[0], zap: this.fmtZap(st.fZap), quando: 'agora' }, ...st.extraRecentes], fNome: '', fZap: '', cadMsg: `${st.fNome.trim().split(' ')[0]} entrou na sua rede. +1 no placar!`, cadTipo: 'ok' });
+        set({ extraRecentes: [{ nome: st.fNome.trim(), cidade: (st.fCidade || '').split(' · ')[0], zap: this.fmtZap(st.fZap), quando: 'agora' }, ...st.extraRecentes], fNome: '', fZap: '', cadMsg: `${st.fNome.trim().split(' ')[0]} entrou na sua rede. +1 no placar!`, cadTipo: 'ok' });
         const ses = await sb.auth.getSession(); this._pxLoad(ses.data.session);
         return;
       }
-      if (this.zaps.has(d)) { set({ cadMsg: `Esse WhatsApp já está na campanha (cadastrado por outro líder). Cada número conta uma vez — o voto continua garantido, só não soma de novo.`, cadTipo: 'err' }); return; }
+      if (this.zaps.has(d)) { set({ cadMsg: `Esse WhatsApp já está na campanha (cadastrado por outro líder). Cada número conta uma vez · o voto continua garantido, só não soma de novo.`, cadTipo: 'err' }); return; }
       this.zaps.add(d);
-      set({ extraRecentes: [{ nome: st.fNome.trim(), cidade: st.fCidade.split(' — ')[0], zap: this.fmtZap(st.fZap), quando: 'agora' }, ...st.extraRecentes], fNome: '', fZap: '', cadMsg: `${st.fNome.trim().split(' ')[0]} entrou na sua rede. +1 no placar!`, cadTipo: 'ok' });
+      set({ extraRecentes: [{ nome: st.fNome.trim(), cidade: st.fCidade.split(' · ')[0], zap: this.fmtZap(st.fZap), quando: 'agora' }, ...st.extraRecentes], fNome: '', fZap: '', cadMsg: `${st.fNome.trim().split(' ')[0]} entrou na sua rede. +1 no placar!`, cadTipo: 'ok' });
     };
     const cadColors = st.cadTipo === 'ok' ? okC : st.cadTipo === 'err' ? errC : warnC;
     const subs = [
@@ -2965,8 +2964,8 @@ class Component extends DCLogic {
     const _notifA = [];
     { const _AR = AR || [];
       const _top = _AR.slice().sort((a, b) => (Number(b.rate_7d) || 0) - (Number(a.rate_7d) || 0))[0];
-      if (_top && (Number(_top.rate_7d) || 0) > 0) _notifA.push({ emoji: '★', bg: 'var(--color-foreground)', fg: 'var(--color-background)', titulo: 'Destaque: ' + _top.name, texto: String(_top.rate_7d).replace('.', ',') + '/dia — o maior ritmo da rede. Vale apoiar o ramo.', novo: true });
-      _AR.filter(l => l.status === 'active' && (Number(l.rate_7d) || 0) === 0).slice(0, 5).forEach(l => _notifA.push({ emoji: '●', bg: '#3a2a00', fg: '#ffb224', titulo: l.name + ' está sem ritmo', texto: 'Sem novos cadastros nos últimos 7 dias — um contato direto ajuda a retomar.', novo: true }));
+      if (_top && (Number(_top.rate_7d) || 0) > 0) _notifA.push({ emoji: '★', bg: 'var(--color-foreground)', fg: 'var(--color-background)', titulo: 'Destaque: ' + _top.name, texto: String(_top.rate_7d).replace('.', ',') + '/dia · o maior ritmo da rede. Vale apoiar o ramo.', novo: true });
+      _AR.filter(l => l.status === 'active' && (Number(l.rate_7d) || 0) === 0).slice(0, 5).forEach(l => _notifA.push({ emoji: '●', bg: '#3a2a00', fg: '#ffb224', titulo: l.name + ' está sem ritmo', texto: 'Sem novos cadastros nos últimos 7 dias · um contato direto ajuda a retomar.', novo: true }));
       if (!_notifA.length) _notifA.push({ emoji: '○', bg: 'var(--color-gray-300)', fg: 'var(--color-foreground)', titulo: 'Sua rede está começando', texto: 'Convide os primeiros líderes em Configurações › Convidar líder. As notificações aparecem aqui conforme a rede se movimenta.', novo: false }); }
     const _semLidVG = typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS;
     // Sem cadastro de liderados, os KPIs de entrega (realizado, % da meta, ritmo) seriam
@@ -3054,8 +3053,8 @@ class Component extends DCLogic {
     });
     // ---- drawer do líder ----
     const dlExtra = {
-      'Ana Ferreira': { desde: 'mar/26', subs: [['Beto Silveira', 'Jundiaí', 61, 80], ['Márcia Leal', 'Campinas', 88, 100]], atv: [['hoje', '9 cadastros novos em Campinas'], ['ontem', 'Convidou sub-líder: Paulo Henrique (Valinhos)'], ['16/jul', 'Bateu 95% da promessa — selo a caminho']] },
-      'Camila Duarte': { desde: 'abr/26', subs: [['Diego Farias', 'Osasco', 34, 50]], atv: [['hoje', '11 cadastros — melhor dia dela'], ['ontem', 'Ramo cresce 2,3× mais que o líder acima'], ['15/jul', 'Streak de 12 dias seguidos']] },
+      'Ana Ferreira': { desde: 'mar/26', subs: [['Beto Silveira', 'Jundiaí', 61, 80], ['Márcia Leal', 'Campinas', 88, 100]], atv: [['hoje', '9 cadastros novos em Campinas'], ['ontem', 'Convidou sub-líder: Paulo Henrique (Valinhos)'], ['16/jul', 'Bateu 95% da promessa · selo a caminho']] },
+      'Camila Duarte': { desde: 'abr/26', subs: [['Diego Farias', 'Osasco', 34, 50]], atv: [['hoje', '11 cadastros · melhor dia dela'], ['ontem', 'Ramo cresce 2,3× mais que o líder acima'], ['15/jul', 'Streak de 12 dias seguidos']] },
       'Marcos Tavares': { desde: 'fev/26', subs: [['Tiago Souza', 'Zona Leste', 52, 80], ['Neide Campos', 'Itaquera', 37, 60]], atv: [['hoje', '4 cadastros na Zona Leste'], ['ontem', 'Neide Campos parada há 9 dias'], ['14/jul', 'Selo Recrutador desbloqueado']] },
       'Rita Nogueira': { desde: 'mar/26', subs: [], atv: [['há 2d', '6 cadastros em S. J. dos Campos'], ['12/jul', 'Ritmo caiu de 2,1 para 1,4/dia']] },
       'João Prado': { desde: 'mai/26', subs: [], atv: [['há 3d', '3 cadastros em Sorocaba'], ['10/jul', 'Pediu material de campanha']] },
@@ -3140,37 +3139,37 @@ class Component extends DCLogic {
         ['Rosana Alves', 'Eu vou! Levo mais duas vizinhas.', '08:20'],
         ['Assessoria', 'Material novo de rua liberado na pasta da coordenação. Contem com a gente!', '09:05'],
         ['Gilberto Nunes', 'Confirmado. Alguém tem o panfleto atualizado em PDF?', '09:41']] },
-      { id: 'g2', nome: 'Campinas + Jundiaí — Ana', lider: 'Ana Ferreira', cidade: 'Campinas · Jundiaí', regiao: 'Campinas', membros: 312, ativos7d: 118, msgs: [
-        ['Ana Ferreira', 'Encontro de lideranças sábado em Campinas — tragam os sub-líderes!', 'ontem'],
+      { id: 'g2', nome: 'Campinas + Jundiaí · Ana', lider: 'Ana Ferreira', cidade: 'Campinas · Jundiaí', regiao: 'Campinas', membros: 312, ativos7d: 118, msgs: [
+        ['Ana Ferreira', 'Encontro de lideranças sábado em Campinas · tragam os sub-líderes!', 'ontem'],
         ['Márcia Leal', 'Presença confirmada, 6 pessoas comigo.', 'ontem'],
         ['Beto Silveira', 'Jundiaí fecha van se tiver mais 4 nomes.', '07:58']] },
       { id: 'g3', nome: 'Osasco em campo', lider: 'Camila Duarte', cidade: 'Osasco', regiao: 'Metropolitana de São Paulo', membros: 141, ativos7d: 74, msgs: [
         ['Camila Duarte', '11 cadastros só hoje! Bora bater os 200 essa semana 💪', '18:44'],
         ['Diego Farias', 'Fechou. Amanhã cubro o Jd. Piratininga.', '19:02']] },
-      { id: 'g4', nome: 'Guarulhos — rede Vera', lider: 'Vera Matos', cidade: 'Guarulhos', regiao: 'Metropolitana de São Paulo', membros: 96, ativos7d: 8, msgs: [
+      { id: 'g4', nome: 'Guarulhos · rede Vera', lider: 'Vera Matos', cidade: 'Guarulhos', regiao: 'Metropolitana de São Paulo', membros: 96, ativos7d: 8, msgs: [
         ['Vera Matos', 'Pessoal, semana corrida por aqui. Retomamos em breve.', 'há 12d'],
         ['Assessoria', 'Vera, podemos ajudar com material ou um mutirão? A região tem muito potencial.', 'há 9d']] },
       { id: 'g5', nome: 'Sorocaba e região', lider: 'João Prado', cidade: 'Sorocaba · Itu', regiao: 'Sorocaba', membros: 122, ativos7d: 33, msgs: [
         ['João Prado', 'Chegou o material? Preciso pra ação de domingo.', 'há 3d'],
         ['Assessoria', 'Saiu hoje pela transportadora, chega sexta.', 'há 3d']] },
-      { id: 'g6', nome: 'Santos — litoral', lider: 'Edson Lima', cidade: 'Santos · Guarujá', regiao: 'Santos (Baixada Santista)', membros: 87, ativos7d: 5, msgs: [
+      { id: 'g6', nome: 'Santos · litoral', lider: 'Edson Lima', cidade: 'Santos · Guarujá', regiao: 'Santos (Baixada Santista)', membros: 87, ativos7d: 5, msgs: [
         ['Edson Lima', 'Boa tarde a todos.', 'há 8d']] },
     ];
     const RA15 = this.raList(); // 16 RAs oficiais do banco (fallback: tabela estática de 15)
     const gruposLideres = [
-      { id: 'L0', nome: 'Líderes — Geral da campanha', lider: 'Assessoria', cidade: 'Estado todo', regiao: null, membros: 209, ativos7d: 122, msgs: [
+      { id: 'L0', nome: 'Líderes · Geral da campanha', lider: 'Assessoria', cidade: 'Estado todo', regiao: null, membros: 209, ativos7d: 122, msgs: [
         ['Assessoria', 'Boa tarde, lideranças! Meta da semana: 400 cadastros no estado. Ranking atualizado no painel.', '10:02'],
         ['Ana Ferreira', 'Campinas fecha van pro encontro de sábado. Quem mais vem da RA?', '10:15'],
         ['Marcos Tavares', 'ZL confirmada com 6 lideranças.', '10:20']] },
-      { id: 'L1', nome: 'Líderes — Metropolitana de SP', lider: 'Assessoria', cidade: 'Grande São Paulo', regiao: 'Metropolitana de São Paulo', membros: 84, ativos7d: 51, msgs: [
+      { id: 'L1', nome: 'Líderes · Metropolitana de SP', lider: 'Assessoria', cidade: 'Grande São Paulo', regiao: 'Metropolitana de São Paulo', membros: 84, ativos7d: 51, msgs: [
         ['Assessoria', 'Material novo de rua liberado. Retirada no comitê a partir de quinta.', 'ontem'],
         ['Camila Duarte', 'Osasco pega 200 unidades.', 'ontem']] },
-      { id: 'L2', nome: 'Líderes — Campinas', lider: 'Assessoria', cidade: 'RA de Campinas', regiao: 'Campinas', membros: 31, ativos7d: 19, msgs: [
-        ['Ana Ferreira', 'Encontro de lideranças sábado — presença obrigatória dos sub-líderes.', '07:58']] },
-      { id: 'L3', nome: 'Líderes — Sorocaba', lider: 'Assessoria', cidade: 'RA de Sorocaba', regiao: 'Sorocaba', membros: 18, ativos7d: 7, msgs: [
+      { id: 'L2', nome: 'Líderes · Campinas', lider: 'Assessoria', cidade: 'RA de Campinas', regiao: 'Campinas', membros: 31, ativos7d: 19, msgs: [
+        ['Ana Ferreira', 'Encontro de lideranças sábado · presença obrigatória dos sub-líderes.', '07:58']] },
+      { id: 'L3', nome: 'Líderes · Sorocaba', lider: 'Assessoria', cidade: 'RA de Sorocaba', regiao: 'Sorocaba', membros: 18, ativos7d: 7, msgs: [
         ['João Prado', 'Material chegou. Distribuo entre as lideranças amanhã.', 'há 2d']] },
-      { id: 'L4', nome: 'Líderes — Santos (Baixada)', lider: 'Assessoria', cidade: 'Baixada Santista', regiao: 'Santos (Baixada Santista)', membros: 14, ativos7d: 3, msgs: [
-        ['Assessoria', 'Baixada precisa de ritmo — Edson, como podemos ajudar?', 'há 8d']] },
+      { id: 'L4', nome: 'Líderes · Santos (Baixada)', lider: 'Assessoria', cidade: 'Baixada Santista', regiao: 'Santos (Baixada Santista)', membros: 14, ativos7d: 3, msgs: [
+        ['Assessoria', 'Baixada precisa de ritmo · Edson, como podemos ajudar?', 'há 8d']] },
     ];
     const _realJoined = (st.wppState === 'connected')
       ? (st.wppGroups || []).filter(g => g.joined).map(g => ({
@@ -3331,7 +3330,7 @@ class Component extends DCLogic {
             this._rec = rec; rec.start();
             this._recI = setInterval(() => this.setState(s => ({ grpRecS: s.grpRecS + 1 })), 1000);
             set({ grpRec: true, grpRecS: 0 });
-          } catch (err) { set({ grpNota: 'Não consegui acessar o microfone — permita o acesso no navegador.' }); }
+          } catch (err) { set({ grpNota: 'Não consegui acessar o microfone · permita o acesso no navegador.' }); }
         } else {
           clearInterval(this._recI);
           if (this._rec && this._rec.state !== 'inactive') this._rec.stop();
@@ -3396,16 +3395,16 @@ class Component extends DCLogic {
       dlSemSubs: !!dlx && dlx.subs.length === 0,
       dlAtividade: dlx ? dlx.atv.map(([quando, texto]) => ({ quando, texto })) : [],
       dlInsight: !dl ? '' : dl.tone === 'err'
-        ? `${dl.nome.split(' ')[0]} está sem ritmo — ${dl.rate === '—' ? 'o convite ainda não foi ativado' : 'último cadastro há mais de uma semana'}. Com potencial ${this.potNivel(dl.potRef)} da família na região, vale contato direto hoje.`
+        ? `${dl.nome.split(' ')[0]} está sem ritmo · ${dl.rate === '—' ? 'o convite ainda não foi ativado' : 'último cadastro há mais de uma semana'}. Com potencial ${this.potNivel(dl.potRef)} da família na região, vale contato direto hoje.`
         : dlConvN >= 4
         ? `Conversão forte (${dl.porMil}/mil do teto). ${dl.nome.split(' ')[0]} é candidato(a) natural a ganhar mais cidades ou formar sub-líderes.`
         : `Ritmo saudável, mas a região comporta mais: o potencial da família aqui é ${this.potNivel(dl.potRef)} e a conversão está em ${dl.porMil}/mil. Sub-líderes novos acelerariam o ramo.`,
     };
     const _citiesMock = [
       { nome: 'São Paulo', lat: -23.55, lng: -46.63, status: 'parcial', statusLabel: 'Parcial', potencial: 370600, lideres: 3, cadastros: 472, labelDy: -12 },
-      { nome: 'Santana de Parnaíba', lat: -23.444, lng: -46.918, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 132700, lideres: 0, cadastros: 0, labelAnchor: 'end', labelDx: -10, labelDy: -6 },
-      { nome: 'Barueri', lat: -23.51, lng: -46.876, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 48900, lideres: 0, cadastros: 12, label: false },
-      { nome: 'Carapicuíba', lat: -23.522, lng: -46.836, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 39400, lideres: 0, cadastros: 0, label: false },
+      { nome: 'Santana de Parnaíba', lat: -23.444, lng: -46.918, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 132700, lideres: 0, cadastros: 0, labelAnchor: 'end', labelDx: -10, labelDy: -6 },
+      { nome: 'Barueri', lat: -23.51, lng: -46.876, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 48900, lideres: 0, cadastros: 12, label: false },
+      { nome: 'Carapicuíba', lat: -23.522, lng: -46.836, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 39400, lideres: 0, cadastros: 0, label: false },
       { nome: 'Guarulhos', lat: -23.46, lng: -46.53, status: 'parcial', statusLabel: 'Parcial', potencial: 59000, lideres: 1, cadastros: 148, label: false },
       { nome: 'Osasco', lat: -23.53, lng: -46.79, status: 'coberto', statusLabel: 'Coberto', potencial: 69900, lideres: 1, cadastros: 174, label: false },
       { nome: 'Santo André', lat: -23.67, lng: -46.54, status: 'priorizar', statusLabel: 'Priorizar', potencial: 28300, lideres: 0, cadastros: 0, label: false },
@@ -3414,11 +3413,11 @@ class Component extends DCLogic {
       { nome: 'Sorocaba', lat: -23.5, lng: -47.45, status: 'coberto', statusLabel: 'Coberto', potencial: 24600, lideres: 1, cadastros: 121, labelAnchor: 'end', labelDx: -9 },
       { nome: 'Santos', lat: -23.96, lng: -46.33, status: 'parcial', statusLabel: 'Parcial', potencial: 16200, lideres: 1, cadastros: 93, labelDy: 14, labelDx: -14 },
       { nome: 'S. J. dos Campos', lat: -23.18, lng: -45.88, status: 'coberto', statusLabel: 'Coberto', potencial: 21500, lideres: 1, cadastros: 168 },
-      { nome: 'Ribeirão Preto', lat: -21.18, lng: -47.81, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 22500, lideres: 0, cadastros: 0 },
-      { nome: 'Bauru', lat: -22.31, lng: -49.06, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 9200, lideres: 0, cadastros: 0 },
-      { nome: 'S. J. do Rio Preto', lat: -20.82, lng: -49.38, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 10400, lideres: 0, cadastros: 0 },
+      { nome: 'Ribeirão Preto', lat: -21.18, lng: -47.81, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 22500, lideres: 0, cadastros: 0 },
+      { nome: 'Bauru', lat: -22.31, lng: -49.06, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 9200, lideres: 0, cadastros: 0 },
+      { nome: 'S. J. do Rio Preto', lat: -20.82, lng: -49.38, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 10400, lideres: 0, cadastros: 0 },
       { nome: 'Piracicaba', lat: -22.72, lng: -47.65, status: 'parcial', statusLabel: 'Parcial', potencial: 10900, lideres: 1, cadastros: 38, labelAnchor: 'end', labelDx: -9 },
-      { nome: 'Pres. Prudente', lat: -22.13, lng: -51.39, status: 'priorizar', statusLabel: 'Priorizar — sem líder', potencial: 10300, lideres: 0, cadastros: 0 },
+      { nome: 'Pres. Prudente', lat: -22.13, lng: -51.39, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 10300, lideres: 0, cadastros: 0 },
     ];
     const _COORD = { 'São Paulo': [-46.633, -23.55], 'Guarulhos': [-46.533, -23.454], 'Osasco': [-46.792, -23.532], 'Barueri': [-46.876, -23.51], 'Santo André': [-46.538, -23.663], 'São Bernardo do Campo': [-46.565, -23.694], 'São Caetano do Sul': [-46.564, -23.618], 'Diadema': [-46.62, -23.686], 'Mauá': [-46.461, -23.667], 'Campinas': [-47.061, -22.905], 'Sorocaba': [-47.458, -23.501], 'Jundiaí': [-46.884, -23.186], 'Santos': [-46.333, -23.96], 'São José dos Campos': [-45.887, -23.179], 'Ribeirão Preto': [-47.81, -21.177], 'São José do Rio Preto': [-49.379, -20.812], 'Bauru': [-49.06, -22.314], 'Piracicaba': [-47.649, -22.725], 'Presidente Prudente': [-51.388, -22.126], 'Santana de Parnaíba': [-46.918, -23.444], 'Cotia': [-46.919, -23.604], 'Carapicuíba': [-46.836, -23.522], 'Taboão da Serra': [-46.758, -23.626], 'Mogi das Cruzes': [-46.188, -23.522] };
     const cities = (AR && st.remote.liderados) ? (function () {
@@ -3429,7 +3428,7 @@ class Component extends DCLogic {
       return Object.entries(cc).filter(([c]) => _COORD[c]).map(([c, cad]) => {
         const nl = lpc[c] || 0;
         const status = nl === 0 ? 'priorizar' : cad >= med ? 'coberto' : 'parcial';
-        return { nome: c, lng: _COORD[c][0], lat: _COORD[c][1], status, statusLabel: { coberto: 'Coberto', parcial: 'Parcial', priorizar: 'Priorizar — sem líder' }[status], potencial: 0, lideres: nl, cadastros: cad };
+        return { nome: c, lng: _COORD[c][0], lat: _COORD[c][1], status, statusLabel: { coberto: 'Coberto', parcial: 'Parcial', priorizar: 'Priorizar · sem líder' }[status], potencial: 0, lideres: nl, cadastros: cad };
       }).sort((a, b) => b.cadastros - a.cadastros);
     })() : _citiesMock;
     // ---- gráficos da visão geral ----
@@ -3503,7 +3502,7 @@ class Component extends DCLogic {
       bg: st.aTab === k ? 'var(--color-gray-300)' : 'transparent', fg: st.aTab === k ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
     }));
     const pageTitle = { visao: 'Cockpit da campanha', ranking: 'Ranking de líderes', cadastro: 'Cadastrar líder', cidades: 'Ranking de cidades', grupos: 'Grupos da rede', config: 'Configurações', mapa: 'Mapa Rede' }[st.aTab];
-    const pageSub = { visao: 'Meta, ritmo e ranking da rede de lideranças', ranking: 'Pódio e ranking completo — clique num líder para o raio-x', cadastro: 'Convide líderes um a um ou por planilha — dedup por WhatsApp, nunca duplica', cidades: 'Potencial da família × rede atual, cidade a cidade — clique para ver no mapa', grupos: 'Os grupos de WhatsApp de cada líder — envie comunicados sem sair do painel', config: 'Convites e dados oficiais da campanha', mapa: 'Mapa eleitoral do estado — referência histórica (TSE)' }[st.aTab];
+    const pageSub = { visao: 'Meta, ritmo e ranking da rede de lideranças', ranking: 'Pódio e ranking completo · clique num líder para o raio-x', cadastro: 'Convide líderes um a um ou por planilha · dedup por WhatsApp, nunca duplica', cidades: 'Potencial da família × rede atual, cidade a cidade · clique para ver no mapa', grupos: 'Os grupos de WhatsApp de cada líder · envie comunicados sem sair do painel', config: 'Convites e dados oficiais da campanha', mapa: 'Mapa eleitoral do estado · referência histórica (TSE)' }[st.aTab];
     const ms = st.mapStats;
     // sem cadastro de liderados: toda métrica derivada deles sai da tela (ver PX_SEM_LIDERADOS)
     const SEM_LID = typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS;
@@ -3528,7 +3527,7 @@ class Component extends DCLogic {
       { label: 'Cidades a priorizar', valor: ms ? String(ms.priorizadas) : '…', sub: 'alto histórico da família, rede fraca', cor: 'var(--color-highlight)' },
       { label: 'Abaixo do potencial', valor: ms ? String(ms.parciais) : '…', sub: 'têm rede, mas aquém do teto histórico', cor: 'var(--color-gray-700)' },
       { label: 'Cobertas', valor: ms ? String(ms.cobertas) : '…', sub: 'rede forte sobre histórico forte', cor: 'var(--color-gray-1000)' },
-      { label: 'Potencial × Rede', valor: ms ? fmtN(ms.totalLiderados) + ' liderados' : '…', sub: 'rede real sobre o potencial da família — nunca somados', cor: 'var(--color-foreground)' },
+      { label: 'Potencial × Rede', valor: ms ? fmtN(ms.totalLiderados) + ' liderados' : '…', sub: 'rede real sobre o potencial da família · nunca somados', cor: 'var(--color-foreground)' },
     ];
     const pill = (on) => on ? { bg: 'var(--color-foreground)', fg: 'var(--color-background)', bd: 'var(--color-foreground)' } : { bg: 'transparent', fg: 'var(--color-muted-foreground)', bd: 'var(--color-border)' };
     // membros selecionados nos chips → string pro <sp-choropleth> e rótulo honesto do mapa
@@ -3565,14 +3564,14 @@ class Component extends DCLogic {
     const _muNivW = _muNiv >= 40 ? 'alto' : _muNiv >= 18 ? 'médio' : 'baixo';
     const gapText = !mu ? '' : SEM_LID
       ? (muLideres > 0
-        ? `${muLideres} líder(es) ativo(s) aqui, com promessa somada de ${fmtN(_clPromessa)} votos. O cadastro de liderados ainda não começou — a leitura por enquanto é de presença de liderança.`
+        ? `${muLideres} líder(es) ativo(s) aqui, com promessa somada de ${fmtN(_clPromessa)} votos. O cadastro de liderados ainda não começou · a leitura por enquanto é de presença de liderança.`
         : `Nenhum líder cadastrado nesta cidade${_muNiv >= 18 ? `, e a família tem potencial ${_muNivW} aqui (índice ${_muNiv})` : ''}. Convidar um líder é o próximo passo.`)
       : (muLideres > 0 || muLiderados > 0)
       ? (muStatus === 'coberto'
         ? `Rede forte: ${fmtN(muLiderados)} liderados e ${muLideres} líder(es) ativo(s) sobre um potencial ${_muNivW} da família. Manter o ritmo.`
         : `Há rede aqui (${fmtN(muLiderados)} liderados, ${muLideres} líder(es) ativo(s)), mas ainda abaixo do alvo de 2 liderados por mil eleitores. Reforçar antes de abrir frente nova.`)
       : muStatus === 'priorizar'
-      ? `A família tem potencial ${_muNivW} aqui (índice ${_muNiv}) e nenhum líder cadastrado — potencial ainda descoberto.`
+      ? `A família tem potencial ${_muNivW} aqui (índice ${_muNiv}) e nenhum líder cadastrado · potencial ainda descoberto.`
       : `Potencial baixo da família neste município. Prioridade baixa de investimento.`;
     const mapVals = {
       aTabVisao: st.aTab === 'visao', aTabMapa: st.aTab === 'mapa', aTabRanking: st.aTab === 'ranking', aTabCidades: st.aTab === 'cidades', aTabConfig: st.aTab === 'config', abrirConfig: () => set({ aTab: 'config' }),
@@ -3679,7 +3678,7 @@ class Component extends DCLogic {
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })(), // nome da RA (banco), não índice
-      mapSelMuni: st.muni && st.muni.ibge ? String(st.muni.ibge) : '', // cidade aberta no painel — destacada no mapa
+      mapSelMuni: st.muni && st.muni.ibge ? String(st.muni.ibge) : '', // cidade aberta no painel · destacada no mapa
       // controles = uma pill vertical única, colada no painel (direita), meia altura do mapa
       // abrir a lista fica logo ACIMA da pilha de zoom (3 botões de 36 + bordas = 110),
       // na mesma coluna — some junto quando a lista está aberta
@@ -3749,9 +3748,9 @@ class Component extends DCLogic {
         ? (isDark ? 'linear-gradient(90deg,#181818,#7a4d00,#ffb224,#ffe3ad)' : 'linear-gradient(90deg,#f4f1e8,#eda01f,#cc6f00,#5a2a00)')
         : (isDark ? 'linear-gradient(90deg,#111111,#454545,#ededed)' : 'linear-gradient(90deg,#ededed,#b8b8b8,#171717)'),
       legendNote: _layerAtual === 'cobertura' ? (SEM_LID ? 'cor = líderes ativos no município · ○ tracejado = líder convidado (pendente)' : 'cor = liderados por mil eleitores · ○ tracejado = líder convidado (pendente)')
-        : _layerAtual === 'historico' ? 'referência histórica (TSE) — nunca somada aos cadastros'
-        : _layerAtual === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE — sem comparação entre eleições'
-        : (SEM_LID ? 'cor = líderes ativos no município — cadastro de liderados ainda não iniciado' : 'intensidade e círculos ∝ liderados cadastrados'),
+        : _layerAtual === 'historico' ? 'referência histórica (TSE) · nunca somada aos cadastros'
+        : _layerAtual === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE · sem comparação entre eleições'
+        : (SEM_LID ? 'cor = líderes ativos no município · cadastro de liderados ainda não iniciado' : 'intensidade e círculos ∝ liderados cadastrados'),
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
       liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
         // camada 2024: ranking por eleitorado, com votos válidos no lugar do índice da família
@@ -3828,27 +3827,27 @@ class Component extends DCLogic {
             ? `votos de ${_forcaLabel} nesta região · ${ordem}ª das ${Object.keys(porRa).length} em penetração`
             : 'carregando os votos da família…',
           // a média fica, mas dita como o que é — nunca como "força da região"
-          raMedia: FI ? `${pct(A.votos, A.eleit, 2)} do eleitorado na média da região — não representa nenhum município isolado` : '',
+          raMedia: FI ? `${pct(A.votos, A.eleit, 2)} do eleitorado na média da região · não representa nenhum município isolado` : '',
           raLinhas: [
             ...(temVoto && porVoto[0] && porVoto[0].votos > 0 ? [
               { rot: 'Concentração', val: `${pct(porVoto[0].votos, A.votos, 0)} em ${porVoto[0].nome}` },
               { rot: `${n75} cidade(s) somam`, val: '75% dos votos daqui' },
             ] : []),
-            ...(temVoto && ancora && ancora.pen > 0 ? [{ rot: 'Âncora (maior penetração)', val: `${ancora.nome} — ${pct(ancora.votos, ancora.eleit, 1)}` }] : []),
+            ...(temVoto && ancora && ancora.pen > 0 ? [{ rot: 'Âncora (maior penetração)', val: `${ancora.nome} · ${pct(ancora.votos, ancora.eleit, 1)}` }] : []),
             ...(FI ? [{ rot: 'Municípios com base (1%+)', val: `${fmtN(comBase)} de ${fmtN(A.munis)}` }] : []),
             // "vazio" seria exagero: a cidade pode até concentrar voto em número absoluto
             // (São Paulo) e ainda assim estar sub-penetrada. O rótulo diz exatamente isso.
-            ...(temVoto && vazio && vazio.eleit > 0 ? [{ rot: 'Maior eleitorado sem base', val: `${vazio.nome} — ${fmtN(vazio.eleit)} eleitores, ${pct(vazio.votos, vazio.eleit, 2)}` }] : []),
+            ...(temVoto && vazio && vazio.eleit > 0 ? [{ rot: 'Maior eleitorado sem base', val: `${vazio.nome} · ${fmtN(vazio.eleit)} eleitores, ${pct(vazio.votos, vazio.eleit, 2)}` }] : []),
             { rot: 'Municípios com líder', val: `${fmtN(A.comLider)} de ${fmtN(A.munis)}` },
             { rot: 'Líderes ativos', val: fmtN(A.lideres) + (A.pend ? ` · ${fmtN(A.pend)} pendente(s)` : '') },
           ],
           raLeitura: A.comLider === 0
             ? `Nenhum líder cadastrado nos ${fmtN(A.munis)} municípios desta região, que reúne ${fmtN(A.eleit)} eleitores.`
-            : `${fmtN(A.lideres)} líder(es) ativo(s) em ${fmtN(A.comLider)} dos ${fmtN(A.munis)} municípios — ${fmtN(A.munis - A.comLider)} cidade(s) ainda sem ninguém.`,
+            : `${fmtN(A.lideres)} líder(es) ativo(s) em ${fmtN(A.comLider)} dos ${fmtN(A.munis)} municípios · ${fmtN(A.munis - A.comLider)} cidade(s) ainda sem ninguém.`,
         };
       })(),
       liveEmpty: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).length === 0,
-      liveEmptyText: !ms ? 'Carregando o índice de prioridade…' : _layerAtual === 'muni2024' ? 'Nenhum município com dado de 2024 nesta região.' : 'Nenhuma cidade com potencial da família nesta região — a família praticamente não fez voto por aqui em 2022.',
+      liveEmptyText: !ms ? 'Carregando o índice de prioridade…' : _layerAtual === 'muni2024' ? 'Nenhum município com dado de 2024 nesta região.' : 'Nenhuma cidade com potencial da família nesta região · a família praticamente não fez voto por aqui em 2022.',
       // Resumo por RA direto de municipio_politico (645 municípios) + líderes ativos por região
       ...(() => {
         const M = this._muni;
@@ -4017,7 +4016,7 @@ class Component extends DCLogic {
       candVazio: _aba !== 'eleitorado' && (!_cand || _cand.length === 0),
       candVazioTitulo: !_cand ? 'Carregando…' : (_aba === 'vereador' ? 'Sem votação de vereadores carregada' : 'Sem votação de prefeitos carregada'),
       candVazioTexto: !_cand ? 'Buscando a votação de 2024 deste município.'
-        : `A votação nominal de 2024 ainda não foi importada para ${mu ? mu.nome : 'este município'}. A tela já lê da tabela municipio_candidato — falta a carga do TSE.`,
+        : `A votação nominal de 2024 ainda não foi importada para ${mu ? mu.nome : 'este município'}. A tela já lê da tabela municipio_candidato · falta a carga do TSE.`,
       candLista: (_cand || []).map((c, i) => ({
         pos: String(i + 1), nome: c.nome_urna || c.nome_completo || '—',
         meta: [c.partido, c.numero, c.situacao].filter(Boolean).join(' · ') || '—',
@@ -4094,10 +4093,10 @@ class Component extends DCLogic {
         const alvo = temEleit ? Math.ceil(_muEleit * 2 / 1000) : 0;
         const covPct = Math.min(999, Math.round(cov / 2 * 100));
         const falta = Math.max(alvo - muLiderados, 0);
-        const alvoTxt = temEleit ? ` — ${covPct}% do alvo de 2 liderados por mil eleitores` : '';
+        const alvoTxt = temEleit ? ` · ${covPct}% do alvo de 2 liderados por mil eleitores` : '';
         const faltaTxt = temEleit ? ` Faltam ~${fmtN(falta)} liderados para cobertura forte.` : '';
         return {
-          muniBest: best ? `${best.membro.split(' (')[0]} — ${best.cargo} ${best.ano} (${fMil(best.votos)})` : 'referência estimada da base histórica',
+          muniBest: best ? `${best.membro.split(' (')[0]} · ${best.cargo} ${best.ano} (${fMil(best.votos)})` : 'referência estimada da base histórica',
           muniTrend: trend, muniTrendCor: trendCor,
           hasMuniCand: !!cand, muniCandAno: cand ? `última eleição · ${cand.ano}` : '', muniCandVotos: cand ? fmtN(cand.votos) : '',
           // quebra REAL por membro/eleição vinda da RPC familia_indice_municipio — mostra de
@@ -4134,16 +4133,16 @@ class Component extends DCLogic {
           // a leitura segue as contagens REAIS: com líder na cidade, nunca "nenhum líder"
           muniLeitura: SEM_LID
             ? (muLideres > 0
-              ? `${muLideres} líder(es) ativo(s) para ${temEleit ? fmtN(_muEleit) + ' eleitores' : 'este município'}${temEleit ? ` — 1 líder a cada ${fmtN(Math.round(_muEleit / muLideres))} eleitores` : ''}.`
+              ? `${muLideres} líder(es) ativo(s) para ${temEleit ? fmtN(_muEleit) + ' eleitores' : 'este município'}${temEleit ? ` · 1 líder a cada ${fmtN(Math.round(_muEleit / muLideres))} eleitores` : ''}.`
               : `Sem líder cadastrado. Potencial ${nivelM} da família (índice ${ind})${temEleit ? ` e ${fmtN(_muEleit)} eleitores` : ''}.`)
             : (muLideres > 0 || muLiderados > 0)
             ? (muStatus === 'coberto'
               ? `Cobertura forte: ${muLideres} líder(es) ativo(s) e ${fmtN(muLiderados)} liderados${alvoTxt}. Manter o ritmo basta.`
               : `${muLideres} líder(es) ativo(s) e ${fmtN(muLiderados)} liderados nesta cidade${alvoTxt}.${faltaTxt}`)
             : muStatus === 'priorizar'
-            ? `Potencial ${nivelM} da família (índice ${ind}) e nenhum líder cadastrado — cidade prioritária para um novo líder.${temEleit ? ` Alvo: ~${fmtN(alvo)} liderados.` : ''}`
+            ? `Potencial ${nivelM} da família (índice ${ind}) e nenhum líder cadastrado · cidade prioritária para um novo líder.${temEleit ? ` Alvo: ~${fmtN(alvo)} liderados.` : ''}`
             : muStatus === 'fraco'
-            ? `Presença fraca da família aqui (índice ${ind}) — algum voto histórico, mas abaixo dos redutos. Prioridade menor; entra na conta se sobrar fôlego.`
+            ? `Presença fraca da família aqui (índice ${ind}) · algum voto histórico, mas abaixo dos redutos. Prioridade menor; entra na conta se sobrar fôlego.`
             : `Potencial baixo da família neste município (índice ${ind}). Prioridade baixa de investimento.`,
         };
       })(),
@@ -4185,10 +4184,10 @@ class Component extends DCLogic {
           perspDelta: d == null ? '' : (d >= 0 ? '+' : '−') + fmtN(Math.abs(d)),
           perspDeltaCor: d == null ? '' : (d >= 0 ? 'var(--color-accent)' : 'var(--color-highlight)'),
           perspLeitura: d == null
-            ? 'Sem referência de 2022 para comparar — o número acima é só o que os líderes declararam.'
+            ? 'Sem referência de 2022 para comparar · o número acima é só o que os líderes declararam.'
             : d >= 0
             ? `A rede montada aqui promete ${fmtN(d)} voto(s) a mais do que o candidato fez sozinho em 2022. Promessa é declaração do líder, não resultado.`
-            : `A rede ainda promete ${fmtN(Math.abs(d))} voto(s) a menos do que o candidato já fez sozinho aqui em 2022 — falta base para segurar o que ele tinha.`,
+            : `A rede ainda promete ${fmtN(Math.abs(d))} voto(s) a menos do que o candidato já fez sozinho aqui em 2022 · falta base para segurar o que ele tinha.`,
         };
       })(),
       // incluir líder sem sair do painel: já entra vinculado a esta cidade
@@ -4196,7 +4195,7 @@ class Component extends DCLogic {
       nlToggle: () => set({ nlOpen: !st.nlOpen, nlMsg: null }),
       nlLabel: st.nlOpen ? 'Cancelar' : 'Incluir líder',
       nlIcone: st.nlOpen ? 'M6 6l12 12M18 6L6 18' : 'M12 5v14M5 12h14',
-      nlSub: mu ? `Entra vinculado a ${mu.nome}. Ao salvar, o painel gera um link de convite para você enviar a ele — o envio não é automático.` : '',
+      nlSub: mu ? `Entra vinculado a ${mu.nome}. Ao salvar, o painel gera um link de convite para você enviar a ele · o envio não é automático.` : '',
       nlCidadePh: mu ? mu.nome : 'Cidade',
       nlCidades: st.nlCidades || '', onNlCidades: (e) => set({ nlCidades: e.target.value }),
       nlDobrada: st.nlDobrada || '', onNlDobrada: (e) => set({ nlDobrada: e.target.value }),
@@ -4211,7 +4210,7 @@ class Component extends DCLogic {
       nlTemMsg: !!st.nlMsg,
       nlMsgTxt: st.nlMsg ? st.nlMsg.txt : '',
       nlMsgCor: st.nlMsg && st.nlMsg.err ? 'var(--color-highlight)' : 'var(--color-accent)',
-      cidLideresN: _cl ? String(_cl.length) : '…', // '…' enquanto carrega — nunca mostrar 0 sobre fetch em curso
+      cidLideresN: _cl ? String(_cl.length) : '…', // '…' enquanto carrega · nunca mostrar 0 sobre fetch em curso
       cidLideresVazio: !!_cl && _cl.length === 0,
       // editando: a lista deixa de ser uma caixa rolável de 320px e cresce como sanfona,
       // senão o formulário do líder abre espremido dentro dela e com scroll próprio
@@ -4253,7 +4252,6 @@ class Component extends DCLogic {
       hasEdMsg: !!st.edMsg, edMsgTxt: st.edMsg ? st.edMsg.txt : '', edMsgCor: (st.edMsg && st.edMsg.err) ? 'var(--color-highlight)' : 'var(--color-gray-1000)',
       hasTop: !!mu && mu.topLideres.length > 0, topLideres: mu ? mu.topLideres.map(n => ({ n })) : [],
       gapText,
-      convidarCidade: () => set({ aInvite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, aCopied: false, aTab: 'config' }),
     };
     // ===== Cadastro de líderes (bindings) =====
     if (st.aTab === 'cadastro' && st.ldrList === null && !st.ldrBusy) this._loadLeaders();
@@ -4365,7 +4363,7 @@ class Component extends DCLogic {
         const em = (st.email || '').trim();
         if (!sb || !em) { set({ loginMsg: 'Digite o seu e-mail primeiro.', loginMsgErr: true }); return; }
         sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: window.location.href } })
-          .then(({ error }) => set({ loginMsg: error ? ('Não consegui enviar: ' + error.message) : ('Link enviado para ' + em + '. Abra no navegador — no app instalado o link não completa o login.'), loginMsgErr: !!error }));
+          .then(({ error }) => set({ loginMsg: error ? ('Não consegui enviar: ' + error.message) : ('Link enviado para ' + em + '. Abra no navegador · no app instalado o link não completa o login.'), loginMsgErr: !!error }));
       },
       obNome: st.obNome, onObNome: (e) => set({ obNome: e.target.value, obErro: null }),
       obZap: st.obZap, onObZap: (e) => set({ obZap: e.target.value, obErro: null }),
@@ -4374,7 +4372,7 @@ class Component extends DCLogic {
       hasObErro: !!st.obErro, obErro: st.obErro,
       ativarLideranca: async () => {
         if (!st.obNome.trim()) return set({ obErro: 'Falta o seu nome completo.' });
-        if (st.obZap.replace(/\D/g, '').length < 10) return set({ obErro: 'Confira o WhatsApp — precisa do DDD.' });
+        if (st.obZap.replace(/\D/g, '').length < 10) return set({ obErro: 'Confira o WhatsApp · precisa do DDD.' });
         if (!st.obCidades.trim()) return set({ obErro: 'Diga em quais cidades você atua.' });
         const sb = this._pxClient();
         const token = typeof location !== 'undefined' && new URLSearchParams(location.search).get('token');
