@@ -1879,17 +1879,17 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <div style="margin-bottom:10px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);display:flex;flex-direction:column;gap:8px">
                       <div style="font-size:11px;color:var(--color-muted-foreground);line-height:1.45">{{ nlSub }}</div>
                       <div style="font-size:11px;color:var(--color-gray-600);margin-top:2px">Nome</div>
-                      <input type="text" value="{{ nlNome }}" onChange="{{ onNlNome }}" placeholder="Nome do líder" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <input type="text" value="{{ nlNome }}" onChange="{{ onNlNome }}" placeholder="Nome do líder" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">WhatsApp</div>
                       <input type="text" value="{{ nlZap }}" onChange="{{ onNlZap }}" placeholder="WhatsApp com DDD" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-family:var(--font-mono);outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">Cidades (separadas por vírgula)</div>
-                      <input type="text" value="{{ nlCidades }}" onChange="{{ onNlCidades }}" placeholder="{{ nlCidadePh }}" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <input type="text" value="{{ nlCidades }}" onChange="{{ onNlCidades }}" placeholder="{{ nlCidadePh }}" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">Expectativa de voto</div>
-                      <input type="text" value="{{ nlPromessa }}" onChange="{{ onNlPromessa }}" placeholder="0" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <input type="text" value="{{ nlPromessa }}" onChange="{{ onNlPromessa }}" placeholder="0" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">Dobrada</div>
-                      <input type="text" value="{{ nlDobrada }}" onChange="{{ onNlDobrada }}" placeholder="ex.: vereador de dobrada" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <input type="text" value="{{ nlDobrada }}" onChange="{{ onNlDobrada }}" placeholder="ex.: vereador de dobrada" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">Observação</div>
-                      <textarea value="{{ nlObs }}" onChange="{{ onNlObs }}" placeholder="anotações sobre o líder" rows="2" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-family:inherit;resize:vertical;outline:none" style-focus="border-color:var(--color-gray-500)"></textarea>
+                      <textarea value="{{ nlObs }}" onChange="{{ onNlObs }}" placeholder="anotações sobre o líder" rows="2" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};font-family:inherit;resize:vertical;outline:none" style-focus="border-color:var(--color-gray-500)"></textarea>
                       <div style="font-size:11px;color:var(--color-gray-600);line-height:1.45">Status: entra como <b style="color:var(--color-foreground)">Pendente</b> até aceitar o convite.</div>
                       <sc-if value="{{ nlTemMsg }}" hint-placeholder-val="{{ false }}">
                         <div style="font-size:11.5px;line-height:1.45;color:{{ nlMsgCor }}">{{ nlMsgTxt }}</div>
@@ -1900,7 +1900,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                           <button onClick="{{ nlCopiar }}" style="height:32px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap">{{ nlCopiarLabel }}</button>
                         </div>
                       </sc-if>
-                      <button onClick="{{ nlSalvar }}" style="height:34px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:12.5px;font-weight:600;cursor:pointer">{{ nlBotao }}</button>
+                      <button onClick="{{ nlSalvar }}" style="height:{{ fmBtnH }};border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:{{ fmBtnFs }};font-weight:600;cursor:pointer;opacity:{{ nlSalvarOp }}">{{ nlBotao }}</button>
                     </div>
                   </sc-if>
                   <sc-if value="{{ cidLideresVazio }}" hint-placeholder-val="{{ false }}">
@@ -1955,27 +1955,27 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                           <div style="margin-top:8px;font-size:11px;color:var(--color-muted-foreground)">Carregando os dados atuais…</div>
                         </sc-if>
                         <sc-if value="{{ cl.editando }}" hint-placeholder-val="{{ false }}">
-                          <div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--color-gray-200);display:flex;flex-direction:column;gap:7px">
+                          <div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--color-gray-200);display:flex;flex-direction:column;gap:{{ fmGap }}">
                             <sc-if value="{{ hasEdMsg }}" hint-placeholder-val="{{ false }}">
                               <div style="font-size:11px;line-height:1.45;color:{{ edMsgCor }}">{{ edMsgTxt }}</div>
                             </sc-if>
                             <sc-if value="{{ edForm }}" hint-placeholder-val="{{ true }}">
-                              <label style="font-size:10px;color:var(--color-gray-600)">Nome<input type="text" value="{{ edNome }}" onChange="{{ onEdNome }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"></label>
-                              <label style="font-size:10px;color:var(--color-gray-600)">WhatsApp<input type="tel" value="{{ edZap }}" onChange="{{ onEdZap }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-family:var(--font-mono);font-size:12.5px;outline:none"></label>
-                              <label style="font-size:10px;color:var(--color-gray-600)">Cidades (separadas por vírgula)<input type="text" value="{{ edCidades }}" onChange="{{ onEdCidades }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"></label>
-                              <label style="font-size:10px;color:var(--color-gray-600)">Expectativa de voto<input type="number" value="{{ edPromessa }}" onChange="{{ onEdPromessa }}" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-variant-numeric:tabular-nums;font-size:12.5px;outline:none"></label>
-                              <label style="font-size:10px;color:var(--color-gray-600)">Dobrada<input type="text" value="{{ edDobrada }}" onChange="{{ onEdDobrada }}" placeholder="ex.: vereador de dobrada" style="width:100%;box-sizing:border-box;height:32px;margin-top:3px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none"></label>
-                              <label style="font-size:10px;color:var(--color-gray-600)">Observação<textarea value="{{ edObs }}" onChange="{{ onEdObs }}" rows="2" placeholder="anotações sobre o líder" style="width:100%;box-sizing:border-box;margin-top:3px;padding:7px 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;font-family:inherit;resize:vertical;outline:none"></textarea></label>
+                              <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Nome<input type="text" value="{{ edNome }}" onChange="{{ onEdNome }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none"></label>
+                              <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">WhatsApp<input type="tel" value="{{ edZap }}" onChange="{{ onEdZap }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-family:var(--font-mono);font-size:{{ fmFs }};outline:none"></label>
+                              <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Cidades (separadas por vírgula)<input type="text" value="{{ edCidades }}" onChange="{{ onEdCidades }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none"></label>
+                              <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Expectativa de voto<input type="number" value="{{ edPromessa }}" onChange="{{ onEdPromessa }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-variant-numeric:tabular-nums;font-size:{{ fmFs }};outline:none"></label>
+                              <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Dobrada<input type="text" value="{{ edDobrada }}" onChange="{{ onEdDobrada }}" placeholder="ex.: vereador de dobrada" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none"></label>
+                              <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Observação<textarea value="{{ edObs }}" onChange="{{ onEdObs }}" rows="2" placeholder="anotações sobre o líder" style="width:100%;box-sizing:border-box;margin-top:4px;padding:9px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};font-family:inherit;resize:vertical;outline:none"></textarea></label>
                               <div>
-                                <div style="font-size:10px;color:var(--color-gray-600);margin-bottom:3px">Status</div>
+                                <div style="font-size:{{ fmLabFs }};color:var(--color-gray-600);margin-bottom:4px">Status</div>
                                 <div style="display:flex;gap:6px">
-                                  <button onClick="{{ setEdAtivo }}" style="flex:1;height:30px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:{{ edAtivoBg }};color:{{ edAtivoFg }};font-size:11.5px;font-weight:500;cursor:pointer">Ativo</button>
-                                  <button onClick="{{ setEdPendente }}" style="flex:1;height:30px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:{{ edPendBg }};color:{{ edPendFg }};font-size:11.5px;font-weight:500;cursor:pointer">Pendente</button>
+                                  <button onClick="{{ setEdAtivo }}" style="flex:1;height:{{ fmH }};border:1px solid var(--color-border);border-radius:var(--radius-sm);background:{{ edAtivoBg }};color:{{ edAtivoFg }};font-size:{{ fmBtnFs }};font-weight:500;cursor:pointer">Ativo</button>
+                                  <button onClick="{{ setEdPendente }}" style="flex:1;height:{{ fmH }};border:1px solid var(--color-border);border-radius:var(--radius-sm);background:{{ edPendBg }};color:{{ edPendFg }};font-size:{{ fmBtnFs }};font-weight:500;cursor:pointer">Pendente</button>
                                 </div>
                               </div>
-                              <div style="display:flex;gap:6px;margin-top:2px">
-                                <button onClick="{{ edSalvar }}" style="flex:1;height:32px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:12px;font-weight:500;cursor:pointer">{{ edSalvarLabel }}</button>
-                                <button onClick="{{ edCancelar }}" style="height:32px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-muted-foreground);font-size:12px;cursor:pointer">Cancelar</button>
+                              <div style="display:flex;gap:8px;margin-top:4px">
+                                <button onClick="{{ edCancelar }}" style="flex:2;height:{{ fmBtnH }};border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:{{ fmBtnFs }};font-weight:500;cursor:pointer">Cancelar</button>
+                                <button onClick="{{ edSalvar }}" style="flex:3;height:{{ fmBtnH }};border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:{{ fmBtnFs }};font-weight:600;cursor:pointer;opacity:{{ edSalvarOp }}">{{ edSalvarLabel }}</button>
                               </div>
                             </sc-if>
                           </div>
@@ -4740,6 +4740,7 @@ class Component extends DCLogic {
       nlPromessa: st.nlPromessa || '', onNlPromessa: (e) => set({ nlPromessa: e.target.value }),
       nlBotao: st.nlBusy ? 'Incluindo…' : 'Incluir e convidar',
       nlSalvar: () => { if (!st.nlBusy) this._novoLdrSalvar(); },
+      nlSalvarOp: st.nlBusy ? '.55' : '1',
       nlTemMsg: !!st.nlMsg,
       nlMsgTxt: st.nlMsg ? st.nlMsg.txt : '',
       nlMsgCor: st.nlMsg && st.nlMsg.err ? 'var(--color-highlight)' : 'var(--color-accent)',
@@ -4780,8 +4781,17 @@ class Component extends DCLogic {
       onEdNome: (e) => set({ edNome: e.target.value }), onEdZap: (e) => set({ edZap: e.target.value }),
       onEdCidades: (e) => set({ edCidades: e.target.value }), onEdPromessa: (e) => set({ edPromessa: e.target.value }),
       onEdDobrada: (e) => set({ edDobrada: e.target.value }), onEdObs: (e) => set({ edObs: e.target.value }),
-      edSalvar: () => this._editLeaderSave(), edCancelar: () => set({ edId: null, edLoaded: false, edMsg: null }),
+      edSalvar: () => { if (!st.edBusy) this._editLeaderSave(); }, edCancelar: () => set({ edId: null, edLoaded: false, edMsg: null }),
       edSalvarLabel: st.edBusy ? 'Salvando…' : 'Salvar',
+      edSalvarOp: st.edBusy ? '.55' : '1',
+      // Formulário no celular: alvo de 44px e fonte 16px. Abaixo de 16px o iOS DÁ ZOOM
+      // ao focar o campo e a tela salta — era metade da sensação de formulário quebrado.
+      fmH: isMob ? '44px' : '32px',
+      fmFs: isMob ? '16px' : '12.5px',
+      fmLabFs: isMob ? '12px' : '10px',
+      fmGap: isMob ? '11px' : '7px',
+      fmBtnH: isMob ? '46px' : '32px',
+      fmBtnFs: isMob ? '15px' : '12px',
       hasEdMsg: !!st.edMsg, edMsgTxt: st.edMsg ? st.edMsg.txt : '', edMsgCor: (st.edMsg && st.edMsg.err) ? 'var(--color-highlight)' : 'var(--color-gray-1000)',
       hasTop: !!mu && mu.topLideres.length > 0, topLideres: mu ? mu.topLideres.map(n => ({ n })) : [],
       gapText,
