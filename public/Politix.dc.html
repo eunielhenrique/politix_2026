@@ -1493,7 +1493,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             <div class="px-mapbar" style="position:absolute;top:12px;left:12px;z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:{{ mapToolbarMaxW }};padding:8px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.08)">
               <button onClick="{{ toggleMapFull }}" title="{{ mapFullLabel }}" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapFullIcon }}"></path></svg>
-                <span>{{ mapFullLabel }}</span>
+                <sc-if value="{{ mapFullTxtShow }}" hint-placeholder-val="{{ true }}"><span>{{ mapFullLabel }}</span></sc-if>
               </button>
               <sc-if value="{{ touchMostra }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ toggleTouch }}" title="{{ touchTitle }}" style="height:28px;padding:0 10px;border:1px solid {{ touchBd }};border-radius:var(--radius-sm);background:{{ touchBg }};color:{{ touchFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
@@ -1513,6 +1513,13 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <sc-for list="{{ regiaoOpts }}" as="rm" hint-placeholder-count="4"><option value="{{ rm.v }}">{{ rm.l }}</option></sc-for>
               </select>
               </sc-if>
+              <sc-if value="{{ mapPickShow }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ togglePick }}" title="Escolher cidade ou região" style="height:32px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;max-width:200px">
+                  <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mapPickLabel }}</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+              </sc-if>
+              <sc-if value="{{ buscaInlineShow }}" hint-placeholder-val="{{ true }}">
               <div style="position:relative">
                 <input type="text" value="{{ buscaCidade }}" onChange="{{ onBuscaCidade }}" onKeyDown="{{ onBuscaKey }}" placeholder="Buscar cidade…" style="height:32px;width:{{ buscaW }};padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none" style-focus="border-color:var(--color-gray-500)">
                 <sc-if value="{{ buscaAberta }}" hint-placeholder-val="{{ false }}">
@@ -1530,8 +1537,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </div>
                 </sc-if>
               </div>
-              <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+              </sc-if>
+              <sc-if value="{{ camadaInline }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;flex-shrink:0">
                 <span style="font-size:12px;color:var(--color-muted-foreground)">Camada</span>
                 <sc-for list="{{ layerPills }}" as="lp" hint-placeholder-count="3">
                   <button onClick="{{ lp.onClick }}" style="height:28px;padding:0 11px;border:1px solid {{ lp.bd }};border-radius:var(--radius-sm);font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap;background:{{ lp.bg }};color:{{ lp.fg }}">{{ lp.label }}</button>
@@ -1539,6 +1547,28 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </div>
               </sc-if>
             </div>
+            </sc-if>
+            <sc-if value="{{ mapPickAberto }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ fecharPick }}" style="position:absolute;inset:0;z-index:11"></div>
+              <div style="position:absolute;top:58px;left:12px;right:12px;max-height:60%;overflow:auto;z-index:12;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);box-shadow:0 8px 24px rgba(0,0,0,.4)">
+                <input type="text" value="{{ buscaCidade }}" onChange="{{ onBuscaCidade }}" onKeyDown="{{ onBuscaKey }}" placeholder="Buscar cidade…" style="width:100%;box-sizing:border-box;height:46px;padding:0 14px;border:none;border-bottom:1px solid var(--color-border);background:var(--color-background);color:var(--color-foreground);font-size:15px;outline:none">
+                <sc-if value="{{ buscaSemResultado }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:12px 14px;font-size:13px;color:var(--color-muted-foreground)">Nenhuma cidade com esse nome.</div>
+                </sc-if>
+                <sc-for list="{{ buscaResultados }}" as="pbc" hint-placeholder-count="6">
+                  <button onClick="{{ pbc.onClick }}" style="display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:none;border-bottom:1px solid var(--color-gray-200);background:transparent;cursor:pointer;text-align:left">
+                    <span style="width:9px;height:9px;border-radius:2px;flex-shrink:0;background:{{ pbc.cor }}"></span>
+                    <span style="flex:1;min-width:0;font-size:13.5px;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pbc.nome }}</span>
+                    <span style="font-size:11px;color:var(--color-gray-600);white-space:nowrap">{{ pbc.meta }}</span>
+                  </button>
+                </sc-for>
+                <sc-if value="{{ mapPickRegShow }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.2px;color:var(--color-gray-600);padding:11px 14px 6px">REGIÕES ADMINISTRATIVAS</div>
+                  <sc-for list="{{ mapPickRegioes }}" as="pro" hint-placeholder-count="6">
+                    <button onClick="{{ pro.onClick }}" style="display:block;width:100%;min-height:46px;padding:0 14px;border:none;border-bottom:1px solid var(--color-gray-200);background:{{ pro.bg }};color:{{ pro.fg }};font-size:13.5px;cursor:pointer;text-align:left">{{ pro.label }}</button>
+                  </sc-for>
+                </sc-if>
+              </div>
             </sc-if>
             <sc-if value="{{ mapCtlShow }}" hint-placeholder-val="{{ true }}">
             <div style="{{ mapCtlStyle }}">
@@ -2286,7 +2316,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -4161,7 +4191,16 @@ class Component extends DCLogic {
       legendNoteStyle: _vert ? 'display:none' : 'font-size:10px;color:var(--color-gray-600);line-height:1.45;margin-top:9px;max-width:210px',
       // em pé o Filtros sai da barra (vira FAB) e entra o seletor de RA
       mapFltBtnShow: !_vert,
-      mapRegiaoShow: !isMob || _vert,
+      mapRegiaoShow: !isMob,          // combo nativo de RA só no desktop
+      mapFullTxtShow: !isMob,         // no celular o Recolher é só o ícone
+      camadaInline: !isMob || _vert,  // as pills de camada faltavam na barra em pé
+      buscaInlineShow: !_vert,        // em pé a busca mora DENTRO do seletor
+      mapPickShow: _vert,
+      mapPickAberto: !!st.mapPickOpen,
+      togglePick: () => set({ mapPickOpen: !st.mapPickOpen, buscaCidade: '' }),
+      fecharPick: () => set({ mapPickOpen: false, buscaCidade: '' }),
+      mapPickLabel: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? rn : 'Cidade ou região'; })(),
+      mapPickRegShow: !((st.buscaCidade || '').trim().length >= 2), // buscando cidade, a lista de RAs sai da frente
       // alça do sheet: estica até a tela toda e volta
       sheetGrabShow: _vert,
       sheetFullOn: !!st.sheetFull,
@@ -4349,6 +4388,11 @@ class Component extends DCLogic {
       })(),
       podio, rankingResto, rankingTotal, rankHasMore, cidadesRank: cidResto, cidPodio, cidadesTotal: String(cidadesRank.length),
       regiaoOpts: [{ v: 'todos', l: 'Todas as regiões' }, ...RA15.map(v => ({ v, l: v }))],
+      mapPickRegioes: [{ v: 'todos', l: 'Todas as regiões' }, ...RA15.map(v => ({ v, l: v }))].map(o => {
+        const on = this.fltSelVal(st.mapFRegiao) === o.v;
+        return { label: o.l, onClick: () => set({ mapFRegiao: [o.v], muni: null, mapPickOpen: false, buscaCidade: '' }),
+          bg: on ? 'var(--color-foreground)' : 'transparent', fg: on ? 'var(--color-background)' : 'var(--color-foreground)' };
+      }),
       rankFRegiaoSel: this.fltSelVal(st.rankFRegiao), onRankFRegiao: (e) => set({ rankFRegiao: [e.target.value], selLeader: null, rankVisible: 20 }),
       cidFRegiaoSel: this.fltSelVal(st.cidFRegiao), onCidFRegiao: (e) => set({ cidFRegiao: [e.target.value] }),
       mapFRegiaoSel: this.fltSelVal(st.mapFRegiao), onMapFRegiao: (e) => set({ mapFRegiao: [e.target.value], muni: null }),
@@ -4442,7 +4486,7 @@ class Component extends DCLogic {
           // só limpa o que de fato esconde a cidade: quem passa no recorte o mantém,
           // senão buscar uma cidade zerava filtros que o assessor acabou de montar
           const foraDoRecorte = typeof window !== 'undefined' && window.PXEstaFora ? window.PXEstaFora(ibge) : (foraDaRa || temFiltro);
-          const nx = { buscaCidade: '' };
+          const nx = { buscaCidade: '', mapPickOpen: false };
           if (foraDoRecorte) {
             if (foraDaRa) nx.mapFRegiao = ['todos'];
             if (temFiltro) nx.mapFiltros = {};
