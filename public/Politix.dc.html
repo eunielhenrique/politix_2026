@@ -1195,6 +1195,11 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   <div style="font-size:11.5px;color:var(--color-muted-foreground);line-height:1.5">{{ eqAviso }}</div>
                   <input type="text" value="{{ eqNome }}" onChange="{{ onEqNome }}" placeholder="Nome do assessor" style="height:38px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13.5px;outline:none" style-focus="border-color:var(--color-gray-500)">
                   <input type="email" value="{{ eqEmail }}" onChange="{{ onEqEmail }}" placeholder="e-mail" style="height:38px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13.5px;font-family:var(--font-mono);outline:none" style-focus="border-color:var(--color-gray-500)">
+                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <sc-for list="{{ eqPapeis }}" as="ep" hint-placeholder-count="2">
+                      <button onClick="{{ ep.onClick }}" title="{{ ep.title }}" style="height:32px;padding:0 12px;border:1px solid {{ ep.bd }};border-radius:var(--radius-sm);background:{{ ep.bg }};color:{{ ep.fg }};font-size:12px;font-weight:500;cursor:pointer">{{ ep.label }}</button>
+                    </sc-for>
+                  </div>
                   <sc-if value="{{ eqTemMsg }}" hint-placeholder-val="{{ false }}">
                     <div style="font-size:12px;line-height:1.5;color:{{ eqMsgCor }}">{{ eqMsgTxt }}</div>
                   </sc-if>
@@ -1215,7 +1220,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   </sc-if>
                 </div>
               </sc-for>
-              <div style="padding:12px 20px;font-size:11.5px;color:var(--color-gray-600);line-height:1.5">Todo membro da assessoria tem acesso total à campanha · não existe nível somente-leitura hoje.</div>
+              <div style="padding:12px 20px;font-size:11.5px;color:var(--color-gray-600);line-height:1.5">Assessor altera tudo · Somente leitura vê os mesmos dados e não consegue gravar nada (a trava é no banco, não na tela).</div>
             </div>
           </sc-if>
 
@@ -1486,10 +1491,12 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapFullIcon }}"></path></svg>
                 <span>{{ mapFullLabel }}</span>
               </button>
+              <sc-if value="{{ touchMostra }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ toggleTouch }}" title="{{ touchTitle }}" style="height:28px;padding:0 10px;border:1px solid {{ touchBd }};border-radius:var(--radius-sm);background:{{ touchBg }};color:{{ touchFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V12m0-1a1.5 1.5 0 0 1 3 0v4a6 6 0 0 1-6 6h-1.2a5 5 0 0 1-3.9-1.9L4 15.5a1.6 1.6 0 0 1 2.4-2.1L9 15.5"></path></svg>
                 <span>{{ touchLabel }}</span>
               </button>
+              </sc-if>
               <button onClick="{{ toggleFltMapa }}" title="Filtros e cruzamentos" style="height:28px;padding:0 10px;border:1px solid {{ fltMapaBd }};border-radius:var(--radius-sm);background:{{ fltMapaBg }};color:{{ fltMapaFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4v7m0 4v5m6-16v3m0 4v9m6-16v11m0 4v1M4 11h4M10 7h4M16 15h4"></path></svg>
                 <span>{{ fltMapaLabel }}</span>
@@ -2221,7 +2228,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -2248,7 +2255,7 @@ class Component extends DCLogic {
     if (!email || email.indexOf('@') < 1) { this.setState({ eqMsg: { err: true, txt: 'Informe um e-mail válido.' } }); return; }
     if (!sb) { this.setState({ eqMsg: { err: true, txt: 'Sem conexão com o backend.' } }); return; }
     this.setState({ eqBusy: true, eqMsg: null });
-    const { data, error } = await sb.rpc('team_invite', { p_email: email, p_name: nome, p_role: 'assessor' });
+    const { data, error } = await sb.rpc('team_invite', { p_email: email, p_name: nome, p_role: st.eqPapel || 'assessor' });
     if (error) { this.setState({ eqBusy: false, eqMsg: { err: true, txt: 'Não consegui convidar: ' + error.message } }); return; }
     const row = Array.isArray(data) ? data[0] : data;
     // manda o magic link: é assim que a pessoa entra e o convite é reivindicado
@@ -2896,8 +2903,11 @@ class Component extends DCLogic {
           eqN: L == null ? '…' : String((L || []).length),
           eqLista: (L || []).map(x => ({
             nome: x.name || '—', email: x.email || '—', ini: inic(x.name, x.email),
-            papel: x.kind === 'convite' ? 'Convite pendente' : 'Assessor',
-            papelCor: x.kind === 'convite' ? 'var(--color-highlight)' : 'var(--color-accent)',
+            papel: x.kind === 'convite'
+              ? (x.role === 'analista' ? 'Convite · leitura' : 'Convite pendente')
+              : (x.role === 'analista' ? 'Somente leitura' : 'Assessor'),
+            papelCor: x.kind === 'convite' ? 'var(--color-highlight)'
+              : (x.role === 'analista' ? 'var(--color-muted-foreground)' : 'var(--color-accent)'),
             ultimo: quando(x.since),
             // nunca oferecer remover quando sobraria a campanha sem assessor
             podeTirar: x.kind === 'convite' || nAssessores > 1,
@@ -2910,7 +2920,17 @@ class Component extends DCLogic {
           eqBtnLabel: st.eqAberto ? 'Cancelar' : 'Convidar membro',
           eqBtnBg: st.eqAberto ? 'transparent' : 'var(--color-foreground)',
           eqBtnFg: st.eqAberto ? 'var(--color-foreground)' : 'var(--color-background)',
-          eqAviso: 'O convidado recebe um link de acesso no e-mail e entra com acesso total à campanha. Se já tiver conta na Politix, entra na hora.',
+          eqAviso: 'O convidado recebe um link de acesso no e-mail. Se já tiver conta na Politix, entra na hora.',
+          eqPapeis: [
+            ['assessor', 'Assessor', 'Acesso total: cadastra líderes, convida e edita a campanha'],
+            ['analista', 'Somente leitura', 'Vê tudo da campanha, não altera nada'],
+          ].map(([v, label, title]) => {
+            const on = (st.eqPapel || 'assessor') === v;
+            return { label, title, onClick: () => set({ eqPapel: v }),
+              bg: on ? 'var(--color-foreground)' : 'transparent',
+              fg: on ? 'var(--color-background)' : 'var(--color-muted-foreground)',
+              bd: on ? 'var(--color-foreground)' : 'var(--color-border)' };
+          }),
           eqNome: st.eqNome || '', onEqNome: (e) => set({ eqNome: e.target.value }),
           eqEmail: st.eqEmail || '', onEqEmail: (e) => set({ eqEmail: e.target.value }),
           eqEnviar: () => { if (!st.eqBusy) this._eqConvidar(); },
@@ -3939,6 +3959,9 @@ class Component extends DCLogic {
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
       // botão de toque: mora na barra do MAPA, que é onde a tela grande é operada.
       // Celular não usa isso — o layout mobile já vem por largura, sem botão.
+      // o modo touch é para o totem, que roda o mapa em tela cheia: fora dela o botão
+      // só ocupa espaço na barra
+      touchMostra: !!st.mapFull,
       touchOn: !!st.touchOn,
       toggleTouch: () => this._touchToggle(),
       touchLabel: st.touchOn ? 'Touch ligado' : 'Touch',
