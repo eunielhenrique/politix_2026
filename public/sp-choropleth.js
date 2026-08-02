@@ -11,8 +11,11 @@
     // fora/foraLine = município fora da RA ou reprovado no filtro. Precisa CONTRASTAR com o
     // fundo (senão o estado de SP some quando o recorte é pequeno) sem competir com as cores
     // do recorte: cinza chapado, claro no dark e escuro no light, com contorno próprio.
+    // line/selLine INVERTEM por tema: no dark a divisa é preta e a marcação (hover +
+    // tracejado da seleção) é branca; no light é o contrário, porque as faixas claras
+    // (hseq começa em #f4f1e8) engoliam qualquer traço branco.
     dark: { neutro: '#1a1a1a', fraco: '#5e4a1e', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000', fora: '#31312f', foraLine: '#0d0d0d', selLine: '#ffffff' },
-    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff', fora: '#d2d2d0', foraLine: '#ffffff', selLine: '#ffffff' },
+    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#6b6b66', pin: '#171717', pinRing: '#ffffff', fora: '#d2d2d0', foraLine: '#ffffff', selLine: '#141414' },
   };
   const ANO_SYNTH = { '2024': 0.35, '2022': 0.6, '2018': 0.35, '2012': 0.2 };
   const MEMBROS = { candidato: ['candidato'], irmao: ['irmao'], pai: ['pai'], familia: ['candidato', 'irmao', 'pai'] };
