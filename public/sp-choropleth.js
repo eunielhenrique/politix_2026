@@ -120,7 +120,19 @@
   window.PXTiers = TIERS;
 
   class SPChoropleth extends HTMLElement {
-    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra', 'data-sel-muni', 'data-filtros']; }
+    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'orient', 'data-anchors', 'data-sel-ra', 'data-sel-muni', 'data-filtros']; }
+    // São Paulo é deitado (880x620): num celular em pé o desenho cabe pela LARGURA e
+    // sobram ~70% de altura preta. orient="v" gira o desenho 90° — mesma malha, mesma
+    // projeção, só o quadro exibido troca de eixo (620x880) e o estado usa a tela toda.
+    vert() { return (this.getAttribute('orient') || '') === 'v'; }
+    get _W() { return this.vert() ? H : W; }
+    get _H() { return this.vert() ? W : H; }
+    // caixa em coordenadas da malha -> coordenadas do quadro exibido
+    _bx(b) {
+      if (!b || !this.vert()) return b;
+      const [[x0, y0], [x1, y1]] = b;
+      return [[y0, W - x1], [y1, W - x0]];
+    }
     connectedCallback() {
       if (this._init) return; this._init = true;
       this._onCtl = e => this.ctl(e.detail && e.detail.action, e.detail && e.detail.ibge);
@@ -317,8 +329,14 @@
         totalVV: scoped.reduce((s, r) => s + r.vv, 0),
         top,
       } }));
-      const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', '100%').style('display', 'block').style('font-family', '"Geist Mono",monospace');
-      const g = svg.append('g');
+      const svg = d3.create('svg').attr('viewBox', `0 0 ${this._W} ${this._H}`).attr('width', '100%').attr('height', '100%')
+        // em pé o desenho é mais largo que o quadro: a sobra vai pro RODAPÉ, que é
+        // justamente onde o painel ao vivo entra — nunca uma faixa preta no meio
+        .attr('preserveAspectRatio', this.vert() ? 'xMidYMin meet' : 'xMidYMid meet').style('display', 'block').style('font-family', '"Geist Mono",monospace');
+      // o zoom continua no grupo de FORA (espaço de tela): arrastar e pinçar seguem o dedo.
+      // a rotação mora num grupo interno, então a malha não precisa ser reprojetada.
+      const gZoom = svg.append('g');
+      const g = this.vert() ? gZoom.append('g').attr('transform', `translate(0,${W}) rotate(-90)`) : gZoom;
       const self = this;
       g.selectAll('path').data(rows).join('path')
         .attr('d', r => r.d)
@@ -397,7 +415,17 @@
       }
       // mínimo abaixo de 1: o "−" precisa AFASTAR de verdade (travado em 1 o mapa nunca
       // encolhia além do enquadramento inicial, e o painel lateral cobria parte do estado)
-      const zoom = d3.zoom().scaleExtent([0.3, 14]).on('zoom', ev => { this._zt = ev.transform; g.attr('transform', ev.transform); });
+      const zoom = d3.zoom().scaleExtent([0.3, 14]).on('zoom', ev => { this._zt = ev.transform; gZoom.attr('transform', ev.transform); });
+      // mapa girado sem bússola desorienta: no modo vertical o norte aponta pra ESQUERDA
+      if (this.vert()) {
+        const cx = 46, cy = this._H - 30; // rodapé esquerdo: o topo é da barra de filtros
+        const bus = svg.append('g').attr('pointer-events', 'none').attr('opacity', .6);
+        bus.append('path').attr('d', `M${cx + 18},${cy} L${cx - 18},${cy} M${cx - 18},${cy} l8,-6 M${cx - 18},${cy} l8,6`)
+          .attr('fill', 'none').attr('stroke', P.selLine).attr('stroke-width', 2.2)
+          .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+        bus.append('text').attr('x', cx - 18).attr('y', cy - 12).attr('fill', P.selLine)
+          .attr('font-size', 15).attr('font-weight', 600).text('N');
+      }
       svg.call(zoom);
       svg.on('dblclick.zoom', null); // duplo-clique é nosso (zoomToFeature), não o do d3.zoom
       this._svg = svg; this._zoom = zoom; // expõe pros controles +/−/centralizar da barra de cima
@@ -411,10 +439,13 @@
         if (selRa) {
           const bs = scoped.map(r => r.b).filter(Boolean);
           if (bs.length) {
-            const x0 = Math.min(...bs.map(b => b[0][0])), y0 = Math.min(...bs.map(b => b[0][1]));
-            const x1 = Math.max(...bs.map(b => b[1][0])), y1 = Math.max(...bs.map(b => b[1][1]));
-            const k = Math.min(6, 0.5 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001)); // zoom folgado: mantém o resto do estado visível ao redor
-            const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
+            const [[x0, y0], [x1, y1]] = this._bx([
+              [Math.min(...bs.map(b => b[0][0])), Math.min(...bs.map(b => b[0][1]))],
+              [Math.max(...bs.map(b => b[1][0])), Math.max(...bs.map(b => b[1][1]))],
+            ]);
+            const DW = this._W, DH = this._H;
+            const k = Math.min(6, 0.5 / Math.max((x1 - x0) / DW, (y1 - y0) / DH, 0.0001)); // zoom folgado: mantém o resto do estado visível ao redor
+            const t = d3.zoomIdentity.translate(DW / 2 - k * (x0 + x1) / 2, DH / 2 - k * (y0 + y1) / 2).scale(k);
             this._zt = t; svg.transition().duration(500).call(zoom.transform, t);
           }
         } else if (this._zt) { this._zt = d3.zoomIdentity; svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity); }
@@ -427,9 +458,10 @@
     zoomToFeature(r) {
       const d3 = window.d3; const svg = this._svg, zoom = this._zoom;
       if (!d3 || !svg || !zoom || !r || !r.b) return;
-      const [[x0, y0], [x1, y1]] = r.b;
-      const k = Math.min(8, 0.9 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001));
-      const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
+      const [[x0, y0], [x1, y1]] = this._bx(r.b);
+      const DW = this._W, DH = this._H;
+      const k = Math.min(8, 0.9 / Math.max((x1 - x0) / DW, (y1 - y0) / DH, 0.0001));
+      const t = d3.zoomIdentity.translate(DW / 2 - k * (x0 + x1) / 2, DH / 2 - k * (y0 + y1) / 2).scale(k);
       this._zt = t;
       svg.transition().duration(600).call(zoom.transform, t);
     }
@@ -444,7 +476,7 @@
         x0 = Math.min(x0, r.b[0][0]); y0 = Math.min(y0, r.b[0][1]);
         x1 = Math.max(x1, r.b[1][0]); y1 = Math.max(y1, r.b[1][1]);
       });
-      return [[x0, y0], [x1, y1]];
+      return this._bx([[x0, y0], [x1, y1]]);
     }
     // com RA selecionada o "todo" do mapa é a RA, não o estado: centralizar cai nela e
     // o +/− amplia em torno do centro dela (senão o recorte foge da tela ao aproximar)
@@ -454,8 +486,9 @@
       const [[x0, y0], [x1, y1]] = b;
       // mesmo enquadramento folgado (0.5) de quando a RA é escolhida: centralizar devolve
       // exatamente a vista inicial da região, com o resto do estado visível em volta
-      const k = Math.min(6, 0.5 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001));
-      const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
+      const DW = this._W, DH = this._H;
+      const k = Math.min(6, 0.5 / Math.max((x1 - x0) / DW, (y1 - y0) / DH, 0.0001));
+      const t = d3.zoomIdentity.translate(DW / 2 - k * (x0 + x1) / 2, DH / 2 - k * (y0 + y1) / 2).scale(k);
       this._zt = t;
       svg.transition().duration(dur).call(zoom.transform, t);
     }
@@ -479,7 +512,7 @@
       const bra = this.caixaRA();
       // âncora do +/−: centro da RA em coordenadas de tela, ou o centro do quadro
       const pivo = () => {
-        if (!bra) return [W / 2, H / 2];
+        if (!bra) return [this._W / 2, this._H / 2];
         const t = this._zt || d3.zoomIdentity;
         return t.apply([(bra[0][0] + bra[1][0]) / 2, (bra[0][1] + bra[1][1]) / 2]);
       };
