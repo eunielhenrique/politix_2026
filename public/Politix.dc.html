@@ -915,9 +915,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <div style="font-size:11.5px;color:var(--color-muted-foreground);margin-top:1px">{{ pd.cidades }}</div>
                 <span style="display:inline-block;margin-top:8px;padding:3px 12px;border-radius:var(--radius-sm);font-size:10.5px;font-weight:600;background:{{ pd.stBg }};color:{{ pd.stFg }}">{{ pd.status }}</span>
                 <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px {{ podStatGap }};margin-top:12px">
-                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px;color:{{ pd.cor }}">{{ pd.pct }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">DA META</div></div>
-                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px">{{ pd.placar }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">VOTOS</div></div>
-                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px">{{ pd.rate }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">RITMO/DIA</div></div>
+                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px">{{ pd.metaF }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">VOTOS PROMETIDOS</div></div>
+                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px">{{ pd.refF }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">WESLEY EM 2022</div></div>
+                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px;color:{{ pd.cobCor }}">{{ pd.cobF }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">DO VOTO DE 2022</div></div>
                 </div>
               </div>
             </sc-for>
@@ -925,16 +925,16 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden">
             <div style="display:flex;align-items:baseline;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--color-gray-200)">
               <span style="font-size:15px;font-weight:600">Ranking completo</span>
-              <span style="font-size:11.5px;color:var(--color-gray-600)">{{ rankingTotal }} líderes ativos</span>
+              <span style="font-size:11.5px;color:var(--color-gray-600)">{{ rankingTotal }} líderes · ordenado pela expectativa declarada</span>
             </div>
             <sc-for list="{{ rankingResto }}" as="rr" hint-placeholder-count="6">
               <div onClick="{{ rr.onClick }}" style="display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--color-gray-200);cursor:pointer" style-hover="background:var(--color-background-100)">
                 <span style="width:26px;height:26px;border-radius:var(--radius-sm);background:var(--color-background-100);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--color-muted-foreground)">{{ rr.pos }}</span>
                 <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-gray-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-sans);font-weight:600;font-size:14px;flex-shrink:0">{{ rr.ini }}</div>
-                <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600">{{ rr.nome }}</div><div style="font-size:11px;color:var(--color-gray-600)">{{ rr.cidades }} · potencial {{ rr.potRefF }}</div></div>
+                <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rr.nome }}</div><div style="font-size:11px;color:var(--color-gray-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rr.sub }}</div></div>
                 <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}"><span style="padding:3px 12px;border-radius:var(--radius-sm);font-size:10.5px;font-weight:600;background:{{ rr.stBg }};color:{{ rr.stFg }};white-space:nowrap">{{ rr.status }}</span></sc-if>
-                <span style="width:{{ rankPctW }};text-align:right;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ rr.cor }}">{{ rr.pct }}</span>
-                <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}"><span style="width:88px;text-align:center;padding:6px 0;border:1px solid var(--color-border);border-radius:var(--radius-sm)"><span style="display:block;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">{{ rr.rate }}</span><span style="display:block;font-size:8.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">RITMO/DIA</span></span></sc-if>
+                <span style="width:96px;text-align:right;flex-shrink:0"><span style="display:block;font-family:var(--font-mono);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ rr.metaF }}</span><span style="display:block;font-size:8.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">VOTOS PROMETIDOS</span></span>
+                <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}"><span style="width:96px;text-align:center;padding:6px 0;border:1px solid var(--color-border);border-radius:var(--radius-sm);flex-shrink:0"><span style="display:block;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ rr.cobCor }}">{{ rr.cobF }}</span><span style="display:block;font-size:8.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">DO VOTO DE 2022</span></span></sc-if>
               </div>
             </sc-for>
             <sc-if value="{{ rankHasMore }}" hint-placeholder-val="{{ false }}">
@@ -3247,12 +3247,25 @@ class Component extends DCLogic {
       });
     }
     _rankMock.push(...this._tail);
+    const fmtN = (n) => (n ?? 0).toLocaleString('pt-BR');
+    // voto do PRÓPRIO candidato por cidade — a régua honesta da promessa de cada líder
+    const _candPorCidade = {};
+    this.anchorsData.forEach(a2 => {
+      _candPorCidade[this._normCid(a2.nome)] = (a2.hist.candidato || []).reduce((s2, h) => s2 + h.votos, 0);
+    });
     const rankingData = AR ? AR.map(r => {
       const rate = Number(r.rate_7d || 0);
       const p = r.pct != null ? Math.round(r.pct) : (r.meta ? Math.round(Number(r.realizado) / r.meta * 100) : 0);
-      const tone = rate === 0 ? 'err' : p < 45 ? 'warn' : 'ok';
-      const status = rate === 0 ? 'Parado' : p >= 80 ? 'Voando' : p >= 45 ? 'Em dia' : 'Atenção';
-      return [r.name, (r.cities || []).join(' · ') || '—', Number(r.realizado), r.meta, rate ? rate.toFixed(1).replace('.', ',') : '—', status, tone, [], (r.cities || [])[0] || ''];
+      // Sem liderados, ritmo é sempre 0 e TODO líder virava "Parado" — rótulo falso.
+      // O estado real que existe hoje é: aceitou o convite? declarou meta?
+      const ativo = r.status ? r.status === 'active' : true;
+      const temMeta = Number(r.meta || 0) > 0;
+      const status = !ativo ? 'Convite pendente' : temMeta ? 'Ativo' : 'Sem meta';
+      const tone = !ativo ? 'warn' : temMeta ? 'ok' : 'err';
+      const ref = (r.cities || []).reduce((s2, c) => s2 + (_candPorCidade[this._normCid(c)] || 0), 0);
+      return [r.name, (r.cities || []).join(' · ') || '—', Number(r.realizado), r.meta,
+              rate ? rate.toFixed(1).replace('.', ',') : '—', status, tone, [],
+              (r.cities || [])[0] || '', ref];
     }) : _rankMock;
     const rankingFiltrada = rankingData.filter(r => this.fltMatch(st.rankFRegiao, this.raDe(r[8])));
     const ranking = rankingFiltrada.map((r, i) => {
@@ -3261,7 +3274,24 @@ class Component extends DCLogic {
       const tc = tone === 'ok' ? okC : tone === 'warn' ? warnC : errC;
       const potRef = (ibges || []).reduce((s, ib) => s + (consolidadoPot[ib] || 0), 0);
       const porMil = potRef > 0 ? (real / potRef * 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—';
-      return { pos: i + 1, nome, cidades, ini: nome.split(' ').map(w => w[0]).slice(0, 2).join(''), placar: `${real}/${m}`, pct: p + '%', pctW: Math.min(p, 100) + '%', cor: corPct(p), rate: rateS, status, stBg: tc[0], stFg: tc[1], potRefF: potRef > 0 ? this.potNivel(potRef) : '—', porMil, porMilCor: potRef > 0 ? (real / potRef * 1000 >= 4 ? 'var(--color-gray-1000)' : real / potRef * 1000 >= 2 ? 'var(--color-gray-700)' : 'var(--color-highlight)') : 'var(--color-gray-600)', real, m, potRef, tone, onClick: () => set({ selLeader: i }) };
+      // Sem cadastro de liderados, realizado é sempre 0 e o placar "0/meta = 0%" não diz
+      // nada. O ranking passa a ser lido pelo que EXISTE: a expectativa declarada pelo
+      // líder, comparada ao que o próprio candidato fez nas cidades dele em 2022.
+      const votoCand = Number(r[9] || 0);
+      const cob = votoCand > 0 ? Math.round(m / votoCand * 100) : null;
+      return { pos: i + 1, nome, cidades, ini: nome.split(' ').map(w => w[0]).slice(0, 2).join(''),
+        placar: `${real}/${m}`, pct: p + '%', pctW: Math.min(p, 100) + '%', cor: corPct(p), rate: rateS,
+        status, stBg: tc[0], stFg: tc[1], potRefF: potRef > 0 ? this.potNivel(potRef) : '—', porMil,
+        porMilCor: potRef > 0 ? (real / potRef * 1000 >= 4 ? 'var(--color-gray-1000)' : real / potRef * 1000 >= 2 ? 'var(--color-gray-700)' : 'var(--color-highlight)') : 'var(--color-gray-600)',
+        // campos do ranking sem liderados
+        metaF: m > 0 ? fmtN(m) : '—',
+        semMeta: !(m > 0),
+        refF: votoCand > 0 ? fmtN(votoCand) : '—',
+        cobF: cob == null ? '—' : cob + '%',
+        cobW: cob == null ? '0%' : Math.min(cob, 100) + '%',
+        cobCor: cob == null ? 'var(--color-gray-600)' : cob >= 100 ? 'var(--color-accent)' : cob >= 50 ? 'var(--color-gray-1000)' : 'var(--color-highlight)',
+        sub: `${cidades}${votoCand > 0 ? ' · Wesley fez ' + fmtN(votoCand) + ' aqui em 2022' : ''}`,
+        real, m, potRef, tone, onClick: () => set({ selLeader: i }) };
     });
     // ---- drawer do líder ----
     const dlExtra = {
@@ -3577,6 +3607,9 @@ class Component extends DCLogic {
       grpChatBack: () => set({ grpChatOpen: false }),
       grpMsgsRef: (el) => { if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; }); },
     };
+    // ordem por EXPECTATIVA declarada (o realizado é zero enquanto não há liderados)
+    // reamarra o onClick ao índice PÓS-ordenação (senão o drawer abre outro líder)
+    ranking.sort((x, y) => (y.m || 0) - (x.m || 0)).forEach((r, i) => { r.pos = i + 1; r.onClick = () => set({ selLeader: i }); });
     const medal = ['#ededed', '#878787', '#666666'];
     const podioOrder = [1, 0, 2]; // 2º, 1º, 3º
     const podio = podioOrder.filter(ri => ranking[ri]).map((ri, col) => {
@@ -3707,7 +3740,6 @@ class Component extends DCLogic {
       vgGapCidade: vgGap.nome, vgGapPot: vgGap.pot,
     });
     // ---- tela Mapa Rede × Família ----
-    const fmtN = (n) => (n ?? 0).toLocaleString('pt-BR');
     const fmtMil = (n) => n >= 1e6 ? (n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : n >= 1000 ? Math.round(n / 1000) + ' mil' : String(n);
     const assessorTabs = [['visao', 'Visão geral', I.target], ['mapa', 'Mapa Rede', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Ranking de líderes', I.award], ['cadastro', 'Cadastrar líder', 'M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6'], ['cidades', 'Ranking de cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]].map(([k, label, icon]) => ({
       label, icon, onClick: () => set({ aTab: k }),
