@@ -367,6 +367,7 @@
       svg.on('dblclick.zoom', null); // duplo-clique é nosso (zoomToFeature), não o do d3.zoom
       this._svg = svg; this._zoom = zoom; // expõe pros controles +/−/centralizar da barra de cima
       this.innerHTML = '';
+      svg.style('touch-action', 'none'); // sem isso o browser rouba pan/pinça do d3.zoom
       this.appendChild(svg.node());
       if (this._zt) svg.call(zoom.transform, this._zt);
       // zoom automático pra RA selecionada (só quando a RA muda)
@@ -457,6 +458,9 @@
     tip(ev, r, fonte) {
       const rect = this.getBoundingClientRect();
       const t = this._tip; if (!t) return;
+      // modo touch não tem hover: a tooltip abriria no tap e ficaria presa.
+      // O tap já abre o painel da cidade, que mostra tudo isso e mais.
+      if (window.PX_TOUCH) return;
       const place = () => {
         t.style.display = 'block';
         const x = ev.clientX - rect.left + 14, y = ev.clientY - rect.top + 10;
