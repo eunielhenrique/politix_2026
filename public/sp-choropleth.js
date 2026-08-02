@@ -8,8 +8,11 @@
   const NAMES_URL = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/35/municipios';
   const GSP = ['3550308', '3534401', '3505708', '3547304', '3510609', '3518800', '3513009', '3522505', '3509205', '3525003', '3539103', '3552809', '3515004', '3513801', '3548708', '3547809'];
   const PAL = {
-    dark: { neutro: '#1a1a1a', fraco: '#5e4a1e', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000' },
-    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff' },
+    // fora/foraLine = município fora da RA ou reprovado no filtro. Precisa CONTRASTAR com o
+    // fundo (senão o estado de SP some quando o recorte é pequeno) sem competir com as cores
+    // do recorte: cinza chapado, claro no dark e escuro no light, com contorno próprio.
+    dark: { neutro: '#1a1a1a', fraco: '#5e4a1e', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000', fora: '#31312f', foraLine: '#0d0d0d' },
+    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff', fora: '#d2d2d0', foraLine: '#ffffff' },
   };
   const ANO_SYNTH = { '2024': 0.35, '2022': 0.6, '2018': 0.35, '2012': 0.2 };
   const MEMBROS = { candidato: ['candidato'], irmao: ['irmao'], pai: ['pai'], familia: ['candidato', 'irmao', 'pai'] };
@@ -224,7 +227,7 @@
       const seq = d3.interpolateRgbBasis(P.seq);
       const hseq = d3.interpolateRgbBasis(P.hseq);
       const fill = r => {
-        if (fora(r)) return P.neutro; // fora da RA/filtro = cinza chapado (sem cor vazando)
+        if (fora(r)) return P.fora; // fora da RA/filtro = cinza chapado (sem cor vazando)
         if (layer === 'historico') return hseq(Math.pow(r.indice / 100, 0.6)); // heat âmbar, realça o meio
         if (layer === 'rede') {
           if (semLid()) return r.lideres > 0 ? tierDe('lideres', r.lideres).cor : P.neutro;
@@ -282,8 +285,8 @@
       g.selectAll('path').data(rows).join('path')
         .attr('d', r => r.d)
         .attr('fill', r => fill(r))
-        .attr('fill-opacity', r => fora(r) ? 0.35 : 1)
-        .attr('stroke', P.line).attr('stroke-width', 0.4)
+        .attr('fill-opacity', 1)
+        .attr('stroke', r => fora(r) ? P.foraLine : P.line).attr('stroke-width', 0.4)
         .style('cursor', 'pointer')
         .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })
         .on('mouseleave', function () { self.hideTip(); d3.select(this).attr('stroke-width', 0.4); })
