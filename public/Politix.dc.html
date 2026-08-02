@@ -1777,7 +1777,25 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                       <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--color-gray-200);font-size:12px;line-height:1.55;color:var(--color-foreground)">{{ perspLeitura }}</div>
                     </div>
                   </sc-if>
-                  <div style="font-size:13px;font-weight:600;margin:18px 0 8px">Líderes desta cidade ({{ cidLideresN }})</div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 8px">
+                    <span style="font-size:13px;font-weight:600">Líderes desta cidade ({{ cidLideresN }})</span>
+                    <button onClick="{{ nlToggle }}" title="Incluir líder nesta cidade" style="height:26px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:5px" style-hover="border-color:var(--color-gray-500)">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="{{ nlIcone }}"></path></svg>
+                      <span>{{ nlLabel }}</span>
+                    </button>
+                  </div>
+                  <sc-if value="{{ nlAberto }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-bottom:10px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);display:flex;flex-direction:column;gap:8px">
+                      <div style="font-size:11px;color:var(--color-muted-foreground)">{{ nlSub }}</div>
+                      <input type="text" value="{{ nlNome }}" onChange="{{ onNlNome }}" placeholder="Nome do líder" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <input type="text" value="{{ nlZap }}" onChange="{{ onNlZap }}" placeholder="WhatsApp com DDD" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-family:var(--font-mono);outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <input type="text" value="{{ nlPromessa }}" onChange="{{ onNlPromessa }}" placeholder="Expectativa de votos (opcional)" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <sc-if value="{{ nlTemMsg }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-size:11.5px;line-height:1.45;color:{{ nlMsgCor }}">{{ nlMsgTxt }}</div>
+                      </sc-if>
+                      <button onClick="{{ nlSalvar }}" style="height:34px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:12.5px;font-weight:600;cursor:pointer">{{ nlBotao }}</button>
+                    </div>
+                  </sc-if>
                   <sc-if value="{{ cidLideresVazio }}" hint-placeholder-val="{{ false }}">
                     <p style="font-size:12px;color:var(--color-muted-foreground);line-height:1.5;margin:0 0 8px">Nenhum líder cadastrado aqui.</p>
                   </sc-if>
@@ -2156,7 +2174,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], forcaOpen: false, muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], forcaOpen: false, muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   componentDidMount() {
     // clicar numa cidade com a lista recolhida ABRE o painel já no raio-x dela —
@@ -2443,6 +2461,35 @@ class Component extends DCLogic {
       edDobrada: row.dobrada || '', edStatus: row.status || 'active',
     });
   }
+  // A rede (tenant_ranking + liderado) só era carregada no boot: mexer num líder
+  // atualizava a lista da cidade, mas o MAPA, os KPIs e o painel seguiam com o dado
+  // velho até recarregar a página. Reusa exatamente as mesmas consultas do boot.
+  async _reloadRede() {
+    const sb = this._pxClient(); const r = this.state.remote;
+    if (!sb || !r || r.role !== 'assessor') return;
+    try {
+      const rk = await sb.rpc('tenant_ranking');
+      const { data: lids } = await sb.from('liderado').select('city, created_at').limit(20000);
+      this.setState({ remote: { ...r, ranking: rk.data || [], liderados: lids || [] } });
+    } catch (e) {}
+  }
+  // incluir líder direto do painel da cidade — já entra vinculado a ela
+  async _novoLdrSalvar() {
+    const st = this.state, sb = this._pxClient();
+    const cidade = st.cidLideresCidade || (st.muni && st.muni.nome);
+    const nome = (st.nlNome || '').trim(), wa = this._normWa(st.nlZap);
+    if (!nome || wa.length < 10) { this.setState({ nlMsg: { err: true, txt: 'Preencha o nome e um WhatsApp válido (com DDD).' } }); return; }
+    if (!sb || !cidade) { this.setState({ nlMsg: { err: true, txt: 'Sem conexão com o backend.' } }); return; }
+    this.setState({ nlBusy: true, nlMsg: null });
+    const { error } = await sb.rpc('invite_leader', {
+      p_name: nome, p_whatsapp: wa, p_cities: [cidade],
+      p_promise: parseInt(st.nlPromessa, 10) || 0, p_parent: null,
+    });
+    if (error) { this.setState({ nlBusy: false, nlMsg: { err: true, txt: 'Não consegui incluir: ' + error.message } }); return; }
+    this.setState({ nlBusy: false, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlMsg: null });
+    this._clCidade = null; this._loadCityLeaders(cidade);
+    this._reloadRede();
+  }
   async _editLeaderSave() {
     const st = this.state, sb = this._pxClient();
     if (!sb || !st.edId || !st.edLoaded) return;
@@ -2466,6 +2513,7 @@ class Component extends DCLogic {
     const cidade = st.cidLideresCidade || (st.muni && st.muni.nome);
     this.setState({ edBusy: false, edId: null, edLoaded: false });
     this._clCidade = null; this._loadCityLeaders(cidade); // relê a lista da cidade com o dado novo
+    this._reloadRede(); // ...e a rede, senão o mapa e os KPIs ficam com a cidade antiga
     if (this.state.ldrList) this._loadLeaders();
   }
   async _cadInviteSingle() {
@@ -4105,6 +4153,20 @@ class Component extends DCLogic {
             : `A rede ainda promete ${fmtN(Math.abs(d))} voto(s) a menos do que o candidato já fez sozinho aqui em 2022 — falta base para segurar o que ele tinha.`,
         };
       })(),
+      // incluir líder sem sair do painel: já entra vinculado a esta cidade
+      nlAberto: !!st.nlOpen,
+      nlToggle: () => set({ nlOpen: !st.nlOpen, nlMsg: null }),
+      nlLabel: st.nlOpen ? 'Cancelar' : 'Incluir líder',
+      nlIcone: st.nlOpen ? 'M6 6l12 12M18 6L6 18' : 'M12 5v14M5 12h14',
+      nlSub: mu ? `O líder entra já vinculado a ${mu.nome} e recebe o convite no WhatsApp.` : '',
+      nlNome: st.nlNome || '', onNlNome: (e) => set({ nlNome: e.target.value }),
+      nlZap: st.nlZap || '', onNlZap: (e) => set({ nlZap: e.target.value }),
+      nlPromessa: st.nlPromessa || '', onNlPromessa: (e) => set({ nlPromessa: e.target.value }),
+      nlBotao: st.nlBusy ? 'Incluindo…' : 'Incluir e convidar',
+      nlSalvar: () => { if (!st.nlBusy) this._novoLdrSalvar(); },
+      nlTemMsg: !!st.nlMsg,
+      nlMsgTxt: st.nlMsg ? st.nlMsg.txt : '',
+      nlMsgCor: st.nlMsg && st.nlMsg.err ? 'var(--color-highlight)' : 'var(--color-accent)',
       cidLideresN: _cl ? String(_cl.length) : '…', // '…' enquanto carrega — nunca mostrar 0 sobre fetch em curso
       cidLideresVazio: !!_cl && _cl.length === 0,
       // editando: a lista deixa de ser uma caixa rolável de 320px e cresce como sanfona,
