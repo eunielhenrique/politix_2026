@@ -1781,7 +1781,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   <sc-if value="{{ cidLideresVazio }}" hint-placeholder-val="{{ false }}">
                     <p style="font-size:12px;color:var(--color-muted-foreground);line-height:1.5;margin:0 0 8px">Nenhum líder cadastrado aqui.</p>
                   </sc-if>
-                  <div style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto">
+                  <div style="{{ cidLideresListStyle }}">
                     <sc-for list="{{ cidLideresList }}" as="cl" hint-placeholder-count="3">
                       <div style="padding:9px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
                         <div style="display:flex;align-items:flex-start;gap:9px">
@@ -4107,6 +4107,11 @@ class Component extends DCLogic {
       })(),
       cidLideresN: _cl ? String(_cl.length) : '…', // '…' enquanto carrega — nunca mostrar 0 sobre fetch em curso
       cidLideresVazio: !!_cl && _cl.length === 0,
+      // editando: a lista deixa de ser uma caixa rolável de 320px e cresce como sanfona,
+      // senão o formulário do líder abre espremido dentro dela e com scroll próprio
+      cidLideresListStyle: st.edId
+        ? 'display:flex;flex-direction:column;gap:6px'
+        : 'display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto',
       cidLideresList: (_cl || []).map(l => ({
         nome: l.name || '—', zap: this._fmtWa(l.whatsapp),
         // a promessa sai do texto corrido e vira número próprio no card (é o dado que
