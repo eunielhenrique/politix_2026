@@ -1599,10 +1599,24 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </sc-if>
             <div class="px-painel" style="{{ livePanelStyle }}">
               <sc-if value="{{ sheetGrabShow }}" hint-placeholder-val="{{ false }}">
-                <button onClick="{{ toggleSheetFull }}" title="{{ sheetGrabTitle }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:2px 0 8px;border:none;background:none;color:var(--color-gray-600);cursor:pointer">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0 6px">
                   <span style="width:40px;height:4px;border-radius:var(--radius-full);background:var(--color-gray-400)"></span>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ sheetGrabIcon }}"></path></svg>
-                </button>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <sc-if value="{{ sheetRecolherShow }}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{ toggleSheetFull }}" title="{{ sheetGrabTitle }}" style="width:44px;height:30px;border:none;background:none;color:var(--color-gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 10 7-7 7 7"></path></svg>
+                      </button>
+                      <button onClick="{{ recolherSheet }}" title="Recolher o painel" style="width:44px;height:30px;border:none;background:none;color:var(--color-gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 14 7 7 7-7"></path></svg>
+                      </button>
+                    </sc-if>
+                    <sc-if value="{{ sheetFullOn }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ toggleSheetFull }}" title="{{ sheetGrabTitle }}" style="width:44px;height:30px;border:none;background:none;color:var(--color-gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 14 7 7 7-7"></path></svg>
+                      </button>
+                    </sc-if>
+                  </div>
+                </div>
               </sc-if>
               <sc-if value="{{ showMapListBtn }}" hint-placeholder-val="{{ true }}">
                 <div style="display:flex;justify-content:flex-end;margin:-4px -4px 2px 0">
@@ -4098,8 +4112,9 @@ class Component extends DCLogic {
         : isMob
         ? 'position:relative;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-background)'
         : 'position:relative;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-background);height:calc(100vh - 120px);min-height:620px', // 120 = 103px acima do mapa + 16 de respiro; o 190 antigo deixava 89px mortos embaixo
-      mapCanvasH: isMob && !st.mapFull ? (Math.round(((st.vw ?? 380) - 30) * 620 / 880) + 'px') : '100%',
-      showMapListBtn: true, // no celular a lista é o bloco mais alto da tela — precisa recolher
+      mapCanvasH: isMob && !st.mapFull ? (Math.round(((st.vw ?? 380) - 30) * 620 / 880) + 'px')
+        : (_vert && !st.mapListHidden && !st.sheetFull) ? (100 - _SHEET) + '%' : '100%',
+      showMapListBtn: !_vert, // onde há alça de sheet, ela é o único controle do painel
       // 3 colunas de KPI não cabem num painel de 400px: o número mono tem min-content
       // maior que 1fr e empurrava a largura do painel inteiro
       painelKpiCols: isMob ? 'repeat(2,minmax(0,1fr))' : 'repeat(3,minmax(0,1fr))',
@@ -4135,7 +4150,9 @@ class Component extends DCLogic {
       // no contexto de empilhamento dela (z 5) e o painel ao vivo come o clique de fora
       // celular em pé, mapa em tela cheia: gira o desenho em vez de pedir pra girar o
       // aparelho — o estado deitado usava só ~30% da altura e o resto ficava preto
-      mapOrient: _vert ? 'v' : '',
+      // o componente sabe girar (orient="v"), mas girado o mapa fica desorientado:
+      // em pé ele segue com o NORTE PRA CIMA e apenas ocupa a área acima do sheet
+      mapOrient: '',
       // faixa horizontal: a lista de cores deita e a nota longa sai (não cabe)
       legendListStyle: _vert ? 'display:flex;flex-direction:row;align-items:center;gap:12px;flex-shrink:0' : 'display:flex;flex-direction:column;gap:6px',
       legendTituloStyle: _vert
@@ -4149,8 +4166,9 @@ class Component extends DCLogic {
       sheetGrabShow: _vert,
       sheetFullOn: !!st.sheetFull,
       toggleSheetFull: () => set({ sheetFull: !st.sheetFull }),
-      sheetGrabIcon: st.sheetFull ? 'm5 14 7 7 7-7' : 'm5 10 7-7 7 7',
       sheetGrabTitle: st.sheetFull ? 'Voltar o painel ao tamanho normal' : 'Esticar o painel até ocupar a tela',
+      sheetRecolherShow: !st.sheetFull,
+      recolherSheet: () => set({ mapListHidden: true, sheetFull: false }),
       // o FAB de filtros precisa furar o mapa em tela cheia (z 100) e se apoiar no sheet
       fabStyle: (st.mapFull
         // fixed + z acima do quadro do mapa (z 100): absolute o deixava ATRÁS dele,
