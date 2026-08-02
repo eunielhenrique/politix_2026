@@ -4,7 +4,7 @@
 // Events (window): 'politix:muni' (click detail), 'politix:mapstats' (KPI counts).
 (function () {
   const W = 880, H = 620;
-  const MESH_URL = 'https://servicodados.ibge.gov.br/api/v3/malhas/estados/35?formato=application/vnd.geo+json&intrarregiao=municipio&qualidade=intermediaria';
+  const MESH_URL = 'https://servicodados.ibge.gov.br/api/v3/malhas/estados/35?formato=application/json&intrarregiao=municipio&qualidade=intermediaria';
   const NAMES_URL = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/35/municipios';
   const GSP = ['3550308', '3534401', '3505708', '3547304', '3510609', '3518800', '3513009', '3522505', '3509205', '3525003', '3539103', '3552809', '3515004', '3513801', '3548708', '3547809'];
   const PAL = {
@@ -160,9 +160,18 @@
     }
     async load() {
       try {
-        const [mesh, names] = await Promise.all([fetch(MESH_URL).then(r => { if (!r.ok) throw 0; return r.json(); }), fetch(NAMES_URL).then(r => { if (!r.ok) throw 0; return r.json(); })]);
+        const [bruto, names] = await Promise.all([fetch(MESH_URL).then(r => { if (!r.ok) throw 0; return r.json(); }), fetch(NAMES_URL).then(r => { if (!r.ok) throw 0; return r.json(); })]);
         const nameByCode = {}; names.forEach(m => { nameByCode[String(m.id)] = m.nome; });
         const d3 = window.d3;
+        // TopoJSON em vez de GeoJSON: 291 KB contra 988 KB na mesma qualidade, e é o que
+        // permite unir os municípios de uma RA num contorno EXTERNO só (topojson.merge),
+        // sem as divisas internas que um simples empilhamento de paths mostraria.
+        let mesh = bruto, topo = null, objKey = null;
+        if (bruto && bruto.type === 'Topology' && window.topojson) {
+          topo = bruto; objKey = Object.keys(bruto.objects)[0];
+          mesh = window.topojson.feature(bruto, bruto.objects[objKey]);
+        }
+        this._topo = topo; this._topoKey = objKey;
         mesh.features.forEach(f => rewind(f));
         const proj = d3.geoMercator().fitExtent([[10, 10], [W - 10, H - 10]], mesh);
         const path = d3.geoPath(proj);
@@ -350,6 +359,26 @@
         .on('dblclick', (ev, r) => { ev.stopPropagation(); self.zoomToFeature(r); }); // clique simples abre o painel; duplo aproxima
       // sobe a cidade aberta pro topo: senão os vizinhos desenham por cima do traço dela
       if (selIbge) g.selectAll('path').filter(r => r && String(r.code) === selIbge).raise();
+      // contorno EXTERNO da RA selecionada: topojson.merge une os municípios num polígono
+      // só, então sai a silhueta da região em vez de 39 contornos com as divisas internas
+      if (selRa && this._topo && window.topojson && this._proj) {
+        try {
+          const dentro = new Set((this._rows || []).filter(r => r.ra === selRa).map(r => String(r.code)));
+          const geos = this._topo.objects[this._topoKey].geometries
+            .filter(gm => dentro.has(String(gm.properties && gm.properties.codarea)));
+          if (geos.length) {
+            const uniao = window.topojson.merge(this._topo, geos);
+            const dPath = d3.geoPath(this._proj)(uniao);
+            if (dPath) {
+              g.append('path').attr('d', dPath).attr('class', 'px-sel')
+                .attr('fill', 'none').attr('stroke', P.selLine).attr('stroke-width', 2)
+                .attr('vector-effect', 'non-scaling-stroke')
+                .attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round')
+                .attr('pointer-events', 'none');
+            }
+          }
+        } catch (e) {}
+      }
       if (layer !== 'historico') {
         const pg = g.append('g').attr('pointer-events', 'none');
         rows.filter(r => r.c && !fora(r)).forEach(r => {
