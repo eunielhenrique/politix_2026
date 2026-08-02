@@ -1186,19 +1186,36 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
 
           <sc-if value="{{ cfgEquipe }}" hint-placeholder-val="{{ false }}">
             <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--color-gray-200)">
-                <span style="font-size:14px;font-weight:600">Equipe da assessoria</span>
-                <button style="height:32px;padding:0 14px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:12.5px;font-weight:500;cursor:pointer">Convidar membro</button>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px;border-bottom:1px solid var(--color-gray-200)">
+                <span style="font-size:14px;font-weight:600">Equipe da assessoria ({{ eqN }})</span>
+                <button onClick="{{ eqToggle }}" style="height:32px;padding:0 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:{{ eqBtnBg }};color:{{ eqBtnFg }};font-size:12.5px;font-weight:500;cursor:pointer">{{ eqBtnLabel }}</button>
               </div>
-              <sc-for list="{{ cfgMembros }}" as="cm" hint-placeholder-count="3">
+              <sc-if value="{{ eqFormAberto }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:16px 20px;border-bottom:1px solid var(--color-gray-200);background:var(--color-background-100);display:flex;flex-direction:column;gap:9px;max-width:460px">
+                  <div style="font-size:11.5px;color:var(--color-muted-foreground);line-height:1.5">{{ eqAviso }}</div>
+                  <input type="text" value="{{ eqNome }}" onChange="{{ onEqNome }}" placeholder="Nome do assessor" style="height:38px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13.5px;outline:none" style-focus="border-color:var(--color-gray-500)">
+                  <input type="email" value="{{ eqEmail }}" onChange="{{ onEqEmail }}" placeholder="e-mail" style="height:38px;padding:0 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13.5px;font-family:var(--font-mono);outline:none" style-focus="border-color:var(--color-gray-500)">
+                  <sc-if value="{{ eqTemMsg }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:12px;line-height:1.5;color:{{ eqMsgCor }}">{{ eqMsgTxt }}</div>
+                  </sc-if>
+                  <button onClick="{{ eqEnviar }}" style="height:38px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:600;cursor:pointer">{{ eqEnviarLabel }}</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ eqCarregando }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:16px 20px;font-size:12.5px;color:var(--color-muted-foreground)">Carregando a equipe…</div>
+              </sc-if>
+              <sc-for list="{{ eqLista }}" as="cm" hint-placeholder-count="3">
                 <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--color-gray-200)">
-                  <div style="width:34px;height:34px;border-radius:var(--radius-full);background:var(--color-gray-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500">{{ cm.ini }}</div>
-                  <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">{{ cm.nome }}</div><div style="font-size:11.5px;color:var(--color-muted-foreground)">{{ cm.email }}</div></div>
-                  <span style="font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:{{ cm.papelCor }}">{{ cm.papel }}</span>
-                  <span style="font-size:11.5px;color:var(--color-gray-600)">{{ cm.ultimo }}</span>
+                  <div style="width:34px;height:34px;flex-shrink:0;border-radius:var(--radius-full);background:var(--color-gray-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500">{{ cm.ini }}</div>
+                  <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cm.nome }}</div><div style="font-size:11.5px;color:var(--color-muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cm.email }}</div></div>
+                  <span style="flex-shrink:0;font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:{{ cm.papelCor }}">{{ cm.papel }}</span>
+                  <span style="flex-shrink:0;font-size:11.5px;color:var(--color-gray-600)">{{ cm.ultimo }}</span>
+                  <sc-if value="{{ cm.podeTirar }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ cm.tirar }}" title="{{ cm.tirarTitle }}" style="flex-shrink:0;height:26px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-muted-foreground);font-size:11px;cursor:pointer" style-hover="color:var(--color-highlight);border-color:var(--color-highlight)">{{ cm.tirarLabel }}</button>
+                  </sc-if>
                 </div>
               </sc-for>
-              <div style="padding:12px 20px;font-size:11.5px;color:var(--color-gray-600)">Admins veem tudo; analistas não geram convites nem mudam configurações.</div>
+              <div style="padding:12px 20px;font-size:11.5px;color:var(--color-gray-600);line-height:1.5">Todo membro da assessoria tem acesso total à campanha · não existe nível somente-leitura hoje.</div>
             </div>
           </sc-if>
 
@@ -2204,7 +2221,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -2212,6 +2229,49 @@ class Component extends DCLogic {
   //   pwa   · layout mobile forçado, para o app instalado ou para conferir no desktop
   // Vale por ESCOLHA e não por media query: totem costuma reportar ponteiro fino e
   // notebook com touchscreen ligaria o modo touch sem ninguém pedir.
+  // ── Equipe da assessoria (dados REAIS) ──
+  // Convite não usa service_role: team_invite grava o convite e, se a pessoa já tiver
+  // conta, entra na hora. Quem ainda não tem entra pelo magic link e o team_claim(),
+  // chamado no boot, casa o e-mail autenticado com o convite pendente.
+  _eqCarregar(forcar) {
+    if (!forcar && (this._eqLoaded || this._eqLoading)) return;
+    const sb = this._pxClient(); if (!sb) { this.setState({ eqLista: [] }); return; }
+    this._eqLoading = true;
+    sb.rpc('team_list').then(({ data, error }) => {
+      this._eqLoading = false; this._eqLoaded = true;
+      this.setState({ eqLista: error ? [] : (data || []), eqErro: !!error });
+    }, () => { this._eqLoading = false; this._eqLoaded = true; this.setState({ eqLista: [] }); });
+  }
+  async _eqConvidar() {
+    const st = this.state, sb = this._pxClient();
+    const nome = (st.eqNome || '').trim(), email = (st.eqEmail || '').trim();
+    if (!email || email.indexOf('@') < 1) { this.setState({ eqMsg: { err: true, txt: 'Informe um e-mail válido.' } }); return; }
+    if (!sb) { this.setState({ eqMsg: { err: true, txt: 'Sem conexão com o backend.' } }); return; }
+    this.setState({ eqBusy: true, eqMsg: null });
+    const { data, error } = await sb.rpc('team_invite', { p_email: email, p_name: nome, p_role: 'assessor' });
+    if (error) { this.setState({ eqBusy: false, eqMsg: { err: true, txt: 'Não consegui convidar: ' + error.message } }); return; }
+    const row = Array.isArray(data) ? data[0] : data;
+    // manda o magic link: é assim que a pessoa entra e o convite é reivindicado
+    let mailOk = false;
+    try {
+      const r = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: location.origin } });
+      mailOk = !r.error;
+    } catch (e) {}
+    const jaTinhaConta = row && row.status === 'accepted';
+    this.setState({
+      eqBusy: false, eqNome: '', eqEmail: '',
+      eqMsg: { err: false, txt: (jaTinhaConta ? `${email} já tinha conta e entrou na equipe agora.` : `Convite criado para ${email}.`)
+        + (mailOk ? ' O link de acesso foi enviado para o e-mail.' : ' NÃO consegui enviar o e-mail — peça para a pessoa entrar pelo login com esse e-mail.') },
+    });
+    this._eqCarregar(true);
+  }
+  async _eqAcao(kind, id) {
+    const sb = this._pxClient(); if (!sb) return;
+    this.setState({ eqBusy: true, eqMsg: null });
+    const { error } = await sb.rpc(kind === 'convite' ? 'team_revoke' : 'team_remove', { p_id: id });
+    this.setState({ eqBusy: false, eqMsg: error ? { err: true, txt: error.message } : null });
+    this._eqCarregar(true);
+  }
   // Resumo de IA do que está aberto (cidade ou região).
   // O contexto sai dos NÚMEROS JÁ CALCULADOS na tela — nunca de dado paralelo — e o
   // resultado fica em cache pela chave do alvo, senão clicar em 645 cidades viraria
@@ -2227,13 +2287,15 @@ class Component extends DCLogic {
     // (prometido × necessário). O histórico do irmão e do pai é pano de fundo de
     // tamanho da oportunidade — sem essa trava a leitura vira aula de eleição passada.
     const pergunta = `Você orienta a operação de campo da campanha de Wesley Cezar (Lelinho). Em no máximo 4 frases curtas, `
-      + `oriente sobre este(a) ${escopo} LENDO PELO RECORTE ATIVO (camada, força medida, região e filtros do contexto). `
-      + `Fale de três coisas e só: (1) LIDERANÇA — quantos líderes existem, quantos faltam, quem está sem meta; `
+      + `oriente sobre este(a) ${escopo}. `
+      + `OBRIGATÓRIO: comece a primeira frase citando o recorte que está lendo — a FORÇA MEDIDA e os FILTROS ATIVOS do contexto, com essas palavras. `
+      + `A "força medida" é a combinação de membros da família que o usuário escolheu no filtro; se não forem os três, a leitura é sobre a força DESSE recorte, não da família inteira. `
+      + `Depois fale de três coisas e só: (1) LIDERANÇA — quantos líderes existem, quantos faltam, quem está sem meta; `
       + `(2) CANDIDATO — como o próprio Wesley se saiu aqui e o que isso exige da rede agora; `
       + `(3) VOTO — se a meta declarada cobre o que a campanha precisa, e qual o PRÓXIMO PASSO concreto de campo `
       + `(convidar líder, cobrar meta de quem não declarou, priorizar outra cidade). `
-      + `NÃO analise o histórico eleitoral do irmão nem do pai e não descreva eleições passadas — esses números servem no máximo como referência de tamanho, em meia frase. `
-      + `Se o recorte muda a leitura, diga isso. Não repita os números, interprete-os.`;
+      + `NÃO faça análise de eleições passadas: os números históricos servem só para dimensionar a oportunidade. `
+      + `Não repita os números, interprete-os.`;
     let txt = null;
     if (sb && this.state.remote && this.state.remote.session) {
       try {
@@ -2326,6 +2388,19 @@ class Component extends DCLogic {
     if (!session) { if (!hasVista) this.setState({ view: 'login', remote: null }); return; }
     let me = null;
     try { const r = await sb.rpc('me'); me = Array.isArray(r.data) ? r.data[0] : r.data; } catch (e) {}
+    // Convidado entrando pela primeira vez: ainda não tem linha em member, então o me()
+    // volta vazio e ele cairia no onboarding. team_claim() casa o e-mail autenticado com
+    // o convite pendente, cria o vínculo e o me() passa a responder.
+    if (!me || !me.tenant_id) {
+      try {
+        const c = await sb.rpc('team_claim');
+        const cl = Array.isArray(c.data) ? c.data[0] : c.data;
+        if (cl && cl.tenant_id) {
+          const r2 = await sb.rpc('me');
+          me = Array.isArray(r2.data) ? r2.data[0] : r2.data;
+        }
+      } catch (e) {}
+    }
     if (!me || !me.tenant_id) { if (!hasVista) this.setState({ view: 'onboarding' }); this.setState({ remote: { session: true } }); return; }
     const role = me.role;
     const remote = { session: true, role, tenantId: me.tenant_id, leaderId: me.leader_id, tenantName: me.tenant_name, electionDate: me.election_date, leaderName: me.name };
@@ -2799,11 +2874,52 @@ class Component extends DCLogic {
       cfgNavBtn: isMob ? 'display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-height:92px;padding:13px 12px;border-radius:8px;font-size:12px;line-height:1.25;' : 'display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;',
       cfgNavIco: isMob ? '20' : '15',
       cfgPerfil: st.cfgSec === 'perfil', cfgCampanha: st.cfgSec === 'campanha', cfgEquipe: st.cfgSec === 'equipe', cfgConvites: st.cfgSec === 'convites', cfgNotifSec: st.cfgSec === 'notif', cfgSeguranca: st.cfgSec === 'seguranca', cfgSaude: st.cfgSec === 'saude',
-      cfgMembros: [
-        { nome: 'Equipe Lelinho', email: 'equipe@lelinho.com.br', ini: 'EL', papel: 'Admin', papelCor: 'var(--color-accent)', ultimo: 'agora' },
-        { nome: 'Débora Antunes', email: 'debora@lelinho.com.br', ini: 'DA', papel: 'Analista', papelCor: 'var(--color-muted-foreground)', ultimo: 'há 2h' },
-        { nome: 'Renan Costa', email: 'renan@lelinho.com.br', ini: 'RC', papel: 'Analista', papelCor: 'var(--color-muted-foreground)', ultimo: 'ontem' },
-      ],
+      // ── Equipe: dado REAL da RPC team_list (membros + convites pendentes) ──
+      ...(() => {
+        if (st.cfgSec === 'equipe') this._eqCarregar();
+        const L = st.eqLista;
+        const eu = st.remote && st.remote.session ? null : null;
+        const quando = (iso) => {
+          if (!iso) return '';
+          const d = (Date.now() - new Date(iso).getTime()) / 3600000;
+          if (d < 1) return 'agora'; if (d < 24) return `há ${Math.round(d)}h`;
+          if (d < 48) return 'ontem'; return `há ${Math.round(d / 24)}d`;
+        };
+        const inic = (nome, email) => {
+          const base = (nome || email || '?').trim();
+          const ps = base.split(/[\s.@_-]+/).filter(Boolean);
+          return ((ps[0] || '?')[0] + (ps[1] ? ps[1][0] : '')).toUpperCase();
+        };
+        const nAssessores = (L || []).filter(x => x.kind === 'membro').length;
+        return {
+          eqCarregando: L == null,
+          eqN: L == null ? '…' : String((L || []).length),
+          eqLista: (L || []).map(x => ({
+            nome: x.name || '—', email: x.email || '—', ini: inic(x.name, x.email),
+            papel: x.kind === 'convite' ? 'Convite pendente' : 'Assessor',
+            papelCor: x.kind === 'convite' ? 'var(--color-highlight)' : 'var(--color-accent)',
+            ultimo: quando(x.since),
+            // nunca oferecer remover quando sobraria a campanha sem assessor
+            podeTirar: x.kind === 'convite' || nAssessores > 1,
+            tirarLabel: x.kind === 'convite' ? 'Cancelar' : 'Remover',
+            tirarTitle: x.kind === 'convite' ? 'Cancelar este convite' : 'Tirar da equipe',
+            tirar: () => { if (!st.eqBusy) this._eqAcao(x.kind, x.id); },
+          })),
+          eqFormAberto: !!st.eqAberto,
+          eqToggle: () => set({ eqAberto: !st.eqAberto, eqMsg: null }),
+          eqBtnLabel: st.eqAberto ? 'Cancelar' : 'Convidar membro',
+          eqBtnBg: st.eqAberto ? 'transparent' : 'var(--color-foreground)',
+          eqBtnFg: st.eqAberto ? 'var(--color-foreground)' : 'var(--color-background)',
+          eqAviso: 'O convidado recebe um link de acesso no e-mail e entra com acesso total à campanha. Se já tiver conta na Politix, entra na hora.',
+          eqNome: st.eqNome || '', onEqNome: (e) => set({ eqNome: e.target.value }),
+          eqEmail: st.eqEmail || '', onEqEmail: (e) => set({ eqEmail: e.target.value }),
+          eqEnviar: () => { if (!st.eqBusy) this._eqConvidar(); },
+          eqEnviarLabel: st.eqBusy ? 'Enviando…' : 'Convidar e enviar acesso',
+          eqTemMsg: !!st.eqMsg,
+          eqMsgTxt: st.eqMsg ? st.eqMsg.txt : '',
+          eqMsgCor: st.eqMsg && st.eqMsg.err ? 'var(--color-highlight)' : 'var(--color-accent)',
+        };
+      })(),
       cfgConvitesPend: [
         { nome: 'Luiz Antunes · Ribeirão Preto', link: 'politix.app/convite/x7Kq9dTz', status: 'enviado há 5d', stCor: 'var(--color-highlight)' },
         { nome: 'Sandra Melo · Bauru', link: 'politix.app/convite/p2Rw8vLm', status: 'enviado ontem', stCor: 'var(--color-muted-foreground)' },
