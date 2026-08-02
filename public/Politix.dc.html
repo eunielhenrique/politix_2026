@@ -1586,17 +1586,15 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                         </sc-for>
                       </div>
                       <div style="margin-top:10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:14px">
-                        <div style="display:flex;align-items:baseline;gap:8px">
-                          <span style="font-family:var(--font-mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px">{{ raIdx }}</span>
-                          <span style="font-size:11px;color:var(--color-muted-foreground)">índice da região (0–100) · {{ raIdxSub }}</span>
+                        <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap">
+                          <span style="font-family:var(--font-mono);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.6px">{{ raVotos }}</span>
+                          <span style="font-size:11px;color:var(--color-muted-foreground);flex:1;min-width:130px">{{ raVotosSub }}</span>
                         </div>
+                        <div style="font-size:10.5px;color:var(--color-gray-600);margin-top:4px;line-height:1.4">{{ raMedia }}</div>
                         <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px;font-size:12px">
-                          <sc-for list="{{ raLinhas }}" as="rl" hint-placeholder-count="5">
-                            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">{{ rl.rot }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ rl.val }}</span></div>
+                          <sc-for list="{{ raLinhas }}" as="rl" hint-placeholder-count="6">
+                            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground);flex-shrink:0">{{ rl.rot }}</span><span style="font-weight:600;text-align:right">{{ rl.val }}</span></div>
                           </sc-for>
-                          <sc-if value="{{ hasRaTop }}" hint-placeholder-val="{{ false }}">
-                            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Cidade mais forte</span><span style="font-weight:600">{{ raTopNome }} · {{ raTopIdx }}</span></div>
-                          </sc-if>
                         </div>
                         <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--color-gray-200);font-size:12px;line-height:1.55;color:var(--color-foreground)">{{ raLeitura }}</div>
                       </div>
@@ -3679,7 +3677,8 @@ class Component extends DCLogic {
       ...(() => {
         const raSel = (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })();
         const M = this._muni, FI = this._famIdx;
-        if (!raSel || !M) return { hasRa: false, raNome: '', raKpis: [], raLinhas: [], raLeitura: '', raTopNome: '', raTopIdx: '', hasRaTop: false };
+        const vazioRa = { hasRa: false, raNome: '', raKpis: [], raLinhas: [], raLeitura: '', raVotos: '', raVotosSub: '', raMedia: '' };
+        if (!raSel || !M) return vazioRa;
         const porRa = {};
         Object.entries(M).forEach(([ibge, m]) => {
           const k = m.ra || '—';
@@ -3690,20 +3689,30 @@ class Component extends DCLogic {
           if (rr) { a.lideres += rr.lideres || 0; a.pend += rr.pend || 0; if (rr.lideres > 0) a.comLider++; }
         });
         const A = porRa[raSel];
-        if (!A) return { hasRa: false, raNome: '', raKpis: [], raLinhas: [], raLeitura: '', raTopNome: '', raTopIdx: '', hasRaTop: false };
+        if (!A) return vazioRa;
         const pen = r => r.eleit > 0 ? r.votos / r.eleit : 0;
-        const penMax = Math.max(...Object.values(porRa).map(pen), 0.0000001);
-        const idxRa = Math.round(100 * pen(A) / penMax);
         const ordem = Object.entries(porRa).sort((a, b) => pen(b[1]) - pen(a[1])).findIndex(([k]) => k === raSel) + 1;
         const eleitSP = Object.values(porRa).reduce((s, r) => s + r.eleit, 0);
-        const pct = (a, b) => b > 0 ? (a / b * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—';
-        // cidade mais forte da região, pela mesma combinação de membros
-        let top = null;
-        if (FI) Object.entries(M).forEach(([ibge, m]) => {
-          if (m.ra !== raSel) return; const fi = FI[ibge]; if (!fi) return;
-          if (!top || fi.indice > top.indice) top = { nome: m.nome, indice: fi.indice };
-        });
-        const nivel = idxRa >= 60 ? 'alta' : idxRa >= 25 ? 'média' : 'baixa';
+        const pct = (a, b, d = 1) => b > 0 ? (a / b * 100).toLocaleString('pt-BR', { maximumFractionDigits: d }) + '%' : '—';
+        // ── Penetração de REGIÃO não é força de região ──
+        // Penetração é RAZÃO, e razão não agrega: na RMSP a capital sozinha é 56% do
+        // eleitorado e entrega 6% dos votos, então a média (0,28%) não descreve nem o
+        // reduto (Santana, 24%) nem o vazio (capital, 0,03%). Em vez de uma média que não
+        // existe em lugar nenhum, a região é descrita por CONCENTRAÇÃO e por onde há base.
+        const BASE_MIN = 0.01; // 1% do eleitorado = tem base de verdade no município
+        const cidades = Object.entries(M)
+          .filter(([, m]) => m.ra === raSel)
+          .map(([ibge, m]) => ({ nome: m.nome, eleit: m.eleitorado || 0, votos: (FI && FI[ibge]) ? (FI[ibge].votos || 0) : 0 }))
+          .map(c => ({ ...c, pen: c.eleit > 0 ? c.votos / c.eleit : 0 }));
+        const porVoto = cidades.slice().sort((a, b) => b.votos - a.votos);
+        const ancora = cidades.slice().sort((a, b) => b.pen - a.pen)[0] || null;
+        const comBase = cidades.filter(c => c.pen >= BASE_MIN).length;
+        // menor conjunto de cidades que já responde por 75% dos votos da seleção na região
+        let acum = 0, n75 = 0;
+        for (const c of porVoto) { if (acum >= A.votos * 0.75) break; acum += c.votos; n75++; }
+        // maior eleitorado ainda sem base — é onde há voto pra buscar
+        const vazio = cidades.filter(c => c.pen < BASE_MIN).sort((a, b) => b.eleit - a.eleit)[0] || null;
+        const temVoto = FI && A.votos > 0;
         return {
           hasRa: true, raNome: raSel,
           raKpis: [
@@ -3711,16 +3720,25 @@ class Component extends DCLogic {
             { rot: 'VOTOS VÁLIDOS 2024', val: fmtN(A.vv), sub: fmtN(A.eleit - A.vv) + ' não válidos' },
             { rot: 'COMPARECIMENTO', val: pct(A.vv, A.eleit), sub: 'válidos ÷ eleitorado' },
           ],
+          raVotos: FI ? fmtN(A.votos) : '—',
+          raVotosSub: FI
+            ? `votos de ${_forcaLabel} nesta região · ${ordem}ª das ${Object.keys(porRa).length} em penetração`
+            : 'carregando os votos da família…',
+          // a média fica, mas dita como o que é — nunca como "força da região"
+          raMedia: FI ? `${pct(A.votos, A.eleit, 2)} do eleitorado na média da região — não representa nenhum município isolado` : '',
           raLinhas: [
-            { rot: 'Municípios na região', val: fmtN(A.munis) },
+            ...(temVoto && porVoto[0] && porVoto[0].votos > 0 ? [
+              { rot: 'Concentração', val: `${pct(porVoto[0].votos, A.votos, 0)} em ${porVoto[0].nome}` },
+              { rot: `${n75} cidade(s) somam`, val: '75% dos votos daqui' },
+            ] : []),
+            ...(temVoto && ancora && ancora.pen > 0 ? [{ rot: 'Âncora (maior penetração)', val: `${ancora.nome} — ${pct(ancora.votos, ancora.eleit, 1)}` }] : []),
+            ...(FI ? [{ rot: 'Municípios com base (1%+)', val: `${fmtN(comBase)} de ${fmtN(A.munis)}` }] : []),
+            // "vazio" seria exagero: a cidade pode até concentrar voto em número absoluto
+            // (São Paulo) e ainda assim estar sub-penetrada. O rótulo diz exatamente isso.
+            ...(temVoto && vazio && vazio.eleit > 0 ? [{ rot: 'Maior eleitorado sem base', val: `${vazio.nome} — ${fmtN(vazio.eleit)} eleitores, ${pct(vazio.votos, vazio.eleit, 2)}` }] : []),
             { rot: 'Municípios com líder', val: `${fmtN(A.comLider)} de ${fmtN(A.munis)}` },
-            { rot: 'Líderes ativos', val: fmtN(A.lideres) },
-            { rot: 'Convites pendentes', val: fmtN(A.pend) },
-            { rot: `Votos de ${_forcaLabel}`, val: FI ? `${fmtN(A.votos)} (${pct(A.votos, A.eleit)})` : '—' },
+            { rot: 'Líderes ativos', val: fmtN(A.lideres) + (A.pend ? ` · ${fmtN(A.pend)} pendente(s)` : '') },
           ],
-          raIdx: FI ? String(idxRa) : '—',
-          raIdxSub: FI ? `força ${nivel} · ${ordem}ª das ${Object.keys(porRa).length} regiões` : 'carregando…',
-          hasRaTop: !!top, raTopNome: top ? top.nome : '', raTopIdx: top ? String(top.indice) : '',
           raLeitura: A.comLider === 0
             ? `Nenhum líder cadastrado nos ${fmtN(A.munis)} municípios desta região, que reúne ${fmtN(A.eleit)} eleitores.`
             : `${fmtN(A.lideres)} líder(es) ativo(s) em ${fmtN(A.comLider)} dos ${fmtN(A.munis)} municípios — ${fmtN(A.munis - A.comLider)} cidade(s) ainda sem ninguém.`,
