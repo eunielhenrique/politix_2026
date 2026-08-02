@@ -47,9 +47,18 @@
   // Prioridade de um município SEM líder: onde há voto pra buscar.
   // ALTA = 100 mil+ eleitores ou reduto da família (índice >= 18) — 57 + redutos.
   // MÉDIA = 20 mil a 100 mil eleitores. Abaixo disso não entra no mapa de prioridade.
-  const PRIO_ALTA = 100000, PRIO_MEDIA = 20000;
-  const prioridadeDe = r => (r.eleitorado >= PRIO_ALTA || r.indice >= 18) ? 'alta'
-    : (r.eleitorado >= PRIO_MEDIA ? 'media' : null);
+  const PRIO_ALTA = 100000, PRIO_MEDIA = 20000, REDUTO_TOP = 40;
+  // O corte de reduto era `indice >= 18`, número CHUMBADO. Quando o índice passou a ser
+  // penetração pura ele virou letra morta: só 3 municípios em 645 alcançam 18, e 2 deles já
+  // entrariam pelo eleitorado. O corte agora é RELATIVO — estar entre os 40 municípios de
+  // maior penetração da seleção — então o reduto continua contando qualquer que seja a
+  // calibração da escala. `limiar` é o índice do 40º colocado, calculado a cada render.
+  let redutoMin = Infinity;
+  const prioridadeDe = (r, limiar) => {
+    const corte = limiar == null ? redutoMin : limiar;
+    if (r.eleitorado >= PRIO_ALTA || (r.pen > 0 && r.pen >= corte)) return 'alta';
+    return r.eleitorado >= PRIO_MEDIA ? 'media' : null;
+  };
   window.PXPrioridade = prioridadeDe;
   function veredito(lideres, liderados, eleitorado) {
     const l = lideres || 0, ld = liderados || 0;
@@ -129,8 +138,13 @@
       const f = this.filtros;
       if (f.cob === 'com' && !(r.lideres > 0)) return false;
       if (f.cob === 'sem' && r.lideres > 0) return false;
-      if (f.cob === 'alta' && !(r.lideres === 0 && prioridadeDe(r) === 'alta')) return false;
-      if (f.cob === 'media' && !(r.lideres === 0 && prioridadeDe(r) === 'media')) return false;
+      // prioridade é EIXO PRÓPRIO: vale com ou sem líder, então dá pra perguntar
+      // "onde já tenho líder num lugar que importa?" — impossível quando era só um
+      // subconjunto de "sem líder".
+      const pr = prioridadeDe(r);
+      if (f.prio === 'alta' && pr !== 'alta') return false;
+      if (f.prio === 'media' && pr !== 'media') return false;
+      if (f.prio === 'baixa' && pr !== null) return false;
       if (f.porte === 'g' && !(r.eleitorado >= 100000)) return false;
       if (f.porte === 'm' && !(r.eleitorado >= 20000 && r.eleitorado < 100000)) return false;
       if (f.porte === 'p' && !(r.eleitorado > 0 && r.eleitorado < 20000)) return false;
@@ -190,9 +204,14 @@
         const liderJan = liderados;
         const eleitorado = a && a.eleitorado ? a.eleitorado : 0;
         const vv = a && a.vv ? a.vv : 0; // votos válidos 2024 (TSE)
-        return { ...ft, a, pot, indice, historico, liderados, lideres, pend, liderJan, eleitorado, vv, ra: a && a.ra ? a.ra : null, ritmo: a ? a.rede.ritmo : 0 };
+        return { ...ft, a, pot, indice, pen: (a && typeof a.pen === 'number') ? a.pen : 0, historico, liderados, lideres, pend, liderJan, eleitorado, vv, ra: a && a.ra ? a.ra : null, ritmo: a ? a.rede.ritmo : 0 };
       });
       const maxPot = Math.max(...rows.map(r => r.pot), 1);
+      // limiar do reduto: índice do REDUTO_TOP-ésimo município mais penetrado da seleção
+      // ranqueia pela PENETRAÇÃO real (3 casas), não pelo índice arredondado: no índice
+      // inteiro dezenas de municípios empatam no mesmo valor e o "top 40" viraria 61
+      const penOrd = rows.map(r => r.pen).filter(v => v > 0).sort((a, b) => b - a);
+      redutoMin = penOrd.length >= REDUTO_TOP ? penOrd[REDUTO_TOP - 1] : (penOrd.length ? penOrd[penOrd.length - 1] : Infinity);
       rows.forEach(r => {
         const v = veredito(r.lideres, r.liderados, r.eleitorado);
         r.porMil = v.porMil;

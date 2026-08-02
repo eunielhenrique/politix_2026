@@ -2996,7 +2996,7 @@ class Component extends DCLogic {
         const rr = redeByIbge[a.ibge], mm = (this._muni && this._muni[a.ibge]) || null;
         // índice recalculado pela combinação de chips; município fora do recorte = 0 (honesto)
         const fi = FI ? FI[a.ibge] : null;
-        return { ...a, indice: FI ? (fi ? fi.indice : 0) : a.indice, ra: this.raDeIbge(a.ibge), eleitorado: mm ? mm.eleitorado : 0, vv: mm ? mm.vv : 0, rede: rr ? { lideres: rr.lideres, liderados: rr.liderados, pend: rr.pend, ritmo: 0 } : a.rede };
+        return { ...a, indice: FI ? (fi ? fi.indice : 0) : a.indice, pen: fi ? fi.pen : 0, ra: this.raDeIbge(a.ibge), eleitorado: mm ? mm.eleitorado : 0, vv: mm ? mm.vv : 0, rede: rr ? { lideres: rr.lideres, liderados: rr.liderados, pend: rr.pend, ritmo: 0 } : a.rede };
       });
       this._aj = JSON.stringify(anchorsReal); this._ajRemote = st.remote; this._ajMuni = this._muni; this._ajFam = this._famKey;
     }
@@ -3811,7 +3811,9 @@ class Component extends DCLogic {
       ...(() => {
         const F = st.mapFiltros || {};
         const grupos = [
-          ['cob', 'COBERTURA', [['todos', 'Todas'], ['com', 'Com líder'], ['sem', 'Sem líder'], ['alta', 'Prioridade alta'], ['media', 'Prioridade média']]],
+          ['cob', 'COBERTURA', [['todos', 'Todas'], ['com', 'Com líder'], ['sem', 'Sem líder']]],
+          // eixo próprio: combina com Com/Sem líder em vez de ser subconjunto de "Sem líder"
+          ['prio', 'PRIORIDADE', [['todos', 'Todas'], ['alta', 'Alta'], ['media', 'Média'], ['baixa', 'Baixa']]],
           ['porte', 'PORTE DO MUNICÍPIO', [['todos', 'Todos'], ['g', '100 mil+ eleitores'], ['m', '20–100 mil'], ['p', 'Até 20 mil']]],
           ['pot', 'POTENCIAL DA FAMÍLIA', [['todos', 'Todos'], ['alto', 'Alto (40+)'], ['medio', 'Médio (18–40)'], ['baixo', 'Baixo']]],
           ['comp', 'COMPARECIMENTO 2024', [['todos', 'Todos'], ['acima', 'Acima da média (67,25%)'], ['abaixo', 'Abaixo da média']]],
