@@ -1636,9 +1636,6 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                       <button onClick="{{ toggleSheetFull }}" title="{{ sheetGrabTitle }}" style="width:44px;height:30px;border:none;background:none;color:var(--color-gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 10 7-7 7 7"></path></svg>
                       </button>
-                      <button onClick="{{ recolherSheet }}" title="Recolher o painel" style="width:44px;height:30px;border:none;background:none;color:var(--color-gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 14 7 7 7-7"></path></svg>
-                      </button>
                     </sc-if>
                     <sc-if value="{{ sheetFullOn }}" hint-placeholder-val="{{ false }}">
                       <button onClick="{{ toggleSheetFull }}" title="{{ sheetGrabTitle }}" style="width:44px;height:30px;border:none;background:none;color:var(--color-gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
@@ -4206,8 +4203,8 @@ class Component extends DCLogic {
       sheetFullOn: !!st.sheetFull,
       toggleSheetFull: () => set({ sheetFull: !st.sheetFull }),
       sheetGrabTitle: st.sheetFull ? 'Voltar o painel ao tamanho normal' : 'Esticar o painel até ocupar a tela',
+      // alça de dois estados: no tamanho normal só estica; esticado só volta
       sheetRecolherShow: !st.sheetFull,
-      recolherSheet: () => set({ mapListHidden: true, sheetFull: false }),
       // o FAB de filtros precisa furar o mapa em tela cheia (z 100) e se apoiar no sheet
       fabStyle: (st.mapFull
         // fixed + z acima do quadro do mapa (z 100): absolute o deixava ATRÁS dele,
