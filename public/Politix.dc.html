@@ -1445,12 +1445,6 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4v7m0 4v5m6-16v3m0 4v9m6-16v11m0 4v1M4 11h4M10 7h4M16 15h4"></path></svg>
                 <span>{{ fltMapaLabel }}</span>
               </button>
-              <sc-if value="{{ showMapListBtn }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ toggleMapList }}" title="{{ mapListBtnLabel }}" style="height:28px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
-                <span>{{ mapListBtnLabel }}</span>
-              </button>
-              </sc-if>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}"><span style="width:1px;height:20px;background:var(--color-border)"></span></sc-if>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
               <select value="{{ mapFRegiaoSel }}" onChange="{{ onMapFRegiao }}" style="height:32px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none;max-width:230px">
@@ -1564,7 +1558,19 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </sc-for>
               </div>
             </div>
+            <sc-if value="{{ mapListHidden }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ toggleMapList }}" title="Abrir a lista" style="{{ mapExpandStyle }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"></path></svg>
+              </button>
+            </sc-if>
             <div style="{{ livePanelStyle }}">
+              <sc-if value="{{ showMapListBtn }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;justify-content:flex-end;margin:-4px -4px 2px 0">
+                  <button onClick="{{ toggleMapList }}" title="Recolher a lista" style="width:26px;height:26px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--color-gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="color:var(--color-foreground);background:var(--color-background)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m10 5 7 7-7 7"></path></svg>
+                  </button>
+                </div>
+              </sc-if>
               <sc-if value="{{ noMuni }}" hint-placeholder-val="{{ true }}">
                 <div>
                   <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
@@ -3583,9 +3589,13 @@ class Component extends DCLogic {
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })(), // nome da RA (banco), não índice
       // controles = uma pill vertical única, colada no painel (direita), meia altura do mapa
+      // abrir a lista fica logo ACIMA da pilha de zoom (3 botões de 36 + bordas = 110),
+      // na mesma coluna — some junto quando a lista está aberta
+      mapExpandStyle: `position:absolute;right:12px;bottom:${12 + 110 + 8}px;z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
+      // pilha vertical na BASE; com a lista recolhida ela encosta na direita da tela
       mapCtlStyle: isMob
         ? 'position:absolute;right:12px;bottom:12px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden'
-        : `position:absolute;right:${st.mapListHidden ? 12 : _painelW + 24}px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`,
+        : `position:absolute;right:${st.mapListHidden ? 12 : _painelW + 24}px;bottom:12px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`,
       // legenda em card VERTICAL na área vazia à esquerda, logo acima da faixa de KPIs
       mapLegendStyle: isMob
         ? (st.mapFull ? 'display:none' : 'margin:0 16px 12px;padding:11px 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)')
@@ -3609,7 +3619,6 @@ class Component extends DCLogic {
         : `position:absolute;top:12px;right:12px;width:${_painelW}px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.12)`),
       mapListHidden: !!st.mapListHidden,
       toggleMapList: () => set({ mapListHidden: !st.mapListHidden }),
-      mapListBtnLabel: st.mapListHidden ? 'Mostrar lista' : 'Ocultar lista',
       mapKpiStyle: isMob
         ? (st.mapFull ? 'display:none' : 'padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;align-items:stretch;border-top:1px solid var(--color-gray-200);padding-top:12px')
         : 'position:absolute;left:12px;bottom:12px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start',
