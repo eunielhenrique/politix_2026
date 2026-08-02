@@ -1913,6 +1913,22 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                   <div style="margin-top:14px;background:var(--color-background-100);border-radius:var(--radius-sm);padding:12px;font-size:12.5px;line-height:1.55;color:var(--color-foreground)">{{ gapText }}</div>
                 </div>
               </sc-if>
+              <sc-if value="{{ iaTem }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--color-gray-200)">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+                    <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9L19 15Z"></path></svg>
+                      <span>{{ iaTitulo }}</span>
+                    </span>
+                    <button onClick="{{ iaRegerar }}" title="Gerar de novo" style="height:26px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-foreground);font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex-shrink:0" style-hover="border-color:var(--color-gray-500)">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"></path></svg>
+                      <span>{{ iaBotao }}</span>
+                    </button>
+                  </div>
+                  <div style="padding:13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);font-size:12.5px;line-height:1.6;color:{{ iaCor }};white-space:pre-wrap">{{ iaTexto }}</div>
+                  <div style="font-size:10px;color:var(--color-gray-600);margin-top:6px;line-height:1.4">Leitura gerada por IA a partir dos números desta tela · confira antes de decidir.</div>
+                </div>
+              </sc-if>
             </div>
           </div>
         </div>
@@ -2186,7 +2202,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, touchOn: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -2194,6 +2210,32 @@ class Component extends DCLogic {
   //   pwa   · layout mobile forçado, para o app instalado ou para conferir no desktop
   // Vale por ESCOLHA e não por media query: totem costuma reportar ponteiro fino e
   // notebook com touchscreen ligaria o modo touch sem ninguém pedir.
+  // Resumo de IA do que está aberto (cidade ou região).
+  // O contexto sai dos NÚMEROS JÁ CALCULADOS na tela — nunca de dado paralelo — e o
+  // resultado fica em cache pela chave do alvo, senão clicar em 645 cidades viraria
+  // 645 chamadas. "Gerar de novo" força uma nova, ignorando o cache.
+  async _iaResumo(alvo, forcar) {
+    if (!alvo || !alvo.chave) return;
+    if (!forcar && (this._iaChave === alvo.chave || this._iaBusy === alvo.chave)) return;
+    this._iaBusy = alvo.chave;
+    this.setState({ iaBusy: true, iaChave: alvo.chave });
+    const sb = this._pxClient();
+    const pergunta = alvo.tipo === 'ra'
+      ? `Em no máximo 4 frases curtas, oriente a campanha sobre esta REGIÃO: onde concentrar esforço, o que o número de líderes indica e qual o próximo passo concreto. Não repita os números, interprete-os.`
+      : `Em no máximo 4 frases curtas, oriente a campanha sobre este MUNICÍPIO: o potencial da família aqui, o que a rede atual cobre ou deixa aberto, e qual o próximo passo concreto. Não repita os números, interprete-os.`;
+    let txt = null;
+    if (sb && this.state.remote && this.state.remote.session) {
+      try {
+        const { data, error } = await sb.functions.invoke('politix-ia', {
+          body: { question: pergunta, ctx: alvo.ctx, ctxType: 'assessor' },
+        });
+        if (!error && data && data.answer) txt = String(data.answer).trim();
+      } catch (e) {}
+    }
+    this._iaBusy = null;
+    this._iaChave = alvo.chave;
+    this.setState({ iaBusy: false, iaTexto: txt, iaChave: alvo.chave, iaErro: !txt });
+  }
   _touchAplicar(on) {
     try { document.documentElement.classList.toggle('px-touch', !!on); } catch (e) {}
     window.PX_TOUCH = !!on; // o mapa lê daqui para desligar a tooltip de hover
@@ -3675,6 +3717,38 @@ class Component extends DCLogic {
           linhaBg: marcado ? 'var(--color-highlight-dim)' : 'transparent',
         });
         return {
+        };
+      })(),
+      // ── contexto do resumo de IA: os MESMOS números que a tela mostra ──
+      ...(() => {
+        const raSel = (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })();
+        let alvo = null;
+        if (mu) {
+          const fi = this._famIdx && this._famIdx[String(mu.ibge)];
+          const cl = _cl || [];
+          const prom = cl.filter(l => l.status === 'active').reduce((x, l) => x + Number(l.promise_votes || 0), 0);
+          alvo = { tipo: 'muni', chave: 'm:' + mu.ibge + ':' + _membSel.join(','), ctx: [
+            `Município: ${mu.nome}`,
+            _muEleit ? `Eleitorado 2024: ${fmtN(_muEleit)}` : null,
+            `Força de ${_forcaLabel}: índice ${fi ? fi.indice : (mu.indice || 0)} de 100${fi ? ` (${fi.votos} votos, ${Number(fi.pen || 0).toFixed(2)}% do eleitorado)` : ''}`,
+            `Rede atual: ${muLideres} líder(es) ativo(s), ${fmtN(prom)} votos prometidos`,
+            `Estado: ${mu.statusLabel || ''}`,
+          ].filter(Boolean).join(' · ') };
+        } else if (raSel) {
+          alvo = { tipo: 'ra', chave: 'r:' + raSel + ':' + _membSel.join(','), ctx: `Região: ${raSel} · dados agregados dos municípios da região (eleitorado, votos da família da seleção ${_forcaLabel}, concentração e líderes cadastrados) mostrados no painel.` };
+        }
+        if (alvo) this._iaResumo(alvo);
+        const pronto = st.iaChave === (alvo && alvo.chave);
+        return {
+          iaTem: !!alvo,
+          iaTitulo: alvo && alvo.tipo === 'ra' ? 'Leitura da região' : 'Leitura da cidade',
+          iaBotao: st.iaBusy ? 'Gerando…' : 'Gerar de novo',
+          iaRegerar: () => { if (!st.iaBusy && alvo) this._iaResumo(alvo, true); },
+          iaTexto: st.iaBusy ? 'Lendo os números desta tela…'
+            : (pronto && st.iaTexto) ? st.iaTexto
+            : (pronto && st.iaErro) ? 'Não consegui gerar a leitura agora. Toque em "Gerar de novo".'
+            : 'Lendo os números desta tela…',
+          iaCor: (pronto && st.iaErro && !st.iaBusy) ? 'var(--color-muted-foreground)' : 'var(--color-foreground)',
         };
       })(),
       livePanelSub: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? (rn + ' · cidades por índice') : ('prioridade de investimento · ' + _forcaLabel); })(),
