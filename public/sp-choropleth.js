@@ -11,8 +11,8 @@
     // fora/foraLine = município fora da RA ou reprovado no filtro. Precisa CONTRASTAR com o
     // fundo (senão o estado de SP some quando o recorte é pequeno) sem competir com as cores
     // do recorte: cinza chapado, claro no dark e escuro no light, com contorno próprio.
-    dark: { neutro: '#1a1a1a', fraco: '#5e4a1e', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000', fora: '#31312f', foraLine: '#0d0d0d' },
-    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff', fora: '#d2d2d0', foraLine: '#ffffff' },
+    dark: { neutro: '#1a1a1a', fraco: '#5e4a1e', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000', fora: '#31312f', foraLine: '#0d0d0d', selLine: '#ffffff' },
+    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff', fora: '#d2d2d0', foraLine: '#ffffff', selLine: '#111111' },
   };
   const ANO_SYNTH = { '2024': 0.35, '2022': 0.6, '2018': 0.35, '2012': 0.2 };
   const MEMBROS = { candidato: ['candidato'], irmao: ['irmao'], pai: ['pai'], familia: ['candidato', 'irmao', 'pai'] };
@@ -108,7 +108,7 @@
   window.PXTiers = TIERS;
 
   class SPChoropleth extends HTMLElement {
-    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra', 'data-filtros']; }
+    static get observedAttributes() { return ['layer', 'fonte', 'ano', 'theme', 'data-anchors', 'data-sel-ra', 'data-sel-muni', 'data-filtros']; }
     connectedCallback() {
       if (this._init) return; this._init = true;
       this._onCtl = e => this.ctl(e.detail && e.detail.action, e.detail && e.detail.ibge);
@@ -217,6 +217,7 @@
       this._rows = rows; // usado pelo foco por busca de nome
       // RA agora é o nome oficial vindo do banco (municipio_politico.ra, 16 regiões) — string, não índice
       const selRa = this.getAttribute('data-sel-ra') || '';
+      const selIbge = this.getAttribute('data-sel-muni') || ''; // cidade aberta no painel
       // "fora" = fora da RA escolhida OU reprovado no cruzamento de filtros
       const fora = r => (selRa && r.ra !== selRa) || !this.passaFiltros(r);
       const scoped = rows.filter(r => !fora(r)); // RA + filtros
@@ -286,10 +287,16 @@
         .attr('d', r => r.d)
         .attr('fill', r => fill(r))
         .attr('fill-opacity', 1)
-        .attr('stroke', r => fora(r) ? P.foraLine : P.line).attr('stroke-width', 0.4)
+        .attr('stroke', r => (selIbge && String(r.code) === selIbge) ? P.selLine : (fora(r) ? P.foraLine : P.line))
+        // non-scaling-stroke: a divisa fica com a MESMA espessura em qualquer zoom (antes
+        // ela era multiplicada pelo k e virava um traço grosso ao aproximar);
+        // linejoin/linecap round tiram as pontas agudas dos vértices do polígono
+        .attr('stroke-width', r => selIbge && String(r.code) === selIbge ? 1.6 : 0.35)
+        .attr('vector-effect', 'non-scaling-stroke')
+        .attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round')
         .style('cursor', 'pointer')
         .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })
-        .on('mouseleave', function () { self.hideTip(); d3.select(this).attr('stroke-width', 0.4); })
+        .on('mouseleave', function (ev, r) { self.hideTip(); d3.select(this).attr('stroke-width', selIbge && String(r.code) === selIbge ? 1.6 : 0.35); })
         .on('click', (ev, r) => {
           window.dispatchEvent(new CustomEvent('politix:muni', { detail: {
             ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
@@ -299,6 +306,8 @@
           } }));
         })
         .on('dblclick', (ev, r) => { ev.stopPropagation(); self.zoomToFeature(r); }); // clique simples abre o painel; duplo aproxima
+      // sobe a cidade aberta pro topo: senão os vizinhos desenham por cima do traço dela
+      if (selIbge) g.selectAll('path').filter(r => r && String(r.code) === selIbge).raise();
       if (layer !== 'historico') {
         const pg = g.append('g').attr('pointer-events', 'none');
         rows.filter(r => r.c && !fora(r)).forEach(r => {
