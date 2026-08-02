@@ -313,6 +313,9 @@
         .attr('stroke-width', r => selIbge && String(r.code) === selIbge ? 1.6 : 0.35)
         .attr('vector-effect', 'non-scaling-stroke')
         .attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round')
+        // marcação viva do que está selecionado: contorno tracejado que corre em volta,
+        // mesma leitura do shimmer de carregamento — mostra o alvo sem tapar a cor da cidade
+        .attr('class', r => (selIbge && String(r.code) === selIbge) ? 'px-sel' : null)
         .style('cursor', 'pointer')
         .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })
         .on('mouseleave', function (ev, r) { self.hideTip(); d3.select(this).attr('stroke-width', selIbge && String(r.code) === selIbge ? 1.6 : 0.35); })
