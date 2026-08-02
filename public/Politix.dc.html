@@ -712,11 +712,6 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5M13.7 20a2 2 0 0 1-3.4 0"></path></svg>
           <sc-if value="{{ notifDot }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:6px;right:7px;width:5px;height:5px;border-radius:var(--radius-full);background:var(--color-accent)"></span></sc-if>
         </button>
-        <div style="display:inline-flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-background)">
-          <sc-for list="{{ uiModos }}" as="um" hint-placeholder-count="3">
-            <button onClick="{{ um.onClick }}" title="{{ um.title }}" style="height:26px;padding:0 11px;border:none;border-radius:var(--radius-full);background:{{ um.bg }};color:{{ um.fg }};font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap">{{ um.label }}</button>
-          </sc-for>
-        </div>
         <button onClick="{{ toggleTema }}" title="{{ temaLabel }}" style="width:34px;height:34px;border:none;background:none;color:var(--color-gray-900);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--color-foreground)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ temaIcon }}"></path></svg>
         </button>
@@ -1472,6 +1467,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapFullIcon }}"></path></svg>
                 <span>{{ mapFullLabel }}</span>
               </button>
+              <button onClick="{{ toggleTouch }}" title="{{ touchTitle }}" style="height:28px;padding:0 10px;border:1px solid {{ touchBd }};border-radius:var(--radius-sm);background:{{ touchBg }};color:{{ touchFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V12m0-1a1.5 1.5 0 0 1 3 0v4a6 6 0 0 1-6 6h-1.2a5 5 0 0 1-3.9-1.9L4 15.5a1.6 1.6 0 0 1 2.4-2.1L9 15.5"></path></svg>
+                <span>{{ touchLabel }}</span>
+              </button>
               <button onClick="{{ toggleFltMapa }}" title="Filtros e cruzamentos" style="height:28px;padding:0 10px;border:1px solid {{ fltMapaBd }};border-radius:var(--radius-sm);background:{{ fltMapaBg }};color:{{ fltMapaFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4v7m0 4v5m6-16v3m0 4v9m6-16v11m0 4v1M4 11h4M10 7h4M16 15h4"></path></svg>
                 <span>{{ fltMapaLabel }}</span>
@@ -2187,7 +2186,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, uiModo: null, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, touchOn: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -2195,28 +2194,27 @@ class Component extends DCLogic {
   //   pwa   · layout mobile forçado, para o app instalado ou para conferir no desktop
   // Vale por ESCOLHA e não por media query: totem costuma reportar ponteiro fino e
   // notebook com touchscreen ligaria o modo touch sem ninguém pedir.
-  _uiAplicar(modo) {
-    const touch = modo === 'touch' || modo === 'pwa';
-    try { document.documentElement.classList.toggle('px-touch', touch); } catch (e) {}
-    window.PX_TOUCH = touch; // o mapa lê daqui para desligar a tooltip de hover
+  _touchAplicar(on) {
+    try { document.documentElement.classList.toggle('px-touch', !!on); } catch (e) {}
+    window.PX_TOUCH = !!on; // o mapa lê daqui para desligar a tooltip de hover
   }
-  _uiModo(modo) {
-    try { localStorage.setItem('px_ui', modo); } catch (e) {}
-    this._uiAplicar(modo);
-    this.setState({ uiModo: modo, muni: null });
+  _touchToggle() {
+    const on = !this.state.touchOn;
+    try { localStorage.setItem('px_touch', on ? '1' : '0'); } catch (e) {}
+    this._touchAplicar(on);
+    this.setState({ touchOn: on });
   }
   componentDidMount() {
-    let modo = null;
+    // celular não entra aqui: o layout mobile vem por largura. Numa tela grande,
+    // o primeiro acesso adivinha pelo ponteiro e o botão do mapa decide dali em diante.
+    let touch = false;
     try {
-      modo = localStorage.getItem('px_ui');
-      if (!modo) {
-        const grosso = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-        const estreito = window.innerWidth < 900;
-        modo = estreito ? 'pwa' : grosso ? 'touch' : 'desk';
-      }
-    } catch (e) { modo = 'desk'; }
-    this._uiAplicar(modo);
-    this.setState({ uiModo: modo });
+      const salvo = localStorage.getItem('px_touch');
+      touch = salvo != null ? salvo === '1'
+        : (window.innerWidth >= 900 && !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches));
+    } catch (e) {}
+    this._touchAplicar(touch);
+    this.setState({ touchOn: touch });
     // clicar numa cidade com a lista recolhida ABRE o painel já no raio-x dela —
     // senão o clique parece não ter feito nada
     this._onMuni = (e) => this.setState(e.detail ? { muni: e.detail, mapListHidden: false } : { muni: null });
@@ -2729,10 +2727,7 @@ class Component extends DCLogic {
     };
   }
   cfgVals(st, set) {
-    // o modo escolhido manda sobre a largura: pwa força o layout mobile em qualquer tela
-    // (é assim que se testa/roda o app instalado), desk e touch forçam o layout de tela cheia
-    const isMob = st.uiModo === 'pwa' ? true : st.uiModo === 'desk' || st.uiModo === 'touch' ? false
-      : (st.vw ?? (typeof window !== 'undefined' ? window.innerWidth : 1400)) < 900;
+    const isMob = (st.vw ?? (typeof window !== 'undefined' ? window.innerWidth : 1400)) < 900;
     const secs = [
       ['perfil', 'Meu perfil', 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8.5c.8-3.2 3.6-5 7-5s6.2 1.8 7 5'],
       ['campanha', 'Campanha', 'M4 21V4l8 3.5L20 4v13l-8 3.5L4 21ZM12 7.5V20'],
@@ -2841,10 +2836,7 @@ class Component extends DCLogic {
   }
   renderVals() {
     const st = this.state, set = (o) => this.setState(o);
-    // o modo escolhido manda sobre a largura: pwa força o layout mobile em qualquer tela
-    // (é assim que se testa/roda o app instalado), desk e touch forçam o layout de tela cheia
-    const isMob = st.uiModo === 'pwa' ? true : st.uiModo === 'desk' || st.uiModo === 'touch' ? false
-      : (st.vw ?? (typeof window !== 'undefined' ? window.innerWidth : 1400)) < 900;
+    const isMob = (st.vw ?? (typeof window !== 'undefined' ? window.innerWidth : 1400)) < 900;
     const sideC = st.sideCollapsed || isMob;
     const temaUrl = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('tema') : null;
     const isDark = st.temaOverride != null ? st.temaOverride === 'escuro' : ((temaUrl ?? this.props.tema ?? 'escuro') !== 'claro'); // 'claro' ativa a versão clara (DESIGN.md §2.1)
@@ -3690,16 +3682,15 @@ class Component extends DCLogic {
       toggleTema: () => set({ temaOverride: isDark ? 'claro' : 'escuro' }),
       temaIcon: isDark ? 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4' : 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z',
       temaLabel: isDark ? 'Tema claro' : 'Tema escuro',
-      uiModos: [
-        ['desk', 'Desk', 'Mouse e teclado · alvos compactos'],
-        ['touch', 'Touch', 'Tela de toque grande · alvos de 46px, sem tooltip de hover'],
-        ['pwa', 'PWA', 'Layout mobile do app instalado, em qualquer tela'],
-      ].map(([v, label, title]) => {
-        const on = st.uiModo === v;
-        return { label, title, onClick: () => this._uiModo(v),
-          bg: on ? 'var(--color-foreground)' : 'transparent',
-          fg: on ? 'var(--color-background)' : 'var(--color-gray-900)' };
-      }),
+      // botão de toque: mora na barra do MAPA, que é onde a tela grande é operada.
+      // Celular não usa isso — o layout mobile já vem por largura, sem botão.
+      touchOn: !!st.touchOn,
+      toggleTouch: () => this._touchToggle(),
+      touchLabel: st.touchOn ? 'Touch ligado' : 'Touch',
+      touchTitle: st.touchOn ? 'Desligar o modo touch (voltar aos alvos compactos)' : 'Ligar o modo touch: alvos de 46px para tela de toque',
+      touchBg: st.touchOn ? 'var(--color-foreground)' : 'var(--color-background)',
+      touchFg: st.touchOn ? 'var(--color-background)' : 'var(--color-foreground)',
+      touchBd: st.touchOn ? 'var(--color-foreground)' : 'var(--color-border)',
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })(), // nome da RA (banco), não índice
       mapSelMuni: st.muni && st.muni.ibge ? String(st.muni.ibge) : '', // cidade aberta no painel · destacada no mapa
