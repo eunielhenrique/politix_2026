@@ -4120,10 +4120,10 @@ class Component extends DCLogic {
       // controles = uma pill vertical única, colada no painel (direita), meia altura do mapa
       // abrir a lista fica logo ACIMA da pilha de zoom (3 botões de 36 + bordas = 110),
       // na mesma coluna — some junto quando a lista está aberta
-      mapExpandStyle: `position:absolute;right:12px;bottom:${_vert ? _vBase(166) : (12 + 110 + 8) + 'px'};z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
+      mapExpandStyle: `position:absolute;${_vert ? 'left' : 'right'}:12px;bottom:${_vert ? _vBase(166) : (12 + 110 + 8) + 'px'};z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
       // pilha vertical na BASE; com a lista recolhida ela encosta na direita da tela
       mapCtlStyle: isMob
-        ? `position:absolute;right:12px;bottom:${_vBase(48)};z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`
+        ? `position:absolute;${_vert ? 'left' : 'right'}:12px;bottom:${_vBase(48)};z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`
         : `position:absolute;right:${st.mapListHidden ? 12 : _painelW + 24}px;bottom:12px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`,
       // legenda em card VERTICAL na área vazia à esquerda, logo acima da faixa de KPIs
       mapLegendStyle: isMob
@@ -4212,7 +4212,7 @@ class Component extends DCLogic {
       fabStyle: (st.mapFull
         // fixed + z acima do quadro do mapa (z 100): absolute o deixava ATRÁS dele,
         // porque o FAB mora na raiz do app, fora do contexto de empilhamento do mapa
-        ? `position:fixed;left:16px;bottom:${_vBase(48)};z-index:110;`
+        ? `position:fixed;right:16px;bottom:${_vBase(48)};z-index:110;`
         : 'position:fixed;right:24px;bottom:164px;z-index:95;')
         + 'display:flex;align-items:center;justify-content:center;width:46px;height:46px;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-background-100);color:var(--color-foreground);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)',
       fltSheetZ: st.mapFull ? '120' : '99',
