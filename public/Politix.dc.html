@@ -1572,6 +1572,36 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">PAINEL AO VIVO</span>
                   </div>
                   <div style="font-size:11px;color:var(--color-gray-600);margin-bottom:8px">{{ livePanelSub }}</div>
+                  <sc-if value="{{ hasRa }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin:2px 0 14px">
+                      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.6px;color:var(--color-gray-600);margin-bottom:6px">ANÁLISE DE REGIÃO</div>
+                      <div style="font-family:var(--font-sans);font-weight:600;font-size:19px;letter-spacing:-.3px;margin-bottom:10px">{{ raNome }}</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" class="keep-cols-3">
+                        <sc-for list="{{ raKpis }}" as="rk" hint-placeholder-count="3">
+                          <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:10px">
+                            <div style="font-family:var(--font-mono);font-size:8.5px;letter-spacing:1px;color:var(--color-gray-600);line-height:1.3">{{ rk.rot }}</div>
+                            <div style="font-family:var(--font-mono);font-size:17px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.4px;margin-top:5px">{{ rk.val }}</div>
+                            <div style="font-size:9.5px;color:var(--color-gray-600);margin-top:2px">{{ rk.sub }}</div>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="margin-top:10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100);padding:14px">
+                        <div style="display:flex;align-items:baseline;gap:8px">
+                          <span style="font-family:var(--font-mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px">{{ raIdx }}</span>
+                          <span style="font-size:11px;color:var(--color-muted-foreground)">índice da região (0–100) · {{ raIdxSub }}</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px;font-size:12px">
+                          <sc-for list="{{ raLinhas }}" as="rl" hint-placeholder-count="5">
+                            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">{{ rl.rot }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ rl.val }}</span></div>
+                          </sc-for>
+                          <sc-if value="{{ hasRaTop }}" hint-placeholder-val="{{ false }}">
+                            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--color-muted-foreground)">Cidade mais forte</span><span style="font-weight:600">{{ raTopNome }} · {{ raTopIdx }}</span></div>
+                          </sc-if>
+                        </div>
+                        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--color-gray-200);font-size:12px;line-height:1.55;color:var(--color-foreground)">{{ raLeitura }}</div>
+                      </div>
+                    </div>
+                  </sc-if>
                   <sc-if value="{{ liveEmpty }}" hint-placeholder-val="{{ true }}">
                     <p style="font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5;margin:8px 0 0">{{ liveEmptyText }}</p>
                   </sc-if>
@@ -3616,6 +3646,61 @@ class Component extends DCLogic {
           potF: 'índ. ' + iv, lid: SEM_LID ? (t.lideres ? t.lideres + ' líder(es)' : '—') : fmtN(t.liderados) + ' lid.', onClick: () => set({ muni: t }),
         };
       }),
+      // ── RA selecionada tratada como uma "cidade grande": agregado da região ──
+      // Tudo somado a partir do dado por município já carregado (eleitorado/votos TSE,
+      // rede real e votos da família da combinação escolhida). O índice da RA NÃO é média
+      // dos índices dos municípios: soma os VOTOS e o ELEITORADO da região e só então
+      // normaliza a penetração entre as 16 RAs — mesma regra do índice por município.
+      ...(() => {
+        const raSel = (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })();
+        const M = this._muni, FI = this._famIdx;
+        if (!raSel || !M) return { hasRa: false, raNome: '', raKpis: [], raLinhas: [], raLeitura: '', raTopNome: '', raTopIdx: '', hasRaTop: false };
+        const porRa = {};
+        Object.entries(M).forEach(([ibge, m]) => {
+          const k = m.ra || '—';
+          const a = porRa[k] || (porRa[k] = { munis: 0, eleit: 0, vv: 0, votos: 0, lideres: 0, pend: 0, comLider: 0 });
+          a.munis++; a.eleit += m.eleitorado || 0; a.vv += m.vv || 0;
+          const fi = FI ? FI[ibge] : null; if (fi) a.votos += fi.votos || 0;
+          const rr = redeByIbge[ibge];
+          if (rr) { a.lideres += rr.lideres || 0; a.pend += rr.pend || 0; if (rr.lideres > 0) a.comLider++; }
+        });
+        const A = porRa[raSel];
+        if (!A) return { hasRa: false, raNome: '', raKpis: [], raLinhas: [], raLeitura: '', raTopNome: '', raTopIdx: '', hasRaTop: false };
+        const pen = r => r.eleit > 0 ? r.votos / r.eleit : 0;
+        const penMax = Math.max(...Object.values(porRa).map(pen), 0.0000001);
+        const idxRa = Math.round(100 * pen(A) / penMax);
+        const ordem = Object.entries(porRa).sort((a, b) => pen(b[1]) - pen(a[1])).findIndex(([k]) => k === raSel) + 1;
+        const eleitSP = Object.values(porRa).reduce((s, r) => s + r.eleit, 0);
+        const pct = (a, b) => b > 0 ? (a / b * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—';
+        // cidade mais forte da região, pela mesma combinação de membros
+        let top = null;
+        if (FI) Object.entries(M).forEach(([ibge, m]) => {
+          if (m.ra !== raSel) return; const fi = FI[ibge]; if (!fi) return;
+          if (!top || fi.indice > top.indice) top = { nome: m.nome, indice: fi.indice };
+        });
+        const nivel = idxRa >= 60 ? 'alta' : idxRa >= 25 ? 'média' : 'baixa';
+        return {
+          hasRa: true, raNome: raSel,
+          raKpis: [
+            { rot: 'ELEITORADO 2024', val: fmtN(A.eleit), sub: pct(A.eleit, eleitSP) + ' do estado' },
+            { rot: 'VOTOS VÁLIDOS 2024', val: fmtN(A.vv), sub: fmtN(A.eleit - A.vv) + ' não válidos' },
+            { rot: 'COMPARECIMENTO', val: pct(A.vv, A.eleit), sub: 'válidos ÷ eleitorado' },
+          ],
+          raLinhas: [
+            { rot: 'Municípios na região', val: fmtN(A.munis) },
+            { rot: 'Municípios com líder', val: `${fmtN(A.comLider)} de ${fmtN(A.munis)}` },
+            { rot: 'Líderes ativos', val: fmtN(A.lideres) },
+            { rot: 'Convites pendentes', val: fmtN(A.pend) },
+            { rot: `Votos de ${_forcaLabel}`, val: FI ? `${fmtN(A.votos)} (${pct(A.votos, A.eleit)})` : '—' },
+          ],
+          raIdx: FI ? String(idxRa) : '—',
+          raIdxSub: FI ? `força ${nivel} · ${ordem}ª das ${Object.keys(porRa).length} regiões` : 'carregando…',
+          hasRaTop: !!top, raTopNome: top ? top.nome : '', raTopIdx: top ? String(top.indice) : '',
+          raLeitura: A.comLider === 0
+            ? `Nenhum líder cadastrado nos ${fmtN(A.munis)} municípios desta região, que reúne ${fmtN(A.eleit)} eleitores.`
+            : `${fmtN(A.lideres)} líder(es) ativo(s) em ${fmtN(A.comLider)} dos ${fmtN(A.munis)} municípios — ${fmtN(A.munis - A.comLider)} cidade(s) ainda sem ninguém.`,
+        };
+      })(),
       liveEmpty: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).length === 0,
       liveEmptyText: !ms ? 'Carregando o índice de prioridade…' : _layerAtual === 'muni2024' ? 'Nenhum município com dado de 2024 nesta região.' : 'Nenhuma cidade com potencial da família nesta região — a família praticamente não fez voto por aqui em 2022.',
       // Resumo por RA direto de municipio_politico (645 municípios) + líderes ativos por região

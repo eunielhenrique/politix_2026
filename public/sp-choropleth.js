@@ -352,6 +352,32 @@
       this._zt = t;
       svg.transition().duration(600).call(zoom.transform, t);
     }
+    // caixa que envolve TODOS os municípios da RA selecionada (null = nenhuma RA)
+    caixaRA() {
+      const ra = this.getAttribute('data-sel-ra') || '';
+      if (!ra || ra === 'todos') return null;
+      const dentro = (this._rows || []).filter(r => r.ra === ra && r.b);
+      if (!dentro.length) return null;
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      dentro.forEach(r => {
+        x0 = Math.min(x0, r.b[0][0]); y0 = Math.min(y0, r.b[0][1]);
+        x1 = Math.max(x1, r.b[1][0]); y1 = Math.max(y1, r.b[1][1]);
+      });
+      return [[x0, y0], [x1, y1]];
+    }
+    // com RA selecionada o "todo" do mapa é a RA, não o estado: centralizar cai nela e
+    // o +/− amplia em torno do centro dela (senão o recorte foge da tela ao aproximar)
+    enquadrar(b, dur = 500) {
+      const d3 = window.d3; const svg = this._svg, zoom = this._zoom;
+      if (!d3 || !svg || !zoom || !b) return;
+      const [[x0, y0], [x1, y1]] = b;
+      // mesmo enquadramento folgado (0.5) de quando a RA é escolhida: centralizar devolve
+      // exatamente a vista inicial da região, com o resto do estado visível em volta
+      const k = Math.min(6, 0.5 / Math.max((x1 - x0) / W, (y1 - y0) / H, 0.0001));
+      const t = d3.zoomIdentity.translate(W / 2 - k * (x0 + x1) / 2, H / 2 - k * (y0 + y1) / 2).scale(k);
+      this._zt = t;
+      svg.transition().duration(dur).call(zoom.transform, t);
+    }
     ctl(action, ibge) {
       const d3 = window.d3; const svg = this._svg, zoom = this._zoom;
       if (!d3 || !svg || !zoom) return;
@@ -369,9 +395,19 @@
         } }));
         return;
       }
-      if (action === 'in') svg.transition().duration(220).call(zoom.scaleBy, 1.6);
-      else if (action === 'out') svg.transition().duration(220).call(zoom.scaleBy, 0.63);
-      else if (action === 'reset') svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
+      const bra = this.caixaRA();
+      // âncora do +/−: centro da RA em coordenadas de tela, ou o centro do quadro
+      const pivo = () => {
+        if (!bra) return [W / 2, H / 2];
+        const t = this._zt || d3.zoomIdentity;
+        return t.apply([(bra[0][0] + bra[1][0]) / 2, (bra[0][1] + bra[1][1]) / 2]);
+      };
+      if (action === 'in') svg.transition().duration(220).call(zoom.scaleBy, 1.6, pivo());
+      else if (action === 'out') svg.transition().duration(220).call(zoom.scaleBy, 0.63, pivo());
+      else if (action === 'reset') {
+        if (bra) this.enquadrar(bra, 400);
+        else svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
+      }
     }
     tip(ev, r, fonte) {
       const rect = this.getBoundingClientRect();
