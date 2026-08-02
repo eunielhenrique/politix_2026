@@ -2313,7 +2313,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, kbOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -2449,6 +2449,10 @@ class Component extends DCLogic {
     this._onVV = () => {
       const vv = window.visualViewport; if (!vv) return;
       document.documentElement.style.setProperty('--px-vvh', Math.round(vv.height) + 'px');
+      // com o teclado aberto o quadro encolhe: um sheet de 42% DELE vira uma tira de
+      // 200px e o formulário fica ilegível. Quem estiver escrevendo ganha o quadro todo.
+      const kb = (window.innerHeight - vv.height) > 140;
+      if (kb !== !!this.state.kbOpen) this.setState({ kbOpen: kb });
     };
     if (window.visualViewport) {
       this._onVV();
@@ -3861,7 +3865,8 @@ class Component extends DCLogic {
     // (zoom, legenda, FAB, abrir-lista) se apoia no TOPO DELE, não na borda da tela
     const _vert = isMob && !!st.mapFull && (st.vh ?? 800) >= (st.vw ?? 402);
     const _SHEET = 42;
-    const _vBase = (px) => (_vert && !st.mapListHidden && !st.sheetFull) ? `calc(${_SHEET}% + ${px}px)` : px + 'px';
+    const _vBase = (px) => (_vert && !st.mapListHidden && !st.sheetFull && !st.kbOpen) ? `calc(${_SHEET}% + ${px}px)` : px + 'px';
+    const _sheetCheio = _vert && (!!st.sheetFull || !!st.kbOpen);
     // na camada 2024 os KPIs são o dado oficial do TSE do escopo (região selecionada ou estado)
     const kpisMapa = _layerAtual === 'muni2024' ? [
       { label: 'Municípios no escopo', valor: ms ? fmtN(ms.munis) : '…', cor: 'var(--color-foreground)' },
@@ -3936,14 +3941,14 @@ class Component extends DCLogic {
       podGridCols: isMob ? 'repeat(3,minmax(0,1fr))' : '1fr 1.15fr 1fr',
       podStatGap: isMob ? '10px' : '22px', podStatFs: isMob ? '15px' : '22px',
       rankPctW: isMob ? '52px' : '80px', cidTblMinW: isMob ? '560px' : '0',
-      showSide: !isMob, aMob: isMob,
+      showSide: !isMob, aMob: isMob && !st.mapFull, // tela cheia do mapa não divide espaço com a barra
       kpiCols: isMob ? 'repeat(2,1fr)' : 'repeat(auto-fit,minmax(200px,1fr))', kpiGap: isMob ? '10px' : '12px',
       vgGridCols: isMob ? '1fr' : 'minmax(0,7fr) minmax(0,5fr)', vgMapH: isMob ? '260px' : 'auto',
       vgBannerPad: isMob ? '16px 16px' : '20px 24px', vgBannerTit: isMob ? '17px' : '21px', vgBannerBtnW: isMob ? '100%' : 'auto',
       fltInline: !isMob,
       // em tela cheia o FAB só existe em PÉ: deitado o Filtros continua na barra do mapa
       fltFab: isMob && ['ranking', 'cidades', 'mapa', 'grupos', 'config'].includes(st.aTab)
-        && !st.sheetFull && (!st.mapFull || _vert),
+        && !st.sheetFull && !st.kbOpen && (!st.mapFull || _vert),
       fltConfig: st.aTab === 'config',
       fltOpen: !!st.fltOpen, abrirFlt: () => set({ fltOpen: true }), fecharFlt: () => set({ fltOpen: false }),
       fltRanking: st.aTab === 'ranking', fltCidades: st.aTab === 'cidades', fltMapa: st.aTab === 'mapa', fltGrupos: st.aTab === 'grupos',
@@ -3965,8 +3970,8 @@ class Component extends DCLogic {
       aiPanelStyle: isMob
         ? `position:fixed;left:0;top:${st.vvTop || 0}px;width:100%;height:${st.vvH ? (st.vvH + 'px') : '100dvh'};z-index:130;display:flex;flex-direction:column;background:var(--color-background);overflow:hidden`
         : 'position:fixed;right:24px;bottom:80px;z-index:96;width:390px;max-width:calc(100vw - 48px);height:min(560px,calc(100vh - 140px));display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);box-shadow:0 16px 48px rgba(0,0,0,.4);overflow:hidden',
-      mapCtlShow: !isMob || st.mapFull,
-      mapToolbarShow: !isMob || st.mapFull,
+      mapCtlShow: (!isMob || st.mapFull) && !_sheetCheio,
+      mapToolbarShow: (!isMob || st.mapFull) && !_sheetCheio,
       expandIconShow: isMob && !st.mapFull,
       ...(() => {
         const defs = [['visao', 'Visão', I.target], ['mapa', 'Mapa', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Líderes', I.award], ['cidades', 'Cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]];
@@ -4126,7 +4131,7 @@ class Component extends DCLogic {
       mapLegendStyle: isMob
         // em pé e em tela cheia a legenda vira FAIXA horizontal rolável, colada logo
         // acima do sheet — no card vertical ela comia meia tela do mapa
-        ? (_vert ? (st.sheetFull ? 'display:none' : `position:absolute;left:8px;right:8px;bottom:${_vBase(10)};z-index:5;display:flex;align-items:center;gap:12px;overflow-x:auto;padding:7px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18)`)
+        ? (_vert ? (_sheetCheio ? 'display:none' : `position:absolute;left:8px;right:8px;bottom:${_vBase(10)};z-index:5;display:flex;align-items:center;gap:12px;overflow-x:auto;padding:7px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18)`)
            : st.mapFull ? 'display:none' : 'margin:0 16px 12px;padding:11px 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)')
         // some enquanto o drawer de filtros está aberto: os dois disputam a MESMA coluna
         // esquerda e se sobrepunham; ao filtrar você configura o recorte, não lê a escala
@@ -4153,7 +4158,7 @@ class Component extends DCLogic {
         ? (st.mapFull
           ? (((st.vw ?? 402) > (st.vh ?? 800))
             ? 'position:absolute;top:10px;right:10px;bottom:10px;width:min(400px,52vw);overflow:auto;z-index:6;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.3)'
-            : (st.sheetFull
+            : ((st.sheetFull || st.kbOpen)
               ? 'position:absolute;left:0;right:0;top:0;bottom:0;overflow:auto;z-index:8;background:var(--color-background);padding:14px 16px 28px'
               : `position:absolute;left:0;right:0;bottom:0;height:${_SHEET}%;overflow:auto;z-index:6;border-top:1px solid var(--color-border);border-radius:12px 12px 0 0;background:var(--color-background);padding:14px 16px 28px`))
           : 'border-top:1px solid var(--color-border);background:var(--color-background);padding:16px')
@@ -4199,7 +4204,7 @@ class Component extends DCLogic {
       mapPickLabel: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? rn : 'Cidade ou região'; })(),
       mapPickRegShow: !((st.buscaCidade || '').trim().length >= 2), // buscando cidade, a lista de RAs sai da frente
       // alça do sheet: estica até a tela toda e volta
-      sheetGrabShow: _vert,
+      sheetGrabShow: _vert && !st.kbOpen, // escrevendo, a alça não muda nada e só rouba altura
       sheetFullOn: !!st.sheetFull,
       toggleSheetFull: () => set({ sheetFull: !st.sheetFull }),
       sheetGrabTitle: st.sheetFull ? 'Voltar o painel ao tamanho normal' : 'Esticar o painel até ocupar a tela',
