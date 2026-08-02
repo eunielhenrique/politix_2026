@@ -418,7 +418,8 @@
       const zoom = d3.zoom().scaleExtent([0.3, 14]).on('zoom', ev => { this._zt = ev.transform; gZoom.attr('transform', ev.transform); });
       // mapa girado sem bússola desorienta: no modo vertical o norte aponta pra ESQUERDA
       if (this.vert()) {
-        const cx = 46, cy = this._H - 30; // rodapé esquerdo: o topo é da barra de filtros
+        // à esquerda, na faixa livre entre a barra de filtros (topo) e a legenda (base)
+        const cx = 46, cy = Math.round(this._H * 0.75);
         const bus = svg.append('g').attr('pointer-events', 'none').attr('opacity', .6);
         bus.append('path').attr('d', `M${cx + 18},${cy} L${cx - 18},${cy} M${cx - 18},${cy} l8,-6 M${cx - 18},${cy} l8,6`)
           .attr('fill', 'none').attr('stroke', P.selLine).attr('stroke-width', 2.2)

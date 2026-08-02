@@ -1501,12 +1501,14 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <span>{{ touchLabel }}</span>
               </button>
               </sc-if>
+              <sc-if value="{{ mapFltBtnShow }}" hint-placeholder-val="{{ true }}">
               <button onClick="{{ toggleFltMapa }}" title="Filtros e cruzamentos" style="height:28px;padding:0 10px;border:1px solid {{ fltMapaBd }};border-radius:var(--radius-sm);background:{{ fltMapaBg }};color:{{ fltMapaFg }};font-size:11.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4v7m0 4v5m6-16v3m0 4v9m6-16v11m0 4v1M4 11h4M10 7h4M16 15h4"></path></svg>
                 <span>{{ fltMapaLabel }}</span>
               </button>
+              </sc-if>
               <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}"><span style="width:1px;height:20px;background:var(--color-border)"></span></sc-if>
-              <sc-if value="{{ fltInline }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ mapRegiaoShow }}" hint-placeholder-val="{{ true }}">
               <select value="{{ mapFRegiaoSel }}" onChange="{{ onMapFRegiao }}" style="height:32px;padding:0 30px 0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none;max-width:178px">
                 <sc-for list="{{ regiaoOpts }}" as="rm" hint-placeholder-count="4"><option value="{{ rm.v }}">{{ rm.l }}</option></sc-for>
               </select>
@@ -1569,10 +1571,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </div>
               </div>
             </sc-if>
-            <div style="{{ mapLegendStyle }}">
-              <div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.3px;color:var(--color-gray-600);margin-bottom:8px">{{ legendTitulo }}</div>
+            <div class="px-mapbar" style="{{ mapLegendStyle }}">
+              <div style="{{ legendTituloStyle }}">{{ legendTitulo }}</div>
               <sc-if value="{{ showDots }}" hint-placeholder-val="{{ true }}">
-                <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="{{ legendListStyle }}">
                   <sc-for list="{{ legendTiers }}" as="lt" hint-placeholder-count="6">
                     <span style="display:inline-flex;align-items:center;gap:8px;font-size:11.5px;color:var(--color-foreground);white-space:nowrap"><span style="width:12px;height:12px;border-radius:2px;flex-shrink:0;background:{{ lt.cor }}"></span>{{ lt.label }}</span>
                   </sc-for>
@@ -1581,7 +1583,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <sc-if value="{{ showGrad }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--color-muted-foreground)">{{ legendMin }}<span style="width:104px;height:10px;border-radius:var(--radius-sm);background:{{ legendGrad }}"></span>{{ legendMax }}</div>
               </sc-if>
-              <div style="font-size:10px;color:var(--color-gray-600);line-height:1.45;margin-top:9px;max-width:210px">{{ legendNote }}</div>
+              <div style="{{ legendNoteStyle }}">{{ legendNote }}</div>
             </div>
             <div style="{{ mapKpiStyle }}">
               <div style="{{ mapKpiRowStyle }}">
@@ -1596,6 +1598,12 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               </button>
             </sc-if>
             <div class="px-painel" style="{{ livePanelStyle }}">
+              <sc-if value="{{ sheetGrabShow }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ toggleSheetFull }}" title="{{ sheetGrabTitle }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:2px 0 8px;border:none;background:none;color:var(--color-gray-600);cursor:pointer">
+                  <span style="width:40px;height:4px;border-radius:var(--radius-full);background:var(--color-gray-400)"></span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ sheetGrabIcon }}"></path></svg>
+                </button>
+              </sc-if>
               <sc-if value="{{ showMapListBtn }}" hint-placeholder-val="{{ true }}">
                 <div style="display:flex;justify-content:flex-end;margin:-4px -4px 2px 0">
                   <button onClick="{{ toggleMapList }}" title="Recolher a lista" style="height:28px;padding:0 9px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex-shrink:0" style-hover="border-color:var(--color-gray-500);background:var(--color-background-100)">
@@ -1965,12 +1973,12 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
       </sc-if>
       </main>
       <sc-if value="{{ fltFab }}" hint-placeholder-val="{{ false }}">
-        <button onClick="{{ abrirFlt }}" title="Filtros" style="position:fixed;right:24px;bottom:164px;z-index:95;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-background-100);color:var(--color-foreground);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+        <button onClick="{{ abrirFlt }}" title="Filtros" style="{{ fabStyle }}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4v7m0 4v5m6-16v3m0 4v9m6-16v11m0 4v1M4 11h4M10 7h4M16 15h4"></path></svg>
         </button>
       </sc-if>
       <sc-if value="{{ fltOpen }}" hint-placeholder-val="{{ false }}">
-        <div style="position:fixed;inset:0;z-index:99">
+        <div style="position:fixed;inset:0;z-index:{{ fltSheetZ }}">
           <div onClick="{{ fecharFlt }}" style="position:absolute;inset:0;background:rgba(0,0,0,.65);animation:pxFadeIn .2s ease-out both"></div>
           <div style="position:absolute;left:0;right:0;bottom:0;max-height:80%;background:var(--color-background-100);border-top:1px solid var(--color-border);border-radius:12px 12px 0 0;display:flex;flex-direction:column;overflow:auto;animation:pxSlideUp .3s cubic-bezier(0,0,.2,1) both">
             <div style="display:flex;align-items:center;padding:10px 18px 0">
@@ -2264,7 +2272,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -3808,6 +3816,11 @@ class Component extends DCLogic {
     // largura do painel do mapa em px — os controles +/−/centralizar se afastam por ela,
     // senão ficam por baixo do painel (o offset era fixo, da época em que ele tinha 320)
     const _painelW = Math.max(380, Math.min(490, Math.round((st.vw || 1440) * 0.36)));
+    // celular EM PÉ e em tela cheia: o sheet ocupa a base, então tudo que flutua
+    // (zoom, legenda, FAB, abrir-lista) se apoia no TOPO DELE, não na borda da tela
+    const _vert = isMob && !!st.mapFull && (st.vh ?? 800) >= (st.vw ?? 402);
+    const _SHEET = 42;
+    const _vBase = (px) => (_vert && !st.mapListHidden && !st.sheetFull) ? `calc(${_SHEET}% + ${px}px)` : px + 'px';
     // na camada 2024 os KPIs são o dado oficial do TSE do escopo (região selecionada ou estado)
     const kpisMapa = _layerAtual === 'muni2024' ? [
       { label: 'Municípios no escopo', valor: ms ? fmtN(ms.munis) : '…', cor: 'var(--color-foreground)' },
@@ -3887,7 +3900,9 @@ class Component extends DCLogic {
       vgGridCols: isMob ? '1fr' : 'minmax(0,7fr) minmax(0,5fr)', vgMapH: isMob ? '260px' : 'auto',
       vgBannerPad: isMob ? '16px 16px' : '20px 24px', vgBannerTit: isMob ? '17px' : '21px', vgBannerBtnW: isMob ? '100%' : 'auto',
       fltInline: !isMob,
-      fltFab: isMob && ['ranking', 'cidades', 'mapa', 'grupos', 'config'].includes(st.aTab),
+      // em tela cheia o FAB só existe em PÉ: deitado o Filtros continua na barra do mapa
+      fltFab: isMob && ['ranking', 'cidades', 'mapa', 'grupos', 'config'].includes(st.aTab)
+        && !st.sheetFull && (!st.mapFull || _vert),
       fltConfig: st.aTab === 'config',
       fltOpen: !!st.fltOpen, abrirFlt: () => set({ fltOpen: true }), fecharFlt: () => set({ fltOpen: false }),
       fltRanking: st.aTab === 'ranking', fltCidades: st.aTab === 'cidades', fltMapa: st.aTab === 'mapa', fltGrupos: st.aTab === 'grupos',
@@ -4061,14 +4076,17 @@ class Component extends DCLogic {
       // controles = uma pill vertical única, colada no painel (direita), meia altura do mapa
       // abrir a lista fica logo ACIMA da pilha de zoom (3 botões de 36 + bordas = 110),
       // na mesma coluna — some junto quando a lista está aberta
-      mapExpandStyle: `position:absolute;right:12px;bottom:${12 + 110 + 8}px;z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
+      mapExpandStyle: `position:absolute;right:12px;bottom:${_vert ? _vBase(166) : (12 + 110 + 8) + 'px'};z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
       // pilha vertical na BASE; com a lista recolhida ela encosta na direita da tela
       mapCtlStyle: isMob
-        ? 'position:absolute;right:12px;bottom:12px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden'
+        ? `position:absolute;right:12px;bottom:${_vBase(48)};z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`
         : `position:absolute;right:${st.mapListHidden ? 12 : _painelW + 24}px;bottom:12px;z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`,
       // legenda em card VERTICAL na área vazia à esquerda, logo acima da faixa de KPIs
       mapLegendStyle: isMob
-        ? (st.mapFull ? 'display:none' : 'margin:0 16px 12px;padding:11px 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)')
+        // em pé e em tela cheia a legenda vira FAIXA horizontal rolável, colada logo
+        // acima do sheet — no card vertical ela comia meia tela do mapa
+        ? (_vert ? (st.sheetFull ? 'display:none' : `position:absolute;left:8px;right:8px;bottom:${_vBase(10)};z-index:5;display:flex;align-items:center;gap:12px;overflow-x:auto;padding:7px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18)`)
+           : st.mapFull ? 'display:none' : 'margin:0 16px 12px;padding:11px 13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)')
         // some enquanto o drawer de filtros está aberto: os dois disputam a MESMA coluna
         // esquerda e se sobrepunham; ao filtrar você configura o recorte, não lê a escala
         : (st.fltMapaOpen ? 'display:none' : 'position:absolute;left:12px;bottom:88px;z-index:5;padding:12px 14px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.12)'),
@@ -4093,7 +4111,9 @@ class Component extends DCLogic {
         ? (st.mapFull
           ? (((st.vw ?? 402) > (st.vh ?? 800))
             ? 'position:absolute;top:10px;right:10px;bottom:10px;width:min(400px,52vw);overflow:auto;z-index:6;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.3)'
-            : 'position:absolute;left:0;right:0;bottom:0;max-height:42%;overflow:auto;z-index:6;border-top:1px solid var(--color-border);border-radius:12px 12px 0 0;background:var(--color-background);padding:16px 16px 28px')
+            : (st.sheetFull
+              ? 'position:absolute;left:0;right:0;top:0;bottom:0;overflow:auto;z-index:8;background:var(--color-background);padding:14px 16px 28px'
+              : `position:absolute;left:0;right:0;bottom:0;height:${_SHEET}%;overflow:auto;z-index:6;border-top:1px solid var(--color-border);border-radius:12px 12px 0 0;background:var(--color-background);padding:14px 16px 28px`))
           : 'border-top:1px solid var(--color-border);background:var(--color-background);padding:16px')
         : `position:absolute;top:12px;right:12px;width:${_painelW}px;max-height:calc(100% - 24px);overflow:auto;z-index:5;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.12)`),
       mapListHidden: !!st.mapListHidden,
@@ -4115,7 +4135,30 @@ class Component extends DCLogic {
       // no contexto de empilhamento dela (z 5) e o painel ao vivo come o clique de fora
       // celular em pé, mapa em tela cheia: gira o desenho em vez de pedir pra girar o
       // aparelho — o estado deitado usava só ~30% da altura e o resto ficava preto
-      mapOrient: isMob && st.mapFull && (st.vh ?? 800) >= (st.vw ?? 402) ? 'v' : '',
+      mapOrient: _vert ? 'v' : '',
+      // faixa horizontal: a lista de cores deita e a nota longa sai (não cabe)
+      legendListStyle: _vert ? 'display:flex;flex-direction:row;align-items:center;gap:12px;flex-shrink:0' : 'display:flex;flex-direction:column;gap:6px',
+      legendTituloStyle: _vert
+        ? 'font-family:var(--font-mono);font-size:9px;letter-spacing:1.2px;color:var(--color-gray-600);white-space:nowrap;flex-shrink:0'
+        : 'font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.3px;color:var(--color-gray-600);margin-bottom:8px',
+      legendNoteStyle: _vert ? 'display:none' : 'font-size:10px;color:var(--color-gray-600);line-height:1.45;margin-top:9px;max-width:210px',
+      // em pé o Filtros sai da barra (vira FAB) e entra o seletor de RA
+      mapFltBtnShow: !_vert,
+      mapRegiaoShow: !isMob || _vert,
+      // alça do sheet: estica até a tela toda e volta
+      sheetGrabShow: _vert,
+      sheetFullOn: !!st.sheetFull,
+      toggleSheetFull: () => set({ sheetFull: !st.sheetFull }),
+      sheetGrabIcon: st.sheetFull ? 'm5 14 7 7 7-7' : 'm5 10 7-7 7 7',
+      sheetGrabTitle: st.sheetFull ? 'Voltar o painel ao tamanho normal' : 'Esticar o painel até ocupar a tela',
+      // o FAB de filtros precisa furar o mapa em tela cheia (z 100) e se apoiar no sheet
+      fabStyle: (st.mapFull
+        // fixed + z acima do quadro do mapa (z 100): absolute o deixava ATRÁS dele,
+        // porque o FAB mora na raiz do app, fora do contexto de empilhamento do mapa
+        ? `position:fixed;left:16px;bottom:${_vBase(48)};z-index:110;`
+        : 'position:fixed;right:24px;bottom:164px;z-index:95;')
+        + 'display:flex;align-items:center;justify-content:center;width:46px;height:46px;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-background-100);color:var(--color-foreground);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)',
+      fltSheetZ: st.mapFull ? '120' : '99',
       toggleMapFull: () => {
         const entering = !st.mapFull;
         set({ mapFull: entering });
