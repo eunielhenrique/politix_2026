@@ -12,7 +12,7 @@
     // fundo (senão o estado de SP some quando o recorte é pequeno) sem competir com as cores
     // do recorte: cinza chapado, claro no dark e escuro no light, com contorno próprio.
     dark: { neutro: '#1a1a1a', fraco: '#5e4a1e', coberto: '#ededed', parcial: '#878787', priorizar: '#ffb224', seq: ['#111111', '#454545', '#ededed'], hseq: ['#181818', '#3a2a08', '#7a4d00', '#c67a00', '#ffb224', '#ffe3ad'], line: '#000000', pin: '#ededed', pinRing: '#000000', fora: '#31312f', foraLine: '#0d0d0d', selLine: '#ffffff' },
-    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff', fora: '#d2d2d0', foraLine: '#ffffff', selLine: '#111111' },
+    light: { neutro: '#ececec', fraco: '#f0dca0', coberto: '#171717', parcial: '#8f8f8f', priorizar: '#c77700', seq: ['#ededed', '#b8b8b8', '#171717'], hseq: ['#f4f1e8', '#f7d17a', '#eda01f', '#cc6f00', '#9a4a00', '#5a2a00'], line: '#ffffff', pin: '#171717', pinRing: '#ffffff', fora: '#d2d2d0', foraLine: '#ffffff', selLine: '#ffffff' },
   };
   const ANO_SYNTH = { '2024': 0.35, '2022': 0.6, '2018': 0.35, '2012': 0.2 };
   const MEMBROS = { candidato: ['candidato'], irmao: ['irmao'], pai: ['pai'], familia: ['candidato', 'irmao', 'pai'] };
@@ -317,8 +317,19 @@
         // mesma leitura do shimmer de carregamento — mostra o alvo sem tapar a cor da cidade
         .attr('class', r => (selIbge && String(r.code) === selIbge) ? 'px-sel' : null)
         .style('cursor', 'pointer')
-        .on('mousemove', function (ev, r) { self.tip(ev, r, fonte); d3.select(this).attr('stroke-width', 1.4).raise(); })
-        .on('mouseleave', function (ev, r) { self.hideTip(); d3.select(this).attr('stroke-width', selIbge && String(r.code) === selIbge ? 1.6 : 0.35); })
+        // hover: contorno BRANCO e mais grosso — o traço do tema (preto no dark) sumia
+        // por cima das faixas de cor. Ao sair, volta ao traço original da cidade.
+        .on('mousemove', function (ev, r) {
+          self.tip(ev, r, fonte);
+          d3.select(this).attr('stroke', P.selLine).attr('stroke-width', 1.4).raise();
+        })
+        .on('mouseleave', function (ev, r) {
+          self.hideTip();
+          const sel = selIbge && String(r.code) === selIbge;
+          d3.select(this)
+            .attr('stroke', sel ? P.selLine : (fora(r) ? P.foraLine : P.line))
+            .attr('stroke-width', sel ? 1.6 : 0.35);
+        })
         .on('click', (ev, r) => {
           window.dispatchEvent(new CustomEvent('politix:muni', { detail: {
             ibge: r.code, nome: r.nome, status: r.status, statusLabel: r.statusLabel, pot: r.pot, indice: r.indice, pend: r.pend,
