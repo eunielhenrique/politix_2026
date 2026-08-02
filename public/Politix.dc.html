@@ -4258,6 +4258,12 @@ class Component extends DCLogic {
         : (SEM_LID ? 'cor = líderes ativos no município · cadastro de liderados ainda não iniciado' : 'intensidade e círculos ∝ liderados cadastrados'),
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
       liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
+        // escolher na lista tem que levar o mapa junto: 'focus' aproxima a cidade E dispara
+        // o mesmo politix:muni do clique no mapa, então o painel abre com o detalhe idêntico
+        const abrir = () => {
+          set({ muni: t });
+          if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('politix:mapctl', { detail: { action: 'focus', ibge: t.ibge } }));
+        };
         // camada 2024: ranking por eleitorado, com votos válidos no lugar do índice da família
         if (_layerAtual === 'muni2024') {
           const comp = (t.eleitorado > 0 && t.vv > 0) ? (t.vv / t.eleitorado * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '—';
@@ -4265,7 +4271,7 @@ class Component extends DCLogic {
             pos: i + 1, nome: t.nome, sub: t.ra ? 'RA ' + t.ra : 'região não informada',
             dot: 'var(--color-gray-700)',
             potF: fmtN(t.eleitorado) + ' eleitores', lid: t.vv ? fmtN(t.vv) + ' válidos · ' + comp : '—',
-            onClick: () => set({ muni: t }),
+            onClick: abrir,
           };
         }
         const iv = t.indice != null ? t.indice : this.potIdx(t.pot);
@@ -4273,7 +4279,7 @@ class Component extends DCLogic {
         return {
           pos: i + 1, nome: t.nome, sub: 'potencial ' + nivel,
           dot: iv >= 40 ? 'var(--color-accent)' : iv >= 18 ? '#878787' : 'var(--color-gray-500)',
-          potF: 'índ. ' + iv, lid: SEM_LID ? (t.lideres ? t.lideres + ' líder(es)' : '—') : fmtN(t.liderados) + ' lid.', onClick: () => set({ muni: t }),
+          potF: 'índ. ' + iv, lid: SEM_LID ? (t.lideres ? t.lideres + ' líder(es)' : '—') : fmtN(t.liderados) + ' lid.', onClick: abrir,
         };
       }),
       // ── RA selecionada tratada como uma "cidade grande": agregado da região ──
