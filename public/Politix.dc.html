@@ -1635,8 +1635,11 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                           <div style="display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-100)">
                             <span style="width:18px;font-size:11px;color:var(--color-gray-600);font-variant-numeric:tabular-nums;flex-shrink:0">{{ cd.pos }}</span>
                             <div style="flex:1;min-width:0">
-                              <div style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cd.nome }}</div>
-                              <div style="font-size:10.5px;color:var(--color-gray-600)">{{ cd.meta }}</div>
+                              <div style="display:flex;align-items:center;gap:7px;min-width:0">
+                                <span style="flex-shrink:0;padding:2px 7px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-background);font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.3px;color:var(--color-foreground)">{{ cd.partido }}</span>
+                                <span style="flex:1;min-width:0;font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cd.nome }}</span>
+                              </div>
+                              <div style="font-size:10.5px;color:var(--color-gray-600);margin-top:2px">{{ cd.meta }}</div>
                             </div>
                             <sc-if value="{{ cd.eleito }}" hint-placeholder-val="{{ false }}">
                               <span style="flex-shrink:0;padding:2px 8px;border-radius:var(--radius-sm);font-size:9.5px;font-weight:600;background:var(--color-muted);color:var(--color-gray-1000)">eleito</span>
@@ -3987,7 +3990,10 @@ class Component extends DCLogic {
         : `A votação nominal de 2024 ainda não foi importada para ${mu ? mu.nome : 'este município'}. A tela já lê da tabela municipio_candidato · falta a carga do TSE.`,
       candLista: (_cand || []).map((c, i) => ({
         pos: String(i + 1), nome: c.nome_urna || c.nome_completo || '—',
-        meta: [c.partido, c.numero, c.situacao].filter(Boolean).join(' · ') || '—',
+        // o partido é o que o assessor procura primeiro: vira selo ao lado do nome
+        // e sai da linha fina, que fica só com número e situação
+        partido: c.partido || '—',
+        meta: [c.numero, c.situacao].filter(Boolean).join(' · ') || '—',
         votos: fmtN(Number(c.votos || 0)), eleito: !!c.eleito,
       })),
       // quem não votou/anulou: eleitorado − válidos, o complemento do comparecimento
