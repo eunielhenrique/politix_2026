@@ -27,7 +27,51 @@
 // Enquanto a campanha não cadastra liderados, toda métrica derivada deles (contagem de
 // liderados, ritmo 7d, cobertura por mil eleitores) fica escondida — zero na tela lê como
 // "a rede toda falhou". A leitura passa a ser por LÍDERES. Vira false quando o cadastro abrir.
-window.PX_SEM_LIDERADOS=true;</script>
+window.PX_SEM_LIDERADOS=true;
+// ── px-icon-draw: no hover, o ícone do clicável SE DESENHA (traço correndo) ──
+// Listener DELEGADO no document: a tela toda é re-renderizada pelo framework a
+// cada mudança de estado, então prender listener em elemento morreria no próximo
+// render. Só ponteiro fino: no totem/celular o :hover gruda depois do toque.
+(function () {
+  var mm = window.matchMedia;
+  if (!mm || !mm('(hover:hover) and (pointer:fine)').matches) return;
+  if (mm('(prefers-reduced-motion:reduce)').matches) return;
+  var CLICAVEL = 'button,a,[role="button"],summary';
+  var DUR = 460;
+  document.addEventListener('mouseover', function (ev) {
+    var alvo = ev.target && ev.target.closest && ev.target.closest(CLICAVEL);
+    if (!alvo || alvo.classList.contains('px-noicon-fx') || alvo.disabled) return;
+    var svg = alvo.querySelector('svg');
+    if (!svg || svg.dataset.pxDraw) return;
+    // só ÍCONE: os anéis/donuts (72/128/130) e os gráficos sem width ficam de
+    // fora — redesenhar aquilo apagaria o dado na frente do usuário
+    var w = parseFloat(svg.getAttribute('width'));
+    if (!(w > 0) || w > 24) return;
+    var tracos = svg.querySelectorAll('path,line,polyline,polygon,circle,ellipse,rect');
+    if (!tracos.length) return;
+    svg.dataset.pxDraw = '1';
+    svg.classList.add('px-drawing');
+    var medidos = [];
+    for (var i = 0; i < tracos.length; i++) {
+      var el = tracos[i], len = 0;
+      try { len = el.getTotalLength(); } catch (_) { }
+      if (!len) continue;
+      el.style.transition = 'none';
+      el.style.strokeDasharray = len;
+      el.style.strokeDashoffset = len;
+      medidos.push(el);
+    }
+    if (!medidos.length) { svg.classList.remove('px-drawing'); delete svg.dataset.pxDraw; return; }
+    void svg.getBoundingClientRect(); // sem o reflow o navegador junta reset e alvo num passo só
+    for (var j = 0; j < medidos.length; j++) { medidos[j].style.transition = ''; medidos[j].style.strokeDashoffset = '0'; }
+    setTimeout(function () {
+      // devolve o ícone ao estado limpo: dasharray residual estraga o traço em telas de alta densidade
+      for (var k = 0; k < medidos.length; k++) { medidos[k].style.strokeDasharray = ''; medidos[k].style.strokeDashoffset = ''; }
+      svg.classList.remove('px-drawing');
+      delete svg.dataset.pxDraw;
+    }, DUR);
+  }, true);
+})();</script>
 <style>
 body{margin:0;font-family:var(--font-sans);background:var(--color-background);color:var(--color-foreground);-webkit-font-smoothing:antialiased;
 --font-sans:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-mono:"Geist Mono","SFMono-Regular",Menlo,monospace;--font-display:"GeistPixel-Line","Geist Mono",monospace;
@@ -78,20 +122,12 @@ body{--pin-coberto:#ededed;--pin-parcial:#878787;--pin-priorizar:#ffb224}
 .px-ctld2{animation-delay:.20s}
 @media (prefers-reduced-motion:reduce){.px-ctlin,.px-ctlstack>*{animation:none}}
 /* ── HOVER DOS ÍCONES CLICÁVEIS (plataforma inteira) ─────────────────────────
-   Passar o mouse num clicável dá um "pulinho" no ícone. Escopado por TAMANHO:
-   só pega SVG de ícone (11–24px). Os anéis/donuts (72/128/130) e os gráficos
-   sem width ficam de fora — escalar aquilo deformaria o dado na tela.
-   Só em ponteiro fino: no totem/celular não existe hover, e o :hover grudaria
-   depois do toque. .px-noicon-fx desliga caso a caso. */
-@media (hover:hover) and (pointer:fine){
-  :is(button,[role="button"],a,summary) svg:is([width="11"],[width="12"],[width="13"],[width="14"],[width="15"],[width="16"],[width="17"],[width="18"],[width="20"],[width="21"],[width="24"]){
-    transition:transform .2s cubic-bezier(.2,.8,.3,1);
-  }
-  :is(button,[role="button"],a,summary):not([disabled]):not(.px-noicon-fx):hover svg:is([width="11"],[width="12"],[width="13"],[width="14"],[width="15"],[width="16"],[width="17"],[width="18"],[width="20"],[width="21"],[width="24"]){
-    transform:scale(1.18);
-  }
-}
-@media (prefers-reduced-motion:reduce){:is(button,[role="button"],a,summary):hover svg{transform:none}}
+   O ícone SE DESENHA quando o mouse chega: o traço nasce de um ponto e corre
+   até fechar a forma, em vez de só aparecer pronto. O comprimento de cada traço
+   é medido em JS (getTotalLength) porque varia de ícone para ícone — dasharray
+   fixo daria traço tracejado num e revelação instantânea no outro.
+   Aqui fica só a transição; quem dispara é o listener px-icon-draw. */
+.px-drawing *{transition:stroke-dashoffset .45s cubic-bezier(.4,0,.2,1)}
 /* ── MODO TOUCH (totem/tela grande) ──────────────────────────────────────────
    Ligado por BOTÃO, não por media query: um totem pode reportar ponteiro fino
    (driver que emula mouse) e um notebook com touchscreen ligaria sozinho sem
