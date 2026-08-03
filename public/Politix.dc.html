@@ -77,6 +77,21 @@ body{--pin-coberto:#ededed;--pin-parcial:#878787;--pin-priorizar:#ffb224}
 .px-ctld1{animation-delay:.10s}
 .px-ctld2{animation-delay:.20s}
 @media (prefers-reduced-motion:reduce){.px-ctlin,.px-ctlstack>*{animation:none}}
+/* ── HOVER DOS ÍCONES CLICÁVEIS (plataforma inteira) ─────────────────────────
+   Passar o mouse num clicável dá um "pulinho" no ícone. Escopado por TAMANHO:
+   só pega SVG de ícone (11–24px). Os anéis/donuts (72/128/130) e os gráficos
+   sem width ficam de fora — escalar aquilo deformaria o dado na tela.
+   Só em ponteiro fino: no totem/celular não existe hover, e o :hover grudaria
+   depois do toque. .px-noicon-fx desliga caso a caso. */
+@media (hover:hover) and (pointer:fine){
+  :is(button,[role="button"],a,summary) svg:is([width="11"],[width="12"],[width="13"],[width="14"],[width="15"],[width="16"],[width="17"],[width="18"],[width="20"],[width="21"],[width="24"]){
+    transition:transform .2s cubic-bezier(.2,.8,.3,1);
+  }
+  :is(button,[role="button"],a,summary):not([disabled]):not(.px-noicon-fx):hover svg:is([width="11"],[width="12"],[width="13"],[width="14"],[width="15"],[width="16"],[width="17"],[width="18"],[width="20"],[width="21"],[width="24"]){
+    transform:scale(1.18);
+  }
+}
+@media (prefers-reduced-motion:reduce){:is(button,[role="button"],a,summary):hover svg{transform:none}}
 /* ── MODO TOUCH (totem/tela grande) ──────────────────────────────────────────
    Ligado por BOTÃO, não por media query: um totem pode reportar ponteiro fino
    (driver que emula mouse) e um notebook com touchscreen ligaria sozinho sem
@@ -3889,6 +3904,15 @@ class Component extends DCLogic {
     // largura do painel do mapa em px — os controles +/−/centralizar se afastam por ela,
     // senão ficam por baixo do painel (o offset era fixo, da época em que ele tinha 320)
     const _painelW = Math.max(380, Math.min(490, Math.round((st.vw || 1440) * 0.36)));
+    // O modo touch engorda TODO botão (min-height:46 !important no .px-touch), então a
+    // pilha do zoom cresce junto e os offsets da coluna não podem ser número fixo: com o
+    // touch ligado a pilha passa de 112 para 142 e subia por baixo do botão de Touch.
+    // Altura da pill = 3 botões + 2 divisórias + as 2 bordas do container.
+    const _ctlBtn = st.touchOn ? 46 : 36;
+    const _ctlH = _ctlBtn * 3 + 4;
+    const _ctlGap = 8;
+    const _bTouch = 12 + _ctlH + _ctlGap;                 // Touch: 1 degrau acima do zoom
+    const _bExpand = _bTouch + _ctlBtn + _ctlGap;         // abrir-lista: acima do Touch
     // celular EM PÉ e em tela cheia: o sheet ocupa a base, então tudo que flutua
     // (zoom, legenda, FAB, abrir-lista) se apoia no TOPO DELE, não na borda da tela
     const _vert = isMob && !!st.mapFull && (st.vh ?? 800) >= (st.vw ?? 402);
@@ -4150,7 +4174,7 @@ class Component extends DCLogic {
       // o Touch saiu da barra de cima e virou ícone na COLUNA DO ZOOM, logo acima da
       // pilha (12 de base + 110 da pilha + 8 de respiro). Acompanha o mesmo recuo
       // lateral do zoom, senão fica por baixo do painel quando a lista está aberta.
-      touchBtnStyle: `position:absolute;right:${st.mapListHidden ? 12 : _painelW + 24}px;bottom:${12 + 110 + 8}px;z-index:6;width:36px;height:36px;border:1px solid ${st.touchOn ? 'var(--color-foreground)' : 'var(--color-border)'};border-radius:var(--radius-sm);background:${st.touchOn ? 'var(--color-foreground)' : 'var(--overlay)'};backdrop-filter:blur(8px);color:${st.touchOn ? 'var(--color-background)' : 'var(--color-foreground)'};cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
+      touchBtnStyle: `position:absolute;right:${st.mapListHidden ? 12 : _painelW + 24}px;bottom:${_bTouch}px;z-index:6;width:${_ctlBtn}px;height:${_ctlBtn}px;border:1px solid ${st.touchOn ? 'var(--color-foreground)' : 'var(--color-border)'};border-radius:var(--radius-sm);background:${st.touchOn ? 'var(--color-foreground)' : 'var(--overlay)'};backdrop-filter:blur(8px);color:${st.touchOn ? 'var(--color-background)' : 'var(--color-foreground)'};cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
       anchorsJson: this._aj,
       mapSelRa: (() => { const rn = this.fltArr(st.mapFRegiao)[0]; return (rn && rn !== 'todos') ? String(rn) : ''; })(), // nome da RA (banco), não índice
       mapSelMuni: st.muni && st.muni.ibge ? String(st.muni.ibge) : '', // cidade aberta no painel · destacada no mapa
@@ -4158,7 +4182,7 @@ class Component extends DCLogic {
       // abrir a lista fica logo ACIMA da pilha de zoom (3 botões de 36 + bordas = 110),
       // na mesma coluna — some junto quando a lista está aberta. Na tela grande em modo
       // cheia o Touch ocupa esse degrau, então ele sobe mais um (36 + 8).
-      mapExpandStyle: `position:absolute;${_vert ? 'left' : 'right'}:12px;bottom:${_vert ? _vBase(166) : ((12 + 110 + 8) + ((!isMob && st.mapFull) ? 44 : 0)) + 'px'};z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
+      mapExpandStyle: `position:absolute;${_vert ? 'left' : 'right'}:12px;bottom:${_vert ? _vBase(48 + _ctlH + _ctlGap) : ((!isMob && st.mapFull) ? _bExpand : _bTouch) + 'px'};z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
       // pilha vertical na BASE; com a lista recolhida ela encosta na direita da tela
       mapCtlStyle: isMob
         ? `position:absolute;${_vert ? 'left' : 'right'}:12px;bottom:${_vBase(48)};z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`
@@ -4187,7 +4211,7 @@ class Component extends DCLogic {
       showMapListBtn: !isMob || (!!st.mapFull && !_vert),
       // em pé e em tela cheia ele sai da barra e assume a coluna do zoom, logo acima da
       // pilha (3 botões de 36 + bordas = 110); fora da tela cheia segue no canto de cima
-      mapFullBtnStyle: (_vert ? `position:absolute;left:12px;bottom:${_vBase(48 + 110 + 8)};` : 'position:absolute;top:12px;right:12px;')
+      mapFullBtnStyle: (_vert ? `position:absolute;left:12px;bottom:${_vBase(48 + _ctlH + _ctlGap)};` : 'position:absolute;top:12px;right:12px;')
         + 'z-index:6;width:38px;height:38px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)',
       // 3 colunas de KPI não cabem num painel de 400px: o número mono tem min-content
       // maior que 1fr e empurrava a largura do painel inteiro
