@@ -654,9 +654,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         <div style="display:flex;align-items:center;gap:9px;padding:10px 10px 2px;border-top:1px solid var(--color-border)">
           <div style="width:30px;height:30px;border-radius:var(--radius-sm);background:var(--color-gray-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-sans);font-weight:600;font-size:13px">A</div>
           <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600">Assessoria</div><div style="font-size:10.5px;color:var(--color-gray-600)">Campanha SP 2026</div></div>
-          <button onClick="{{ abrirConfig }}" title="Configurações" style="width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:{{ configBg }};color:{{ configCor }};cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" style-hover="color:var(--color-foreground)">
+          <sc-if value="{{ configShow }}" hint-placeholder-val="{{ true }}"><button onClick="{{ abrirConfig }}" title="Configurações" style="width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:{{ configBg }};color:{{ configCor }};cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" style-hover="color:var(--color-foreground)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-5l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h5l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2Z"></path></svg>
-          </button>
+          </button></sc-if>
           <button onClick="{{ sair }}" title="Sair" style="width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--color-gray-600);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" style-hover="color:var(--color-highlight)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
           </button>
@@ -665,9 +665,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         <sc-if value="{{ sideClosed }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 0 2px;border-top:1px solid var(--color-border)">
             <div title="Assessoria · Campanha SP 2026" style="width:30px;height:30px;border-radius:var(--radius-sm);background:var(--color-gray-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-sans);font-weight:600;font-size:13px">A</div>
-            <button onClick="{{ abrirConfig }}" title="Configurações" style="width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:{{ configBg }};color:{{ configCor }};cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--color-foreground)">
+            <sc-if value="{{ configShow }}" hint-placeholder-val="{{ true }}"><button onClick="{{ abrirConfig }}" title="Configurações" style="width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:{{ configBg }};color:{{ configCor }};cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--color-foreground)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-5l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h5l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2Z"></path></svg>
-            </button>
+            </button></sc-if>
           </div>
         </sc-if>
       </aside>
@@ -1110,8 +1110,8 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <span style="display:inline-block;margin-top:8px;padding:3px 12px;border-radius:var(--radius-sm);font-size:10.5px;font-weight:600;background:{{ cp.stBg }};color:{{ cp.stFg }}">{{ cp.status }}</span>
                 <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px {{ podStatGap }};margin-top:12px">
                   <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px;color:var(--color-foreground)">{{ cp.potF }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">POTENCIAL</div></div>
-                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px">{{ cp.lidF }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">LIDERADOS</div></div>
-                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px;color:{{ cp.convCor }}">{{ cp.conv }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">CONV./MIL</div></div>
+                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px">{{ cp.lidF }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">LÍDERES</div></div>
+                  <div><div style="font-size:{{ podStatFs }};font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px;color:{{ cp.convCor }}">{{ cp.conv }}</div><div style="font-size:9.5px;font-weight:600;letter-spacing:1px;color:var(--color-gray-600)">WESLEY EM 2022</div></div>
                 </div>
               </div>
             </sc-for>
@@ -1119,7 +1119,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden">
           <div style="display:flex;align-items:baseline;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--color-gray-200)">
             <span style="font-size:15px;font-weight:600">Ranking completo</span>
-            <span style="font-size:11.5px;color:var(--color-gray-600)">{{ cidadesTotal }} cidades mapeadas · ref. TSE nunca soma com cadastros</span>
+            <span style="font-size:11.5px;color:var(--color-gray-600)">{{ cidadesTotal }} cidades com líder · ordenado por quantidade de líderes</span>
           </div>
           <div style="overflow-x:auto">
           <div style="min-width:{{ cidTblMinW }}">
@@ -1127,9 +1127,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             <span style="width:26px;flex-shrink:0">#</span>
             <span style="flex:1;min-width:110px">CIDADE</span>
             <span style="width:130px;flex-shrink:1;min-width:90px">POTENCIAL (0–100)</span>
-            <span style="width:64px;text-align:right;flex-shrink:0">LIDERADOS</span>
-            <span style="width:48px;text-align:right;flex-shrink:0">LÍDERES</span>
-            <span style="width:110px;flex-shrink:1;min-width:80px">CONVERSÃO /MIL</span>
+            <span style="width:64px;text-align:right;flex-shrink:0">LÍDERES</span>
+            <span style="width:48px;text-align:right;flex-shrink:0">LIDER.</span>
+            <span style="width:110px;flex-shrink:1;min-width:80px">WESLEY EM 2022</span>
             <span style="width:118px;text-align:center;flex-shrink:0">STATUS</span>
           </div>
           <sc-for list="{{ cidadesRank }}" as="cr" hint-placeholder-count="8">
@@ -1139,13 +1139,13 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <span style="width:130px;flex-shrink:1;min-width:90px"><span style="display:block;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums">{{ cr.potF }}</span><span style="display:block;height:4px;border-radius:var(--radius-sm);background:var(--color-gray-300);margin-top:4px;overflow:hidden"><span style="display:block;height:100%;background:var(--color-foreground);width:{{ cr.tetoW }}"></span></span></span>
               <span style="width:64px;text-align:right;flex-shrink:0;font-size:12.5px;font-variant-numeric:tabular-nums">{{ cr.lidF }}</span>
               <span style="width:48px;text-align:right;flex-shrink:0;font-size:12.5px;font-variant-numeric:tabular-nums">{{ cr.lideres }}</span>
-              <span style="width:110px;flex-shrink:1;min-width:80px"><span style="display:block;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ cr.convCor }}">{{ cr.conv }}/mil</span><span style="display:block;height:4px;border-radius:var(--radius-sm);background:var(--color-gray-300);margin-top:4px;overflow:hidden"><span style="display:block;height:100%;background:var(--color-foreground);width:{{ cr.convW }}"></span></span></span>
+              <span style="width:110px;flex-shrink:1;min-width:80px"><span style="display:block;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ cr.convCor }}">{{ cr.conv }}</span><span style="display:block;height:4px;border-radius:var(--radius-sm);background:var(--color-gray-300);margin-top:4px;overflow:hidden"><span style="display:block;height:100%;background:var(--color-foreground);width:{{ cr.convW }}"></span></span></span>
               <span style="width:118px;flex-shrink:0;text-align:center;font-size:10.5px;font-weight:600;padding:4px 0;border-radius:var(--radius-sm);background:{{ cr.stBg }};color:{{ cr.stFg }}">{{ cr.status }}</span>
             </div>
           </sc-for>
           </div>
           </div>
-          <div style="padding:12px 20px;font-size:11px;color:var(--color-gray-600)">Conversão medida sobre o potencial da família · 2/mil ≈ cobertura forte · clique numa cidade para abrir no mapa</div>
+          <div style="padding:12px 20px;font-size:11px;color:var(--color-gray-600)">Cidades onde a rede já tem líder, da que tem mais para a que tem menos · WESLEY EM 2022 é o voto do próprio candidato ali (TSE), a régua da promessa · clique numa cidade para abrir no mapa</div>
           </div>
         </div>
       </sc-if>
@@ -2518,7 +2518,7 @@ class Component extends DCLogic {
     }
     if (!me || !me.tenant_id) { if (!hasVista) this.setState({ view: 'onboarding' }); this.setState({ remote: { session: true } }); return; }
     const role = me.role;
-    const remote = { session: true, role, tenantId: me.tenant_id, leaderId: me.leader_id, tenantName: me.tenant_name, electionDate: me.election_date, leaderName: me.name };
+    const remote = { session: true, role, superAdmin: !!me.super_admin, tenantId: me.tenant_id, leaderId: me.leader_id, tenantName: me.tenant_name, electionDate: me.election_date, leaderName: me.name };
     try {
       if (role === 'assessor') {
         const rk = await sb.rpc('tenant_ranking');
@@ -3457,21 +3457,30 @@ class Component extends DCLogic {
       };
     }).filter(c => this.fltMatch(st.cidFRegiao, this.raDe(c.nome)))
       .sort((a, b) => b.indice - a.indice).map((c, i) => ({ ...c, pos: String(i + 1) }));
-    const cidadesRank = AR ? (function () {
+    // Sem cadastro de liderados a tela ficava VAZIA (era montada sobre st.remote.liderados)
+    // e conversão/mil era sempre '—'. Por ora o ranking é o que existe: cidades onde a rede
+    // JÁ tem líder, ordenadas por quantos, com o voto do candidato ali em 2022 como régua.
+    const cidadesRank = AR ? (() => {   // arrow: o bloco usa this._normCid e IIFE function perde o this
       const cc = {}; (st.remote.liderados || []).forEach(l => { const c = l.city || '—'; cc[c] = (cc[c] || 0) + 1; });
       const lpc = {}; AR.forEach(r => (r.cities || []).forEach(c => lpc[c] = (lpc[c] || 0) + 1));
-      const maxLid = Math.max(1, ...Object.values(cc));
-      const stLbl = { coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' };
-      return Object.entries(cc).filter(([c]) => c !== '—').map(([nome, lid]) => {
-        const nl = lpc[nome] || 0;
-        const status = nl === 0 ? 'priorizar' : lid >= maxLid * 0.4 ? 'coberto' : 'parcial';
-        const tone = status === 'coberto' ? okC : status === 'parcial' ? warnC : errC;
+      const stLbl = { coberto: 'Coberto', formacao: 'Em formação', unico: 'Só um líder' };
+      return Object.entries(lpc).filter(([c]) => c && c !== '—').map(([nome, nl]) => {
+        const lid = cc[nome] || 0;
+        const status = nl >= 3 ? 'coberto' : nl === 2 ? 'formacao' : 'unico';
+        const tone = status === 'coberto' ? okC : status === 'formacao' ? warnC : errC;
         const fa = famByName[_normCidade(nome)];
         const ind = fa ? fa.indice : null;
         const hist = fa ? ['candidato', 'irmao', 'pai'].flatMap(m2 => fa.hist[m2].map(h2 => ({ membro: { candidato: 'Wesley Cezar (Lelinho)', irmao: 'Elvis Cezar', pai: 'Cezar (Cezão)' }[m2], cargo: h2.cargo, ano: h2.ano, votos: h2.votos }))) : [];
-        const potVol = fa ? hist.reduce((s, h2) => s + h2.votos, 0) : lid;
-        return { nome, pot: potVol, indice: ind, potF: ind != null ? String(ind) : '—', lid, lidF: lid.toLocaleString('pt-BR'), lideres: String(nl), conv: '—', convCor: 'var(--color-gray-600)', convW: '0%', tetoW: (ind != null ? Math.max(ind, 2) : Math.round(lid / maxLid * 100)) + '%', status: stLbl[status], stBg: tone[0], stFg: tone[1], onClick: () => set(fa ? { aTab: 'mapa', muni: { ibge: fa.ibge, nome, status, statusLabel: stLbl[status], pot: potVol, indice: ind, lideres: nl, liderados: lid, ritmo: 0, historico: hist.sort((x, y2) => y2.votos - x.votos), topLideres: fa.topLideres, fonte: 'familia' } } : { aTab: 'mapa' }) };
-      }).sort((a, b) => b.lid - a.lid).map((c, i) => ({ ...c, pos: String(i + 1) }));
+        const potVol = fa ? hist.reduce((s, h2) => s + h2.votos, 0) : 0;
+        const ref = _candPorCidade[this._normCid(nome)] || 0;
+        return { nome, pot: potVol, indice: ind, potF: ind != null ? String(ind) : '—',
+          lid: nl, lidF: String(nl), lideres: lid ? String(lid) : '—',
+          conv: ref > 0 ? fmtN(ref) : '—', convCor: ref > 0 ? 'var(--color-foreground)' : 'var(--color-gray-600)',
+          convW: ref > 0 && ind != null ? Math.max(ind, 2) + '%' : '0%',
+          tetoW: (ind != null ? Math.max(ind, 2) : 0) + '%',
+          status: stLbl[status], stBg: tone[0], stFg: tone[1],
+          onClick: () => set(fa ? { aTab: 'mapa', muni: { ibge: fa.ibge, nome, status: nl >= 3 ? 'coberto' : 'parcial', statusLabel: stLbl[status], pot: potVol, indice: ind, lideres: nl, liderados: lid, ritmo: 0, historico: hist.sort((x, y2) => y2.votos - x.votos), topLideres: fa.topLideres, fonte: 'familia' } } : { aTab: 'mapa' }) };
+      }).sort((a, b) => (b.lid - a.lid) || ((b.indice || 0) - (a.indice || 0))).map((c, i) => ({ ...c, pos: String(i + 1) }));
     })() : _cidMock;
     const cidMedal = ['#ededed', '#878787', '#666666'];
     const cidPodio = [1, 0, 2].filter(ci => cidadesRank[ci]).map(ci => {
@@ -3849,7 +3858,11 @@ class Component extends DCLogic {
     });
     // ---- tela Mapa Rede × Família ----
     const fmtMil = (n) => n >= 1e6 ? (n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : n >= 1000 ? Math.round(n / 1000) + ' mil' : String(n);
-    const assessorTabs = [['visao', 'Visão geral', I.target], ['mapa', 'Mapa Rede', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Ranking de líderes', I.award], ['cadastro', 'Cadastrar líder', 'M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6'], ['cidades', 'Ranking de cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]].map(([k, label, icon]) => ({
+    // super admin (dono da conta) vê o console inteiro; assessor comum só as 4 telas de campo
+    const _super = !st.remote || st.remote.superAdmin !== false;
+    const ABAS_ADMIN = ['visao', 'mapa', 'cadastro', 'grupos'];
+    const podeAba = (k) => _super || ABAS_ADMIN.includes(k);
+    const assessorTabs = [['visao', 'Visão geral', I.target], ['mapa', 'Mapa Rede', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Ranking de líderes', I.award], ['cadastro', 'Cadastrar líder', 'M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6'], ['cidades', 'Ranking de cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]].filter(([k]) => podeAba(k)).map(([k, label, icon]) => ({
       label, icon, onClick: () => set({ aTab: k }),
       bg: st.aTab === k ? 'var(--color-gray-300)' : 'transparent', fg: st.aTab === k ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
     }));
@@ -3932,7 +3945,7 @@ class Component extends DCLogic {
       ? `A família tem potencial ${_muNivW} aqui (índice ${_muNiv}) e nenhum líder cadastrado · potencial ainda descoberto.`
       : `Potencial baixo da família neste município. Prioridade baixa de investimento.`;
     const mapVals = {
-      aTabVisao: st.aTab === 'visao', aTabMapa: st.aTab === 'mapa', aTabRanking: st.aTab === 'ranking', aTabCidades: st.aTab === 'cidades', aTabConfig: st.aTab === 'config', abrirConfig: () => set({ aTab: 'config' }),
+      aTabVisao: st.aTab === 'visao', aTabMapa: st.aTab === 'mapa', aTabRanking: st.aTab === 'ranking' && _super, aTabCidades: st.aTab === 'cidades' && _super, aTabConfig: st.aTab === 'config' && _super, abrirConfig: () => set({ aTab: 'config' }), configShow: _super,
       configCor: st.aTab === 'config' ? 'var(--color-foreground)' : 'var(--color-gray-600)', configBg: st.aTab === 'config' ? 'var(--color-gray-300)' : 'transparent',
       ...this.cfgVals(st, set),
       ...this.aiVals(st, set, st.view === 'assessor' ? 'assessor' : 'leader'),
@@ -3953,7 +3966,7 @@ class Component extends DCLogic {
         && !st.sheetFull && !st.kbOpen && (!st.mapFull || _vert),
       fltConfig: st.aTab === 'config',
       fltOpen: !!st.fltOpen, abrirFlt: () => set({ fltOpen: true }), fecharFlt: () => set({ fltOpen: false }),
-      fltRanking: st.aTab === 'ranking', fltCidades: st.aTab === 'cidades', fltMapa: st.aTab === 'mapa', fltGrupos: st.aTab === 'grupos',
+      fltRanking: st.aTab === 'ranking' && _super, fltCidades: st.aTab === 'cidades' && _super, fltMapa: st.aTab === 'mapa', fltGrupos: st.aTab === 'grupos',
       ...(() => {
         const regOpts = [{ v: 'todos', l: 'Todas' }, ...RA15.map(v => ({ v, l: v }))];
         const mk = (opts, sel, on) => opts.map(o => ({ label: o.l, onClick: () => on(this.fltToggle(sel, o.v)), ...(this.fltArr(sel).includes(o.v) ? { bg: 'var(--color-foreground)', fg: 'var(--color-background)', bd: 'var(--color-foreground)' } : { bg: 'var(--color-background)', fg: 'var(--color-muted-foreground)', bd: 'var(--color-border)' }) }));
@@ -3977,18 +3990,24 @@ class Component extends DCLogic {
       expandIconShow: isMob && (!st.mapFull || _vert) && !_sheetCheio,
       mapBarFullBtnShow: !isMob || (!!st.mapFull && !_vert), // na barra só quando não há botão solto
       ...(() => {
-        const defs = [['visao', 'Visão', I.target], ['mapa', 'Mapa', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Líderes', I.award], ['cidades', 'Cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]];
+        const defs = [['visao', 'Visão', I.target], ['mapa', 'Mapa', 'M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4ZM9 6.2V18M15 6v11.8'], ['ranking', 'Líderes', I.award], ['cidades', 'Cidades', 'M4 21V10l5-3v14M9 21V4l6 3v14M15 21V8l5 3v10M2.5 21h19'], ['grupos', 'Grupos', I.chat]]
+          .filter(([k]) => podeAba(k))
+          .concat(podeAba('ranking') ? [] : [['cadastro', 'Cadastrar', 'M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6']]);
         const mk = ([k, curto, icon]) => { const on = st.aTab === k; return { curto, icon, onClick: () => set({ aTab: k, aSheet: false, muni: null, selLeader: null }), cor: on ? 'var(--color-accent)' : 'var(--color-gray-600)', fw: on ? '600' : '500', sw: on ? '2.1' : '1.7' }; };
         const nav = defs.map(mk);
-        const labels = { visao: 'Visão geral', mapa: 'Mapa Rede', ranking: 'Ranking de líderes', cidades: 'Ranking de cidades', grupos: 'Grupos' };
+        const labels = { visao: 'Visão geral', mapa: 'Mapa Rede', ranking: 'Ranking de líderes', cidades: 'Ranking de cidades', grupos: 'Grupos', cadastro: 'Cadastrar líder' };
+        // barra de baixo por CHAVE, não por índice: com abas filtradas o índice fixo
+        // apontava pra undefined e a barra do assessor comum vinha quebrada
+        const porChave = {}; defs.forEach(([k], i) => { porChave[k] = nav[i]; });
+        const barra = (_super ? ['visao', 'mapa', 'ranking', 'grupos'] : ['visao', 'mapa', 'cadastro', 'grupos']).map(k => porChave[k]).filter(Boolean);
         return {
-          aNavEsq: [nav[0], nav[1]], aNavDir: [nav[2], nav[4]],
+          aNavEsq: barra.slice(0, 2), aNavDir: barra.slice(2, 4),
           aSheetOpen: !!st.aSheet,
           abrirASheet: () => set({ aSheet: true }), fecharASheet: () => set({ aSheet: false }),
           aSheetNav: [
             ...defs.map(([k, c, icon]) => ({ label: labels[k], icon, onClick: () => set({ aTab: k, aSheet: false }), bg: st.aTab === k ? 'var(--color-muted)' : 'var(--color-background)', bd: st.aTab === k ? 'var(--color-gray-500)' : 'var(--color-border)', fg2: st.aTab === k ? 'var(--color-foreground)' : 'var(--color-gray-900)' })),
-            { label: 'Configurações', icon: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-5l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h5l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2Z', onClick: () => set({ aTab: 'config', aSheet: false }), bg: st.aTab === 'config' ? 'var(--color-muted)' : 'var(--color-background)', bd: st.aTab === 'config' ? 'var(--color-gray-500)' : 'var(--color-border)', fg2: st.aTab === 'config' ? 'var(--color-foreground)' : 'var(--color-gray-900)' },
-            { label: 'Politix IA', icon: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9L19 15Z', onClick: () => this.setState({ aSheet: false, aiOpenA: true }), bg: 'var(--color-foreground)', bd: 'var(--color-foreground)', fg2: 'var(--color-background)' },
+..._super ? [            { label: 'Configurações', icon: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-5l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h5l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2Z', onClick: () => set({ aTab: 'config', aSheet: false }), bg: st.aTab === 'config' ? 'var(--color-muted)' : 'var(--color-background)', bd: st.aTab === 'config' ? 'var(--color-gray-500)' : 'var(--color-border)', fg2: st.aTab === 'config' ? 'var(--color-foreground)' : 'var(--color-gray-900)' }] : [],
+                        { label: 'Politix IA', icon: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9L19 15Z', onClick: () => this.setState({ aSheet: false, aiOpenA: true }), bg: 'var(--color-foreground)', bd: 'var(--color-foreground)', fg2: 'var(--color-background)' },
           ],
         };
       })(),
