@@ -1463,7 +1463,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
             </div>
             </sc-if>
             <sc-if value="{{ semGrupos }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:20px 16px;font-size:12.5px;color:var(--color-gray-600);line-height:1.5">Nenhum grupo nesse recorte · a região ainda não tem líder com grupo ativo.</div>
+              <div style="padding:20px 16px;font-size:12.5px;color:var(--color-gray-600);line-height:1.5">{{ semGruposTxt }}</div>
             </sc-if>
             <sc-for list="{{ gruposList }}" as="gl" hint-placeholder-count="5">
               <button onClick="{{ gl.onClick }}" style="display:flex;align-items:center;gap:11px;width:100%;padding:12px 16px;border:none;border-bottom:1px solid var(--color-gray-200);background:{{ gl.bg }};cursor:pointer;text-align:left" style-hover="background:var(--color-background-100)">
@@ -2595,7 +2595,11 @@ class Component extends DCLogic {
       }
     } catch (e) {}
     this.setState({ view: hasVista ? this.state.view : (role === 'assessor' ? 'assessor' : 'leader'), remote });
-    if (role === 'assessor') this._wppCheck();
+    // A lista de grupos vem da TABELA (edge wpp/list), não da instância do WhatsApp:
+    // carrega sempre. Antes só carregava dentro do _wppCheck, ou seja, apenas com a
+    // instância conectada — e sem conexão a tela de Grupos caía no mock.
+    // O _wppCheck segue, mas só para saber se dá para ENVIAR.
+    if (role === 'assessor') { this.wppList(); this._wppCheck(); }
     else if (me.leader_id) this.wppList();
   }
   _pxAiContext(ctxType) {
@@ -3391,34 +3395,6 @@ class Component extends DCLogic {
     ];
     const consolidadoPot = {}; this.anchorsData.forEach(a => { consolidadoPot[a.ibge] = ['candidato', 'irmao', 'pai'].reduce((s, m2) => s + a.hist[m2].reduce((x, h2) => x + h2.votos, 0), 0); });
     const fMil = (n) => n >= 1000 ? Math.round(n / 1000) + ' mil' : String(n);
-    const _rankMock = [
-      ['Ana Ferreira', 'Campinas · Jundiaí', 389, 400, '3,2', 'Em dia', 'ok', ['3509502', '3525904'], 'Campinas'],
-      ['Camila Duarte', 'Osasco', 174, 200, '4,1', 'Voando', 'ok', ['3534401'], 'Osasco'],
-      ['Marcos Tavares', 'São Paulo (ZL)', 187, 300, '1,7', 'Em dia', 'ok', ['3550308'], 'São Paulo'],
-      ['Rita Nogueira', 'S. J. dos Campos', 168, 300, '1,4', 'Atenção', 'warn', ['3549904'], 'São José dos Campos'],
-      ['João Prado', 'Sorocaba · Itu', 121, 250, '0,9', 'Atenção', 'warn', ['3552205'], 'Sorocaba'],
-      ['Edson Lima', 'Santos · Guarujá', 93, 200, '0,4', 'Parado 8d', 'err', ['3548500'], 'Santos'],
-      ['Vera Matos', 'Guarulhos', 148, 350, '0,0', 'Parado 12d', 'err', ['3518800'], 'Guarulhos'],
-      ['Paulo Cesarino', 'Piracicaba', 38, 150, '0,2', 'Parado 9d', 'err', ['3538709'], 'Piracicaba'],
-      ['Luiz Antunes', 'Ribeirão Preto', 0, 250, '—', 'Convite pendente', 'err', ['3543402'], 'Ribeirão Preto'],
-    ];
-    // cauda longa gerada (determinística) para rolagem infinita
-    if (!this._tail) {
-      const fn = ['Adriana', 'Bruno', 'Cláudia', 'Douglas', 'Eliane', 'Fábio', 'Gislaine', 'Hélio', 'Ivone', 'Jorge', 'Kátia', 'Leandro', 'Mônica', 'Nelson', 'Otávia', 'Pedro', 'Quésia', 'Renato', 'Simone', 'Tadeu', 'Ubirajara', 'Valéria', 'Wagner', 'Xavier', 'Yara', 'Zilda'];
-      const ln = ['Almeida', 'Barros', 'Cardoso', 'Dias', 'Esteves', 'Freitas', 'Gomes', 'Hernandes', 'Iglesias', 'Justino', 'Klein', 'Lopes', 'Moraes', 'Neves', 'Queiroz', 'Ramos', 'Sales', 'Teixeira', 'Uchoa', 'Vieira'];
-      const ct = ['Taboão da Serra', 'Embu das Artes', 'Itapecerica', 'Franco da Rocha', 'Caieiras', 'Suzano', 'Poá', 'Ferraz de Vasconcelos', 'Mauá', 'Ribeirão Pires', 'Cubatão', 'Praia Grande', 'São Vicente', 'Itu', 'Salto', 'Indaiatuba', 'Hortolândia', 'Sumaré', 'Americana', 'Limeira', 'Rio Claro', 'Araraquara', 'Jaú', 'Botucatu', 'Avaré', 'Ourinhos', 'Assis', 'Tupã', 'Lins', 'Catanduva', 'Barretos', 'Franca', 'Batatais', 'Mococa', 'São Carlos', 'Leme', 'Pindamonhangaba', 'Taubaté', 'Guaratinguetá', 'Lorena'];
-      this._tail = Array.from({ length: 191 }, (_, j) => {
-        const r1 = (j * 48271 % 233) / 233, r2 = (j * 69621 % 181) / 181, r3 = (j * 16807 % 149) / 149;
-        const m2 = 50 + Math.round(r2 * 6) * 25;
-        const p2 = Math.max(2, 58 - j * 0.28 - r1 * 6);
-        const real2 = Math.round(m2 * p2 / 100);
-        const rate2 = Math.max(0, p2 / 40 + r3 * 0.8 - 0.3);
-        const tone2 = rate2 === 0 || r3 < 0.12 ? 'err' : p2 < 25 ? 'warn' : 'ok';
-        const status2 = tone2 === 'err' ? `Parado ${7 + Math.round(r1 * 20)}d` : tone2 === 'warn' ? 'Atenção' : 'Em dia';
-        return [`${fn[j % fn.length]} ${ln[(j * 7 + Math.floor(j / fn.length)) % ln.length]}`, ct[j % ct.length], real2, m2, rate2.toFixed(1).replace('.', ','), status2, tone2, [], ct[j % ct.length]];
-      });
-    }
-    _rankMock.push(...this._tail);
     const fmtN = (n) => (n ?? 0).toLocaleString('pt-BR');
     // voto do PRÓPRIO candidato por cidade — a régua honesta da promessa de cada líder
     const _candPorCidade = {};
@@ -3438,7 +3414,7 @@ class Component extends DCLogic {
       return [r.name, (r.cities || []).join(' · ') || '—', Number(r.realizado), r.meta,
               rate ? rate.toFixed(1).replace('.', ',') : '—', status, tone, [],
               (r.cities || [])[0] || '', ref];
-    }) : _rankMock;
+    }) : [];   // sem dado real ainda: lista vazia, nunca líderes fictícios
     const rankingFiltrada = rankingData.filter(r => this.fltMatch(st.rankFRegiao, this.raDe(r[8])));
     const ranking = rankingFiltrada.map((r, i) => {
       const [nome, cidades, real, m, rateS, status, tone, ibges] = r;
@@ -3502,28 +3478,7 @@ class Component extends DCLogic {
       });
       this._aj = JSON.stringify(anchorsReal); this._ajRemote = st.remote; this._ajMuni = this._muni; this._ajFam = this._famKey;
     }
-    const _cidMock = this.anchorsData.map(a => {
-      const pot = consolidadoPot[a.ibge];
-      const lid = a.rede.liderados, nl = a.rede.lideres;
-      const convN = pot > 0 ? lid / pot * 1000 : 0;
-      const status = lid >= 80 && convN >= 2 ? 'coberto' : lid >= 25 ? 'parcial' : 'priorizar';
-      const tone = status === 'coberto' ? okC : status === 'parcial' ? warnC : errC;
-      const historico = ['candidato', 'irmao', 'pai'].flatMap(m2 => a.hist[m2].map(h2 => ({ membro: { candidato: 'Wesley Cezar (Lelinho)', irmao: 'Elvis Cezar', pai: 'Cezar (Cezão)' }[m2], cargo: h2.cargo, ano: h2.ano, votos: h2.votos })));
-      return {
-        nome: a.nome, pot, indice: a.indice, potF: String(a.indice), lid, lidF: lid.toLocaleString('pt-BR'), lideres: String(nl),
-        conv: convN.toLocaleString('pt-BR', { maximumFractionDigits: 1 }),
-        convCor: convN >= 2 ? 'var(--color-gray-1000)' : convN >= 0.8 ? 'var(--color-gray-700)' : 'var(--color-highlight)',
-        convW: Math.min(convN / 2 * 100, 100).toFixed(0) + '%',
-        tetoW: Math.max(a.indice, 2).toFixed(0) + '%',
-        status: { coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[status],
-        stBg: tone[0], stFg: tone[1],
-        onClick: () => set({ aTab: 'mapa', muni: { ibge: a.ibge, nome: a.nome, status, statusLabel: { coberto: 'Coberto', parcial: 'Abaixo do potencial', priorizar: 'Priorizar' }[status], pot, indice: a.indice, lideres: nl, liderados: lid, ritmo: a.rede.ritmo, historico: historico.sort((x, y2) => y2.votos - x.votos), topLideres: a.topLideres, fonte: 'familia' } }),
-      };
-    }).filter(c => this.fltMatch(st.cidFRegiao, this.raDe(c.nome)))
-      .sort((a, b) => b.indice - a.indice).map((c, i) => ({ ...c, pos: String(i + 1) }));
-    // Sem cadastro de liderados a tela ficava VAZIA (era montada sobre st.remote.liderados)
-    // e conversão/mil era sempre '—'. Por ora o ranking é o que existe: cidades onde a rede
-    // JÁ tem líder, ordenadas por quantos, com o voto do candidato ali em 2022 como régua.
+
     const cidadesRank = AR ? (() => {   // arrow: o bloco usa this._normCid e IIFE function perde o this
       const cc = {}; (st.remote.liderados || []).forEach(l => { const c = l.city || '—'; cc[c] = (cc[c] || 0) + 1; });
       const lpc = {}; AR.forEach(r => (r.cities || []).forEach(c => lpc[c] = (lpc[c] || 0) + 1));
@@ -3545,7 +3500,8 @@ class Component extends DCLogic {
           status: stLbl[status], stBg: tone[0], stFg: tone[1],
           onClick: () => set(fa ? { aTab: 'mapa', muni: { ibge: fa.ibge, nome, status: nl >= 3 ? 'coberto' : 'parcial', statusLabel: stLbl[status], pot: potVol, indice: ind, lideres: nl, liderados: lid, ritmo: 0, historico: hist.sort((x, y2) => y2.votos - x.votos), topLideres: fa.topLideres, fonte: 'familia' } } : { aTab: 'mapa' }) };
       }).sort((a, b) => (b.lid - a.lid) || ((b.indice || 0) - (a.indice || 0))).map((c, i) => ({ ...c, pos: String(i + 1) }));
-    })() : _cidMock;
+    })() : [];  // sem ranking real ainda: vazio. O fallback antigo listava TODAS
+                  // as cidades com 0 líderes, o que é falso — existem líderes cadastrados.
     const cidMedal = ['#ededed', '#878787', '#666666'];
     const cidPodio = [1, 0, 2].filter(ci => cidadesRank[ci]).map(ci => {
       const c = cidadesRank[ci]; const first = ci === 0;
@@ -3555,65 +3511,35 @@ class Component extends DCLogic {
         pad: first ? '28px 20px 24px' : '20px 16px 18px' };
     });
     const cidResto = cidadesRank.slice(3);
-    // ---- grupos ----
-    const _gruposMock = [
-      { id: 'g1', nome: 'Zona Leste com Lelinho', lider: 'Marcos Tavares', cidade: 'São Paulo (ZL)', regiao: 'Metropolitana de São Paulo', membros: 248, ativos7d: 61, msgs: [
-        ['Marcos Tavares', 'Bom dia, grupo! Sábado tem panfletagem na feira de Itaquera, 8h. Quem vai?', '08:12'],
-        ['Rosana Alves', 'Eu vou! Levo mais duas vizinhas.', '08:20'],
-        ['Assessoria', 'Material novo de rua liberado na pasta da coordenação. Contem com a gente!', '09:05'],
-        ['Gilberto Nunes', 'Confirmado. Alguém tem o panfleto atualizado em PDF?', '09:41']] },
-      { id: 'g2', nome: 'Campinas + Jundiaí · Ana', lider: 'Ana Ferreira', cidade: 'Campinas · Jundiaí', regiao: 'Campinas', membros: 312, ativos7d: 118, msgs: [
-        ['Ana Ferreira', 'Encontro de lideranças sábado em Campinas · tragam os sub-líderes!', 'ontem'],
-        ['Márcia Leal', 'Presença confirmada, 6 pessoas comigo.', 'ontem'],
-        ['Beto Silveira', 'Jundiaí fecha van se tiver mais 4 nomes.', '07:58']] },
-      { id: 'g3', nome: 'Osasco em campo', lider: 'Camila Duarte', cidade: 'Osasco', regiao: 'Metropolitana de São Paulo', membros: 141, ativos7d: 74, msgs: [
-        ['Camila Duarte', '11 cadastros só hoje! Bora bater os 200 essa semana 💪', '18:44'],
-        ['Diego Farias', 'Fechou. Amanhã cubro o Jd. Piratininga.', '19:02']] },
-      { id: 'g4', nome: 'Guarulhos · rede Vera', lider: 'Vera Matos', cidade: 'Guarulhos', regiao: 'Metropolitana de São Paulo', membros: 96, ativos7d: 8, msgs: [
-        ['Vera Matos', 'Pessoal, semana corrida por aqui. Retomamos em breve.', 'há 12d'],
-        ['Assessoria', 'Vera, podemos ajudar com material ou um mutirão? A região tem muito potencial.', 'há 9d']] },
-      { id: 'g5', nome: 'Sorocaba e região', lider: 'João Prado', cidade: 'Sorocaba · Itu', regiao: 'Sorocaba', membros: 122, ativos7d: 33, msgs: [
-        ['João Prado', 'Chegou o material? Preciso pra ação de domingo.', 'há 3d'],
-        ['Assessoria', 'Saiu hoje pela transportadora, chega sexta.', 'há 3d']] },
-      { id: 'g6', nome: 'Santos · litoral', lider: 'Edson Lima', cidade: 'Santos · Guarujá', regiao: 'Santos (Baixada Santista)', membros: 87, ativos7d: 5, msgs: [
-        ['Edson Lima', 'Boa tarde a todos.', 'há 8d']] },
-    ];
     const RA15 = this.raList(); // 16 RAs oficiais do banco (fallback: tabela estática de 15)
-    const gruposLideres = [
-      { id: 'L0', nome: 'Líderes · Geral da campanha', lider: 'Assessoria', cidade: 'Estado todo', regiao: null, membros: 209, ativos7d: 122, msgs: [
-        ['Assessoria', 'Boa tarde, lideranças! Meta da semana: 400 cadastros no estado. Ranking atualizado no painel.', '10:02'],
-        ['Ana Ferreira', 'Campinas fecha van pro encontro de sábado. Quem mais vem da RA?', '10:15'],
-        ['Marcos Tavares', 'ZL confirmada com 6 lideranças.', '10:20']] },
-      { id: 'L1', nome: 'Líderes · Metropolitana de SP', lider: 'Assessoria', cidade: 'Grande São Paulo', regiao: 'Metropolitana de São Paulo', membros: 84, ativos7d: 51, msgs: [
-        ['Assessoria', 'Material novo de rua liberado. Retirada no comitê a partir de quinta.', 'ontem'],
-        ['Camila Duarte', 'Osasco pega 200 unidades.', 'ontem']] },
-      { id: 'L2', nome: 'Líderes · Campinas', lider: 'Assessoria', cidade: 'RA de Campinas', regiao: 'Campinas', membros: 31, ativos7d: 19, msgs: [
-        ['Ana Ferreira', 'Encontro de lideranças sábado · presença obrigatória dos sub-líderes.', '07:58']] },
-      { id: 'L3', nome: 'Líderes · Sorocaba', lider: 'Assessoria', cidade: 'RA de Sorocaba', regiao: 'Sorocaba', membros: 18, ativos7d: 7, msgs: [
-        ['João Prado', 'Material chegou. Distribuo entre as lideranças amanhã.', 'há 2d']] },
-      { id: 'L4', nome: 'Líderes · Santos (Baixada)', lider: 'Assessoria', cidade: 'Baixada Santista', regiao: 'Santos (Baixada Santista)', membros: 14, ativos7d: 3, msgs: [
-        ['Assessoria', 'Baixada precisa de ritmo · Edson, como podemos ajudar?', 'há 8d']] },
-    ];
-    const _realJoined = (st.wppState === 'connected')
-      ? (st.wppGroups || []).filter(g => g.joined).map(g => ({
-          id: g.jid || g.code, jid: g.jid, nome: g.nome, lider: g.leaderNome || '—',
-          cidade: (g.cities && g.cities[0]) || '—', regiao: this.raDe((g.cities && g.cities[0])) || null,
-          membros: g.membros || 0, ativos7d: 0,
-          msgs: [['Assessoria', 'Grupo vinculado à campanha. O que você enviar aqui vai como Assessoria no WhatsApp real.', 'agora']],
-        }))
-      : null;
-    const gruposData = _realJoined || _gruposMock;
-    const grpFonte = _realJoined || (st.grpTipo === 'lideres' ? gruposLideres : gruposData);
+    // ---- grupos ----
+    // Dado REAL da tabela wpp_groups (edge wpp/list), sempre — não depende da instância
+    // do WhatsApp estar conectada, porque quem registra o grupo é o líder pelo app dele.
+    // Antes, sem conexão a tela caía num mock de 6 grupos com pessoas e conversas
+    // inventadas; agora, sem grupo, a tela assume que está vazia.
+    // As duas abas saem do MESMO dado, pelo vínculo com líder:
+    //   Liderados = grupo de um líder com a base dele (leader_id preenchido)
+    //   Líderes   = grupo geral da campanha, sem líder dono (leader_id nulo)
+    const _grpTodos = (st.wppGroups || []).filter(g => g.joined).map(g => ({
+      id: g.jid || g.code, jid: g.jid, nome: g.nome,
+      lider: g.leaderNome || '', temLider: !!g.leaderNome,
+      cidade: (g.cities && g.cities[0]) || '', regiao: this.raDe((g.cities && g.cities[0])) || null,
+      membros: g.membros || 0,
+      msgs: [['Assessoria', 'Grupo vinculado à campanha. O que você enviar aqui vai como Assessoria no WhatsApp real.', 'agora']],
+    }));
+    const gruposData = _grpTodos;
+    const grpFonte = _grpTodos.filter(g => st.grpTipo === 'lideres' ? !g.temLider : g.temLider);
     const gruposVis = grpFonte.filter(g =>
       (st.grpTipo === 'lideres' || this.fltMatch(st.grpFLider, g.lider)) &&
       (st.grpTipo === 'lideres' || this.fltMatch(st.grpFCidade, g.cidade)) &&
       (g.regiao === null || this.fltMatch(st.grpFRegiao, g.regiao)));
     const gSel = gruposVis[Math.min(st.grpSel, Math.max(gruposVis.length - 1, 0))] || null;
-    const gAtivPct = g => Math.round(g.ativos7d / g.membros * 100);
+    // "% ativos (7d)" era do mock: nada no banco mede atividade de membro de grupo
+    // (wpp_groups só guarda nome/membros/jid). Métrica sem fonte vira '—', não 0%.
     const gruposList = gruposVis.map((g, i) => ({
-      nome: g.nome, lider: g.lider, cidade: g.cidade,
-      membrosF: g.membros + ' membros', ativF: gAtivPct(g) + '% ativos (7d)',
-      ativCor: gAtivPct(g) >= 30 ? 'var(--color-gray-1000)' : gAtivPct(g) >= 15 ? 'var(--color-gray-700)' : 'var(--color-highlight)',
+      nome: g.nome, lider: g.lider || 'Grupo da campanha', cidade: g.cidade,
+      membrosF: g.membros ? g.membros + (g.membros === 1 ? ' membro' : ' membros') : 'membros —',
+      ativF: '—', ativCor: 'var(--color-gray-600)',
       ini: g.nome.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase(),
       ultima: (st.grpExtra[g.id] || []).length ? 'agora' : g.msgs[g.msgs.length - 1][2],
       on: gSel && g.id === gSel.id,
@@ -3629,26 +3555,30 @@ class Component extends DCLogic {
     const grpDeliver = async (texto) => {
       const alvos = st.grpBc ? (st.grpBcSel.length ? st.grpBcSel : []) : (gSel ? [gSel.id] : []);
       if (!alvos.length) { set({ grpNota: 'Selecione ao menos um grupo na lista para a mensagem em massa.' }); return false; }
-      if (_realJoined) {
-        // envio real via WhatsApp (id do grupo = jid)
-        this.setState({ grpInput: '', grpNota: 'Enviando…' });
-        let ok = 0;
-        for (const jid of alvos) { const r = await this._pxWpp('send', { to: jid, text: texto }); if (r && r.ok) ok++; }
-        const extra = { ...this.state.grpExtra };
-        alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto, quando: 'agora' }]; });
-        this.setState({ grpExtra: extra, grpNota: `Enviado para ${ok} de ${alvos.length} grupo(s) no WhatsApp.` });
-        return true;
+      // Só existe envio REAL. O caminho antigo, sem conexão, ecoava a mensagem na tela
+      // e dizia "Enviado para N grupo(s)" sem nada ter saído — mentira na cara do usuário.
+      if (st.wppState !== 'connected') {
+        set({ grpNota: 'WhatsApp da campanha não está conectado — conecte no topo da tela para enviar.' });
+        return false;
       }
-      const extra = { ...st.grpExtra };
-      alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto, quando: 'agora' }]; });
-      this.setState({ grpExtra: extra, grpInput: '', grpNota: st.grpBc ? `Enviado para ${alvos.length} grupo(s).` : null });
-      return true;
+      this.setState({ grpInput: '', grpNota: 'Enviando…' });
+      let ok = 0;
+      for (const jid of alvos) { const r = await this._pxWpp('send', { to: jid, text: texto }); if (r && r.ok) ok++; }
+      const extra = { ...this.state.grpExtra };
+      // só ecoa na conversa o que o WhatsApp aceitou
+      if (ok) alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto, quando: 'agora' }]; });
+      this.setState({ grpExtra: extra, grpNota: ok === alvos.length ? `Enviado para ${ok} grupo(s) no WhatsApp.` : ok ? `Enviado para ${ok} de ${alvos.length} · o resto falhou.` : 'Não consegui enviar. Verifique a conexão do WhatsApp.' });
+      return ok > 0;
     };
     // envio real de mídia/áudio (kind: image|video|document|audio). media = base64 sem prefixo.
     const grpDeliverMedia = async (kind, media, fileName, mimetype, caption, echo) => {
       const alvos = st.grpBc ? (st.grpBcSel.length ? st.grpBcSel : []) : (gSel ? [gSel.id] : []);
       if (!alvos.length) { set({ grpNota: 'Selecione ao menos um grupo na lista para enviar.' }); return false; }
-      if (_realJoined) {
+      if (st.wppState !== 'connected') {
+        set({ grpNota: 'WhatsApp da campanha não está conectado — conecte no topo da tela para enviar.' });
+        return false;
+      }
+      {
         this.setState({ grpNota: 'Enviando…' });
         let ok = 0;
         for (const jid of alvos) {
@@ -3658,14 +3588,10 @@ class Component extends DCLogic {
           if (r && r.ok) ok++;
         }
         const extra = { ...this.state.grpExtra };
-        alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto: echo, quando: 'agora' }]; });
-        this.setState({ grpExtra: extra, grpNota: ok ? `Enviado para ${ok} de ${alvos.length} grupo(s) no WhatsApp.` : 'Falha ao enviar. Verifique a conexão do WhatsApp.' });
+        if (ok) alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto: echo, quando: 'agora' }]; });
+        this.setState({ grpExtra: extra, grpNota: ok ? `Enviado para ${ok} de ${alvos.length} grupo(s) no WhatsApp.` : 'Não consegui enviar. Verifique a conexão do WhatsApp.' });
         return ok > 0;
       }
-      const extra = { ...st.grpExtra };
-      alvos.forEach(id => { extra[id] = [...(extra[id] || []), { de: 'Assessoria', texto: echo, quando: 'agora' }]; });
-      this.setState({ grpExtra: extra, grpNota: st.grpBc ? `Enviado para ${alvos.length} grupo(s).` : null });
-      return true;
     };
     const enviarGrp = () => {
       const t = st.grpInput.trim();
@@ -3713,6 +3639,12 @@ class Component extends DCLogic {
       grpFRegiaoSel: this.fltSelVal(st.grpFRegiao), onGrpFRegiao: (e) => set({ grpFRegiao: [e.target.value], grpSel: 0 }),
       grpRegiaoOpts: [{ v: 'todos', l: `Todas as regiões (${RA15.length} RAs)` }, ...RA15.map(v => ({ v, l: v }))],
       gruposList, semGrupos: gruposVis.length === 0,
+      // texto honesto: nenhum grupo registrado é diferente de nenhum grupo NO FILTRO
+      semGruposTxt: _grpTodos.length === 0
+        ? 'Nenhum grupo vinculado ainda. Os líderes registram os grupos no app deles e, depois que a assessoria entra, eles aparecem aqui.'
+        : grpFonte.length === 0
+        ? (st.grpTipo === 'lideres' ? 'Nenhum grupo geral da campanha ainda — os grupos vinculados hoje pertencem a um líder.' : 'Nenhum grupo de líder ainda — os grupos vinculados hoje são gerais da campanha.')
+        : 'Nenhum grupo nesse recorte de líder, cidade ou região.',
       grpTipoLid: st.grpTipo === 'liderados',
       tipoLiderados: () => set({ grpTipo: 'liderados', grpSel: 0, grpBcSel: [], grpNota: null }),
       tipoLideres: () => set({ grpTipo: 'lideres', grpSel: 0, grpBcSel: [], grpNota: null }),
@@ -3826,25 +3758,6 @@ class Component extends DCLogic {
         ? `Conversão forte (${dl.porMil}/mil do teto). ${dl.nome.split(' ')[0]} é candidato(a) natural a ganhar mais cidades ou formar sub-líderes.`
         : `Ritmo saudável, mas a região comporta mais: o potencial da família aqui é ${this.potNivel(dl.potRef)} e a conversão está em ${dl.porMil}/mil. Sub-líderes novos acelerariam o ramo.`,
     };
-    const _citiesMock = [
-      { nome: 'São Paulo', lat: -23.55, lng: -46.63, status: 'parcial', statusLabel: 'Parcial', potencial: 370600, lideres: 3, cadastros: 472, labelDy: -12 },
-      { nome: 'Santana de Parnaíba', lat: -23.444, lng: -46.918, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 132700, lideres: 0, cadastros: 0, labelAnchor: 'end', labelDx: -10, labelDy: -6 },
-      { nome: 'Barueri', lat: -23.51, lng: -46.876, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 48900, lideres: 0, cadastros: 12, label: false },
-      { nome: 'Carapicuíba', lat: -23.522, lng: -46.836, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 39400, lideres: 0, cadastros: 0, label: false },
-      { nome: 'Guarulhos', lat: -23.46, lng: -46.53, status: 'parcial', statusLabel: 'Parcial', potencial: 59000, lideres: 1, cadastros: 148, label: false },
-      { nome: 'Osasco', lat: -23.53, lng: -46.79, status: 'coberto', statusLabel: 'Coberto', potencial: 69900, lideres: 1, cadastros: 174, label: false },
-      { nome: 'Santo André', lat: -23.67, lng: -46.54, status: 'priorizar', statusLabel: 'Priorizar', potencial: 28300, lideres: 0, cadastros: 0, label: false },
-      { nome: 'Jundiaí', lat: -23.19, lng: -46.88, status: 'coberto', statusLabel: 'Coberto', potencial: 15100, lideres: 1, cadastros: 96, label: false },
-      { nome: 'Campinas', lat: -22.91, lng: -47.06, status: 'coberto', statusLabel: 'Coberto', potencial: 42700, lideres: 1, cadastros: 293, labelDy: -10 },
-      { nome: 'Sorocaba', lat: -23.5, lng: -47.45, status: 'coberto', statusLabel: 'Coberto', potencial: 24600, lideres: 1, cadastros: 121, labelAnchor: 'end', labelDx: -9 },
-      { nome: 'Santos', lat: -23.96, lng: -46.33, status: 'parcial', statusLabel: 'Parcial', potencial: 16200, lideres: 1, cadastros: 93, labelDy: 14, labelDx: -14 },
-      { nome: 'S. J. dos Campos', lat: -23.18, lng: -45.88, status: 'coberto', statusLabel: 'Coberto', potencial: 21500, lideres: 1, cadastros: 168 },
-      { nome: 'Ribeirão Preto', lat: -21.18, lng: -47.81, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 22500, lideres: 0, cadastros: 0 },
-      { nome: 'Bauru', lat: -22.31, lng: -49.06, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 9200, lideres: 0, cadastros: 0 },
-      { nome: 'S. J. do Rio Preto', lat: -20.82, lng: -49.38, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 10400, lideres: 0, cadastros: 0 },
-      { nome: 'Piracicaba', lat: -22.72, lng: -47.65, status: 'parcial', statusLabel: 'Parcial', potencial: 10900, lideres: 1, cadastros: 38, labelAnchor: 'end', labelDx: -9 },
-      { nome: 'Pres. Prudente', lat: -22.13, lng: -51.39, status: 'priorizar', statusLabel: 'Priorizar · sem líder', potencial: 10300, lideres: 0, cadastros: 0 },
-    ];
     const _COORD = { 'São Paulo': [-46.633, -23.55], 'Guarulhos': [-46.533, -23.454], 'Osasco': [-46.792, -23.532], 'Barueri': [-46.876, -23.51], 'Santo André': [-46.538, -23.663], 'São Bernardo do Campo': [-46.565, -23.694], 'São Caetano do Sul': [-46.564, -23.618], 'Diadema': [-46.62, -23.686], 'Mauá': [-46.461, -23.667], 'Campinas': [-47.061, -22.905], 'Sorocaba': [-47.458, -23.501], 'Jundiaí': [-46.884, -23.186], 'Santos': [-46.333, -23.96], 'São José dos Campos': [-45.887, -23.179], 'Ribeirão Preto': [-47.81, -21.177], 'São José do Rio Preto': [-49.379, -20.812], 'Bauru': [-49.06, -22.314], 'Piracicaba': [-47.649, -22.725], 'Presidente Prudente': [-51.388, -22.126], 'Santana de Parnaíba': [-46.918, -23.444], 'Cotia': [-46.919, -23.604], 'Carapicuíba': [-46.836, -23.522], 'Taboão da Serra': [-46.758, -23.626], 'Mogi das Cruzes': [-46.188, -23.522] };
     const cities = (AR && st.remote.liderados) ? (function () {
       const cc = {}; st.remote.liderados.forEach(l => { const c = l.city || '—'; cc[c] = (cc[c] || 0) + 1; });
@@ -3856,7 +3769,7 @@ class Component extends DCLogic {
         const status = nl === 0 ? 'priorizar' : cad >= med ? 'coberto' : 'parcial';
         return { nome: c, lng: _COORD[c][0], lat: _COORD[c][1], status, statusLabel: { coberto: 'Coberto', parcial: 'Parcial', priorizar: 'Priorizar · sem líder' }[status], potencial: 0, lideres: nl, cadastros: cad };
       }).sort((a, b) => b.cadastros - a.cadastros);
-    })() : _citiesMock;
+    })() : [];  // sem ranking real ainda: mapa sem pins, nunca cidades/contagens inventadas
     // ---- gráficos da visão geral ----
     const _lids = (AR && st.remote.liderados) || null;
     const vgMeta = AR ? AR.reduce((a, r) => a + (r.meta || 0), 0) : 2400;
