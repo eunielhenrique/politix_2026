@@ -608,6 +608,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 <div style="font-family:var(--font-sans);font-weight:500;font-size:24px;letter-spacing:-.3px;margin-bottom:14px">Mural</div>
                 <div style="font-size:13px;font-weight:600;margin-bottom:8px">Comunicados</div>
                 <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+                  <sc-if value="{{ semComunicados }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-200);font-size:12.5px;color:var(--color-muted-foreground);line-height:1.5">Nenhum comunicado da campanha por enquanto.</div>
+                  </sc-if>
                   <sc-for list="{{ comunicados }}" as="cm" hint-placeholder-count="2">
                     <div style="padding:16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background-200)">
                       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="padding:2px 10px;border-radius:var(--radius-sm);background:{{ cm.tagBg }};color:{{ cm.tagFg }};font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">{{ cm.tag }}</span><span style="font-size:11px;color:var(--color-gray-600)">{{ cm.quando }}</span></div>
@@ -2373,7 +2376,7 @@ class Component extends DCLogic {
     extraRecentes: [],
     cNome: '', cZap: '', cCidades: '', cPromessa: '', invite: null, copied: false,
     obNome: '', obZap: '', obCidades: 'Campinas, Jundiaí', obPromessa: '40', obErro: null,
-    pFoto: null, pNome: 'Marcos Tavares', pZap: '(11) 98765-4321', pEmail: 'marcos@exemplo.com.br', pCidades: 'Zona Leste · São Paulo, Itaquera', pPromessa: '300', pPend: null, pMsg: null,
+    pFoto: null, pNome: '', pZap: '', pEmail: '', pCidades: '', pPromessa: '', pPend: null, pMsg: null,
     aInvite: null, aCopied: false, aCN: '', aCZ: '', aCC: '', aCP: '', aCParent: '', aCMsg: null, aCBusy: false,
     cadTab: 'um', cadInvite: null, cadInviteNome: '', cadCopied: false, bulkBusy: false, bulkFileName: '', bulkHeaders: null, bulkRawRows: null, bulkMap: null, bulkResult: null, bulkResCopied: false,
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
@@ -2592,6 +2595,27 @@ class Component extends DCLogic {
         const bd = await sb.rpc('leader_scoreboard', { target: me.leader_id });
         const ser = await sb.rpc('leader_daily_series', { target: me.leader_id, days: 90 });
         remote.scoreboard = Array.isArray(bd.data) ? bd.data[0] : bd.data; remote.series = ser.data || [];
+        // Sub-líderes e liderados REAIS do próprio líder. A RLS já limita os dois à
+        // subárvore dele (leader_sel / liderado_sel usam leader_subtree(my_leader_id())),
+        // então não precisa de RPC nova nem de filtro extra aqui.
+        const { data: filhos } = await sb.from('leader')
+          .select('id, name, cities, promise_votes').eq('parent_id', me.leader_id);
+        const { data: meusLids } = await sb.from('liderado')
+          .select('name, city, whatsapp, leader_id, created_at')
+          .order('created_at', { ascending: false }).limit(500);
+        remote.subLideres = filhos || []; remote.meusLiderados = meusLids || [];
+        // Perfil REAL do líder. Os campos da tela de perfil eram só o default do estado
+        // ('Marcos Tavares', 'marcos@exemplo.com.br'), então TODO líder que abria o app
+        // via o mesmo perfil fictício como se fosse o dele.
+        const { data: eu } = await sb.from('leader')
+          .select('name, whatsapp, cities, promise_votes').eq('id', me.leader_id).maybeSingle();
+        if (eu) {
+          this.setState({
+            pNome: eu.name || '', pZap: eu.whatsapp ? this.fmtZap(eu.whatsapp) : '',
+            pEmail: (session.user && session.user.email) || '',
+            pCidades: (eu.cities || []).join(', '), pPromessa: String(eu.promise_votes ?? ''),
+          });
+        }
       }
     } catch (e) {}
     this.setState({ view: hasVista ? this.state.view : (role === 'assessor' ? 'assessor' : 'leader'), remote });
@@ -3278,18 +3302,35 @@ class Component extends DCLogic {
       { nome: 'Top da cidade', desc: '1º na Zona Leste', icon: I.award, on: false },
       { nome: 'Bateu a meta', desc: '100% da promessa', icon: I.target, on: false },
     ].map(s => ({ ...s, op: s.on ? '1' : '.45', bg: s.on ? 'var(--color-muted)' : 'var(--color-background-100)', fg: s.on ? 'var(--color-gray-700)' : 'var(--color-gray-600)' }));
-    const notifs = [
-      { titulo: 'Tiago Souza está voando', corpo: 'Seu sub-líder fez 12 cadastros nesta semana · 2× o ritmo dele.', tempo: 'há 2h', icon: I.trend, ...{ bg: 'var(--color-muted)', fg: 'var(--color-gray-1000)' } },
-      { titulo: bate ? 'Projeção: você bate a meta' : 'Sua projeção está furando a meta', corpo: bate ? `No ritmo atual você chega a ${projetado} votos · ${projetado - meta} acima da promessa.` : `No ritmo atual você chega a ${projetado} de ${meta}. Faltam ${(meta - projetado)} votos de folga · acelere os cadastros.`, tempo: 'há 5h', icon: bate ? I.trend : I.alert, bg: bate ? 'var(--color-muted)' : 'var(--color-muted)', fg: bate ? 'var(--color-gray-1000)' : 'var(--color-gray-700)' },
-      { titulo: 'Neide Campos parou há 9 dias', corpo: 'Sua sub-líder de Itaquera está sem cadastros desde 10/jul. Que tal mandar um oi?', tempo: 'ontem', icon: I.alert, bg: 'var(--color-highlight-dim)', fg: 'var(--color-highlight)' },
-      { titulo: 'Selo desbloqueado: Recrutador', corpo: 'Você ativou 3 sub-líderes. Continue expandindo a árvore.', tempo: 'há 2 dias', icon: I.award, bg: 'var(--color-muted)', fg: 'var(--color-gray-700)' },
-    ];
+    // Notificações DERIVADAS do dado real do líder. Antes eram 4 fixas, citando
+    // sub-líderes que não existem ("Tiago Souza está voando", "Neide Campos parou há
+    // 9 dias") — chegavam iguais para todo líder que abrisse o app.
+    const _nSubs = (st.remote && st.remote.subLideres) || [];
+    const _nLids = (st.remote && st.remote.meusLiderados) || [];
+    const _nPorLider = {};
+    _nLids.forEach(l => { (_nPorLider[l.leader_id] = _nPorLider[l.leader_id] || []).push(l); });
+    const _diasSem = (id) => {
+      const ls = _nPorLider[id] || [];
+      if (!ls.length) return null;
+      const ult = Math.max(...ls.map(l => new Date(l.created_at).getTime()));
+      return Math.floor((Date.now() - ult) / 86400000);
+    };
+    const notifs = [];
+    notifs.push({ titulo: bate ? 'Projeção: você bate a meta' : 'Sua projeção está furando a meta', corpo: bate ? `No ritmo atual você chega a ${projetado} votos · ${projetado - meta} acima da promessa.` : `No ritmo atual você chega a ${projetado} de ${meta}. Faltam ${(meta - projetado)} votos de folga · acelere os cadastros.`, tempo: 'há 5h', icon: bate ? I.trend : I.alert, bg: bate ? 'var(--color-muted)' : 'var(--color-muted)', fg: bate ? 'var(--color-gray-1000)' : 'var(--color-gray-700)' });
+    { // sub-líder com mais cadastros nos últimos 7 dias
+      const d7 = Date.now() - 7 * 86400000;
+      const top = _nSubs.map(f => ({ f, n: (_nPorLider[f.id] || []).filter(l => new Date(l.created_at).getTime() >= d7).length }))
+                        .filter(x => x.n > 0).sort((a, b) => b.n - a.n)[0];
+      if (top) notifs.push({ titulo: `${top.f.name} está no ritmo`, corpo: `Seu sub-líder fez ${top.n} cadastro(s) nos últimos 7 dias.`, tempo: 'nesta semana', icon: I.trend, bg: 'var(--color-muted)', fg: 'var(--color-gray-700)' });
+    }
+    { // sub-líder parado há mais tempo (só conta quem já cadastrou alguma vez)
+      const parado = _nSubs.map(f => ({ f, d: _diasSem(f.id) })).filter(x => x.d !== null && x.d >= 7).sort((a, b) => b.d - a.d)[0];
+      if (parado) notifs.push({ titulo: `${parado.f.name} parou há ${parado.d} dias`, corpo: 'Sem cadastros novos nesse período. Que tal mandar um oi?', tempo: 'hoje', icon: I.alert, bg: 'var(--color-muted)', fg: 'var(--color-gray-700)' });
+    }
     const cidadesOpts = ['Zona Leste · São Paulo', 'Itaquera · São Paulo', 'São Miguel Paulista · São Paulo', 'Guarulhos', 'Campinas', 'Osasco', 'Santo André', 'Sorocaba', 'Santos'].map(v => ({ v }));
-    const baseRecentes = [
-      { nome: 'Rosana Alves', cidade: 'Zona Leste', zap: '(11) 98765-4321', quando: 'hoje' },
-      { nome: 'Gilberto Nunes', cidade: 'Itaquera', zap: '(11) 99111-2233', quando: 'hoje' },
-      { nome: 'Fátima Rocha', cidade: 'Zona Leste', zap: '(11) 99444-5566', quando: 'ontem' },
-    ];
+    // recentes = os últimos liderados REAIS; extraRecentes é o que acabou de ser
+    // cadastrado nesta sessão, antes do reload
+    const baseRecentes = [];
     const recentes = [...st.extraRecentes, ...baseRecentes].slice(0, 5).map(r => ({ ...r, ini: r.nome.split(' ').map(p => p[0]).slice(0, 2).join('') }));
     const submitCadastro = async () => {
       const d = st.fZap.replace(/\D/g, '');
@@ -3311,18 +3352,33 @@ class Component extends DCLogic {
       set({ extraRecentes: [{ nome: st.fNome.trim(), cidade: st.fCidade.split(' · ')[0], zap: this.fmtZap(st.fZap), quando: 'agora' }, ...st.extraRecentes], fNome: '', fZap: '', cadMsg: `${st.fNome.trim().split(' ')[0]} entrou na sua rede. +1 no placar!`, cadTipo: 'ok' });
     };
     const cadColors = st.cadTipo === 'ok' ? okC : st.cadTipo === 'err' ? errC : warnC;
-    const subs = [
-      { nome: 'Tiago Souza', area: 'Zona Leste', real: 52, meta: 80, rate: '1,7' },
-      { nome: 'Neide Campos', area: 'Itaquera', real: 37, meta: 60, rate: '0,0' },
-    ].map(s => { const p = Math.round(s.real / s.meta * 100); return { ...s, ini: s.nome.split(' ').map(w => w[0]).slice(0, 2).join(''), placar: `${s.real}/${s.meta}`, pctW: Math.min(p, 100) + '%', cor: s.rate === '0,0' ? 'var(--color-highlight)' : corPct(p) }; });
-    const liderados = [
-      { nome: 'Rosana Alves', cidade: 'Zona Leste', zap: '(11) 98765-…', quando: 'hoje' },
-      { nome: 'Gilberto Nunes', cidade: 'Itaquera', zap: '(11) 99111-…', quando: 'hoje' },
-      { nome: 'Fátima Rocha', cidade: 'Zona Leste', zap: '(11) 99444-…', quando: 'ontem' },
-      { nome: 'Wellington Dias', cidade: 'São Miguel', zap: '(11) 99666-…', quando: 'ontem' },
-      { nome: 'Sueli Martins', cidade: 'Zona Leste', zap: '(11) 99333-…', quando: '15/jul' },
-      { nome: 'Carlos Peixoto', cidade: 'Itaquera', zap: '(11) 99888-…', quando: '14/jul' },
-    ].map(l => ({ ...l, ini: l.nome.split(' ').map(w => w[0]).slice(0, 2).join('') }));
+    // Sub-líderes REAIS (leader.parent_id = eu). O placar de cada um sai da contagem dos
+    // liderados dele na lista real — sem cadastro, é 0/meta de verdade, não os 52/80 e
+    // 37/60 que estavam fixos no código.
+    const _meusLids = (st.remote && st.remote.meusLiderados) || [];
+    const _lidsPorLider = {};
+    _meusLids.forEach(l => { _lidsPorLider[l.leader_id] = (_lidsPorLider[l.leader_id] || 0) + 1; });
+    const _d7 = Date.now() - 7 * 86400000;
+    const subs = ((st.remote && st.remote.subLideres) || []).map(f => {
+      const real = _lidsPorLider[f.id] || 0;
+      const r7 = _meusLids.filter(l => l.leader_id === f.id && new Date(l.created_at).getTime() >= _d7).length;
+      return { nome: f.name || '—', area: (f.cities || []).join(' · ') || '—',
+               real, meta: f.promise_votes || 0, rate: (r7 / 7).toFixed(1).replace('.', ',') };
+    }).map(s => { const p = s.meta > 0 ? Math.round(s.real / s.meta * 100) : 0; return { ...s, ini: s.nome.split(' ').map(w => w[0]).slice(0, 2).join(''), placar: `${s.real}/${s.meta}`, pctW: Math.min(p, 100) + '%', cor: s.rate === '0,0' ? 'var(--color-highlight)' : corPct(p) }; });
+    // Liderados REAIS do líder (RLS já restringe à subárvore dele). Antes eram 6 pessoas
+    // inventadas com telefone falso — e o banco não tem nenhum liderado cadastrado.
+    const _quandoTxt = (iso) => {
+      const d = new Date(iso), hoje = new Date();
+      const dia = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+      const delta = Math.round((dia(hoje) - dia(d)) / 86400000);
+      return delta <= 0 ? 'hoje' : delta === 1 ? 'ontem'
+        : d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
+    };
+    const liderados = _meusLids.map(l => ({
+      nome: l.name || '—', cidade: l.city || '—',
+      zap: l.whatsapp ? this.fmtZap(l.whatsapp) : '—', quando: _quandoTxt(l.created_at),
+      ini: (l.name || '—').split(' ').map(w => w[0]).slice(0, 2).join(''),
+    }));
     const geraConvite = async () => {
       if (!st.cNome.trim()) { return; }
       const sb = this._pxClient();
@@ -3337,10 +3393,10 @@ class Component extends DCLogic {
       set({ invite: `politix.app/convite/${Math.random().toString(36).slice(2, 10)}`, copied: false });
     };
     const copy = (text, key) => { try { navigator.clipboard.writeText(text); } catch (e) {} this.setState({ [key]: true }); setTimeout(() => this.setState({ [key]: false }), 1600); };
-    const comunicados = [
-      { tag: 'Novidade', tagBg: 'var(--color-foreground)', tagFg: 'var(--color-background)', quando: 'hoje', titulo: 'Encontro de lideranças em Campinas no sábado', corpo: 'Traga seus sub-líderes: vamos apresentar o material novo de rua e as metas da reta final.' },
-      { tag: 'Aviso', tagBg: 'var(--color-gray-300)', tagFg: 'var(--color-foreground)', quando: 'há 2 dias', titulo: 'Novo material de campanha disponível', corpo: 'Arte atualizada para WhatsApp e impressão liberada na pasta da coordenação.' },
-    ];
+    // Comunicados eram 2 avisos fabricados ('Encontro de lideranças em Campinas no
+    // sábado') mostrados a todo líder como se a campanha tivesse publicado. Não há
+    // tabela de comunicados no banco — fica vazio até existir de verdade.
+    const comunicados = [];
     const trilhas = [
       { titulo: 'Como abordar vizinhos sem ser chato', meta: '5 min · trilha básica', icon: I.chat },
       { titulo: 'O cadastro perfeito (nome + WhatsApp + cidade)', meta: '3 min · trilha básica', icon: I.book },
@@ -3442,17 +3498,6 @@ class Component extends DCLogic {
         real, m, potRef, tone, onClick: () => set({ selLeader: i }) };
     });
     // ---- drawer do líder ----
-    const dlExtra = {
-      'Ana Ferreira': { desde: 'mar/26', subs: [['Beto Silveira', 'Jundiaí', 61, 80], ['Márcia Leal', 'Campinas', 88, 100]], atv: [['hoje', '9 cadastros novos em Campinas'], ['ontem', 'Convidou sub-líder: Paulo Henrique (Valinhos)'], ['16/jul', 'Bateu 95% da promessa · selo a caminho']] },
-      'Camila Duarte': { desde: 'abr/26', subs: [['Diego Farias', 'Osasco', 34, 50]], atv: [['hoje', '11 cadastros · melhor dia dela'], ['ontem', 'Ramo cresce 2,3× mais que o líder acima'], ['15/jul', 'Streak de 12 dias seguidos']] },
-      'Marcos Tavares': { desde: 'fev/26', subs: [['Tiago Souza', 'Zona Leste', 52, 80], ['Neide Campos', 'Itaquera', 37, 60]], atv: [['hoje', '4 cadastros na Zona Leste'], ['ontem', 'Neide Campos parada há 9 dias'], ['14/jul', 'Selo Recrutador desbloqueado']] },
-      'Rita Nogueira': { desde: 'mar/26', subs: [], atv: [['há 2d', '6 cadastros em S. J. dos Campos'], ['12/jul', 'Ritmo caiu de 2,1 para 1,4/dia']] },
-      'João Prado': { desde: 'mai/26', subs: [], atv: [['há 3d', '3 cadastros em Sorocaba'], ['10/jul', 'Pediu material de campanha']] },
-      'Edson Lima': { desde: 'abr/26', subs: [], atv: [['há 8d', 'Último cadastro (Santos)'], ['05/jul', 'Notificação de inatividade enviada']] },
-      'Vera Matos': { desde: 'fev/26', subs: [['Camila Duarte', 'Osasco', 174, 200]], atv: [['há 12d', 'Último cadastro (Guarulhos)'], ['02/jul', 'Sub-líder Camila cresce 2,3× mais que ela']] },
-      'Paulo Cesarino': { desde: 'jun/26', subs: [], atv: [['há 9d', 'Último cadastro (Piracicaba)'], ['28/jun', 'Onboarding concluído']] },
-      'Luiz Antunes': { desde: '—', subs: [], atv: [['há 5d', 'Convite enviado por WhatsApp'], ['—', 'Ainda não ativou a liderança']] },
-    };
     // ---- ranking de cidades ----
     const _normCidade = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/['\-]/g, ' ').replace(/[^A-Z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
     const famByName = {}; this.anchorsData.forEach(a => { famByName[_normCidade(a.nome)] = a; });
@@ -3737,7 +3782,10 @@ class Component extends DCLogic {
     const rankingTotal = String(ranking.length);
     const rankHasMore = st.rankVisible < ranking.length;
     const dl = st.selLeader != null ? ranking[st.selLeader] : null;
-    const dlx = dl ? (dlExtra[dl.nome] || { desde: '—', subs: [], atv: [] }) : null;
+    // O raio-x detalhado (desde/sub-líderes/atividade) não existe no banco ainda: era uma
+    // tabela fixa indexada por NOME de líder fictício. Some junto com eles — casar por
+    // nome ainda podia pegar um líder real homônimo e mostrar histórico de outra pessoa.
+    const dlx = dl ? { desde: '—', subs: [], atv: [] } : null;
     const dlConvN = dl && dl.potRef > 0 ? dl.real / dl.potRef * 1000 : 0;
     const dlProjN = dl ? Math.round(dl.real + (parseFloat(String(dl.rate).replace(',', '.')) || 0) * dias) : 0;
     const dlTone = dl ? (dl.tone === 'ok' ? okC : dl.tone === 'warn' ? warnC : errC) : okC;
@@ -5006,7 +5054,7 @@ class Component extends DCLogic {
       onCNome: (e) => set({ cNome: e.target.value }), onCZap: (e) => set({ cZap: e.target.value }), onCCidades: (e) => set({ cCidades: e.target.value }), onCPromessa: (e) => set({ cPromessa: e.target.value }),
       geraConvite, hasInvite: !!st.invite, inviteLink: st.invite, copyInvite: () => copy('https://' + st.invite, 'copied'), copyLabel: st.copied ? 'Copiado ✓' : 'Copiar',
       // mural
-      comunicados, trilhas,
+      comunicados, semComunicados: comunicados.length === 0, trilhas,
       // assessor
       kpis, ranking, semLider, citiesJson: JSON.stringify(cities),
       ...vgVals,
