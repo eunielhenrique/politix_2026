@@ -1045,7 +1045,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
               <select value="{{ cCParent }}" onChange="{{ onCCParent }}" style="width:100%;height:44px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13.5px;outline:none;margin-bottom:14px">
                 <sc-for list="{{ cParentOpts }}" as="p" hint-placeholder-count="1"><option value="{{ p.v }}">{{ p.l }}</option></sc-for>
               </select>
-              <sc-if value="{{ hasCadMsg }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:{{ cadMsgCor }};line-height:1.45;margin-bottom:12px">{{ cadMsgTxt }}</div></sc-if>
+              <sc-if value="{{ hasCadLdrMsg }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:{{ cadMsgCor }};line-height:1.45;margin-bottom:12px">{{ cadMsgTxt }}</div></sc-if>
               <button onClick="{{ geraConviteCad }}" style="width:100%;height:44px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:14px;font-weight:500;cursor:pointer">{{ cadBtnLabel }}</button>
             </div>
             <sc-if value="{{ hasCadInvite }}" hint-placeholder-val="{{ false }}">
@@ -1955,6 +1955,10 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                       <input type="text" value="{{ nlPromessa }}" onChange="{{ onNlPromessa }}" placeholder="0" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">Dobrada</div>
                       <input type="text" value="{{ nlDobrada }}" onChange="{{ onNlDobrada }}" placeholder="ex.: vereador de dobrada" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <div style="font-size:11px;color:var(--color-gray-600)">Líder responsável (fica acima dele na árvore)</div>
+                      <select value="{{ nlParent }}" onChange="{{ onNlParent }}" style="height:{{ fmH }};padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:12.5px;outline:none">
+                        <sc-for list="{{ cParentOpts }}" as="np" hint-placeholder-count="1"><option value="{{ np.v }}">{{ np.l }}</option></sc-for>
+                      </select>
                       <div style="font-size:11px;color:var(--color-gray-600)">Observação</div>
                       <textarea value="{{ nlObs }}" onChange="{{ onNlObs }}" placeholder="anotações sobre o líder" rows="2" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};font-family:inherit;resize:vertical;outline:none" style-focus="border-color:var(--color-gray-500)"></textarea>
                       <div style="font-size:11px;color:var(--color-gray-600);line-height:1.45">Status: entra como <b style="color:var(--color-foreground)">Pendente</b> até aceitar o convite.</div>
@@ -2858,7 +2862,7 @@ class Component extends DCLogic {
     this.setState({ nlBusy: true, nlMsg: null });
     const { data, error } = await sb.rpc('invite_leader', {
       p_name: nome, p_whatsapp: wa, p_cities: cts.length ? cts : [cidade],
-      p_promise: parseInt(st.nlPromessa, 10) || 0, p_parent: null,
+      p_promise: parseInt(st.nlPromessa, 10) || 0, p_parent: st.nlParent || null,
     });
     if (error) {
       const dup = (error.code === '23505') || /duplicate|unique/i.test(error.message || '');
@@ -2878,7 +2882,7 @@ class Component extends DCLogic {
       } catch (e) {}
     }
     this.setState({
-      nlBusy: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '',
+      nlBusy: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlParent: '',
       nlLink: (row && row.token) ? this._inviteUrl(row.token) : null, nlLinkNome: nome, nlCopied: false,
       nlMsg: { err: false, txt: 'Líder incluído. Envie o link de convite abaixo para ele entrar.' },
     });
@@ -4798,6 +4802,7 @@ class Component extends DCLogic {
       nlNome: st.nlNome || '', onNlNome: (e) => set({ nlNome: e.target.value }),
       nlZap: st.nlZap || '', onNlZap: (e) => set({ nlZap: e.target.value }),
       nlPromessa: st.nlPromessa || '', onNlPromessa: (e) => set({ nlPromessa: e.target.value }),
+      nlParent: st.nlParent || '', onNlParent: (e) => set({ nlParent: e.target.value }),
       nlBotao: st.nlBusy ? 'Incluindo…' : 'Incluir e convidar',
       nlSalvar: () => { if (!st.nlBusy) this._novoLdrSalvar(); },
       nlSalvarOp: st.nlBusy ? '.55' : '1',
@@ -4857,7 +4862,10 @@ class Component extends DCLogic {
       gapText,
     };
     // ===== Cadastro de líderes (bindings) =====
-    if (st.aTab === 'cadastro' && st.ldrList === null && !st.ldrBusy) this._loadLeaders();
+    // a lista de líderes alimenta o select de "líder responsável"; sem isso o campo do
+    // drawer do mapa abriria só com a opção de topo, porque _loadLeaders só rodava na
+    // aba Cadastrar líder
+    if ((st.aTab === 'cadastro' || st.nlOpen) && st.ldrList === null && !st.ldrBusy) this._loadLeaders();
     const _tabPill = on => ({ bg: on ? 'var(--color-foreground)' : 'transparent', fg: on ? 'var(--color-background)' : 'var(--color-muted-foreground)', bd: on ? 'var(--color-foreground)' : 'var(--color-border)' });
     const _cu = _tabPill(st.cadTab === 'um'), _cpl = _tabPill(st.cadTab === 'planilha');
     const _ldrRaw = st.ldrList || [];
@@ -4885,7 +4893,10 @@ class Component extends DCLogic {
       cParentOpts: [{ v: '', l: '— Líder de topo (sem responsável) —' }].concat(_ldrRaw.map(l => ({ v: l.leader_id, l: l.name }))),
       geraConviteCad: () => this._cadInviteSingle(),
       cadBusy: st.aCBusy, cadBtnLabel: st.aCBusy ? 'Gerando…' : 'Gerar convite',
-      hasCadMsg: !!st.aCMsg, cadMsgTxt: st.aCMsg ? st.aCMsg.txt : '', cadMsgCor: st.aCMsg && st.aCMsg.err ? 'var(--color-highlight)' : 'var(--color-gray-1000)',
+      // chave própria: 'hasCadMsg' já era da tela 'Cadastrar liderado' (do líder) e o
+      // spread deste objeto em renderVals apagava a de lá — o líder ficava sem retorno
+      // de erro ao cadastrar um WhatsApp repetido.
+      hasCadLdrMsg: !!st.aCMsg, cadMsgTxt: st.aCMsg ? st.aCMsg.txt : '', cadMsgCor: st.aCMsg && st.aCMsg.err ? 'var(--color-highlight)' : 'var(--color-gray-1000)',
       hasCadInvite: !!st.cadInvite, cadInviteLink: st.cadInvite || '', cadInvNome: st.cadInviteNome,
       copyCadInvite: () => copy(st.cadInvite, 'cadCopied'), cadCopyLabel: st.cadCopied ? 'Copiado ✓' : 'Copiar link',
       waCadLink: st.cadInvite ? ('https://wa.me/?text=' + encodeURIComponent('Você foi convidado(a) para ser líder na campanha. Ative seu acesso: ' + st.cadInvite)) : '#',
