@@ -1949,6 +1949,8 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                       <input type="text" value="{{ nlNome }}" onChange="{{ onNlNome }}" placeholder="Nome do líder" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">WhatsApp</div>
                       <input type="text" value="{{ nlZap }}" onChange="{{ onNlZap }}" placeholder="WhatsApp com DDD" style="height:34px;padding:0 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:13px;font-family:var(--font-mono);outline:none" style-focus="border-color:var(--color-gray-500)">
+                      <div style="font-size:11px;color:var(--color-gray-600)">Instagram</div>
+                      <input type="text" value="{{ nlInstagram }}" onChange="{{ onNlInstagram }}" placeholder="@usuario ou link do perfil" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">Cidades (separadas por vírgula)</div>
                       <input type="text" value="{{ nlCidades }}" onChange="{{ onNlCidades }}" placeholder="{{ nlCidadePh }}" style="height:{{ fmH }};padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none" style-focus="border-color:var(--color-gray-500)">
                       <div style="font-size:11px;color:var(--color-gray-600)">Expectativa de voto</div>
@@ -2033,6 +2035,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                             <sc-if value="{{ edForm }}" hint-placeholder-val="{{ true }}">
                               <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Nome<input type="text" value="{{ edNome }}" onChange="{{ onEdNome }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none"></label>
                               <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">WhatsApp<input type="tel" value="{{ edZap }}" onChange="{{ onEdZap }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-family:var(--font-mono);font-size:{{ fmFs }};outline:none"></label>
+                              <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Instagram<input type="text" value="{{ edInstagram }}" onChange="{{ onEdInstagram }}" placeholder="@usuario ou link do perfil" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none"></label>
                               <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Cidades (separadas por vírgula)<input type="text" value="{{ edCidades }}" onChange="{{ onEdCidades }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none"></label>
                               <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Expectativa de voto<input type="number" value="{{ edPromessa }}" onChange="{{ onEdPromessa }}" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-variant-numeric:tabular-nums;font-size:{{ fmFs }};outline:none"></label>
                               <label style="font-size:{{ fmLabFs }};color:var(--color-gray-600)">Dobrada<input type="text" value="{{ edDobrada }}" onChange="{{ onEdDobrada }}" placeholder="ex.: vereador de dobrada" style="width:100%;box-sizing:border-box;height:{{ fmH }};margin-top:4px;padding:0 11px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);color:var(--color-foreground);font-size:{{ fmFs }};outline:none"></label>
@@ -2386,7 +2389,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, kbOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlInstagram: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edInstagram: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, kbOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -2821,12 +2824,12 @@ class Component extends DCLogic {
   // Abre com os valores ATUAIS da linha do banco: city_leaders não traz cities/dobrada, e
   // salvar com o form vazio apagaria as outras cidades do líder.
   async _editLeaderOpen(id) {
-    this.setState({ edId: id, edLoaded: false, edBusy: true, edMsg: null, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edObs: '', edStatus: 'active' });
+    this.setState({ edId: id, edLoaded: false, edBusy: true, edMsg: null, edNome: '', edZap: '', edInstagram: '', edCidades: '', edPromessa: '', edDobrada: '', edObs: '', edStatus: 'active' });
     const sb = this._pxClient();
     if (!sb) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Sem conexão com o backend.' } }); return; }
     let row = null;
     try {
-      const { data } = await sb.from('leader').select('name,whatsapp,cities,promise_votes,dobrada,status,observacao').eq('id', id).limit(1);
+      const { data } = await sb.from('leader').select('name,whatsapp,cities,promise_votes,dobrada,status,observacao,instagram').eq('id', id).limit(1);
       row = Array.isArray(data) ? data[0] : data;
     } catch (e) {}
     if (!row) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Não consegui carregar os dados atuais deste líder · não dá pra editar sem eles.' } }); return; }
@@ -2836,6 +2839,9 @@ class Component extends DCLogic {
       edNome: row.name || '', edZap: this._edZapOrig, edObs: row.observacao || '',
       edCidades: (row.cities || []).join(', '), edPromessa: String(row.promise_votes || 0),
       edDobrada: row.dobrada || '', edStatus: row.status || 'active',
+      // guardado sem o '@'; volta com ele pra ler como handle. A RPC tira de novo ao salvar,
+      // então reabrir e salvar sem tocar no campo não muda o valor.
+      edInstagram: row.instagram ? '@' + row.instagram : '',
     });
   }
   // A rede (tenant_ranking + liderado) só era carregada no boot: mexer num líder
@@ -2870,19 +2876,19 @@ class Component extends DCLogic {
       return;
     }
     const row = Array.isArray(data) ? data[0] : data;
-    // invite_leader não aceita dobrada/observação: completa num update, só se houver algo
-    const dob = (st.nlDobrada || '').trim(), obs = (st.nlObs || '').trim();
-    if (row && row.leader_id && (dob || obs)) {
+    // invite_leader não aceita dobrada/observação/instagram: completa num update, só se houver algo
+    const dob = (st.nlDobrada || '').trim(), obs = (st.nlObs || '').trim(), ig = (st.nlInstagram || '').trim();
+    if (row && row.leader_id && (dob || obs || ig)) {
       try {
         await sb.rpc('update_leader', {
           p_id: row.leader_id, p_name: nome, p_whatsapp: null,
           p_cities: cts.length ? cts : [cidade], p_promise: parseInt(st.nlPromessa, 10) || 0,
-          p_dobrada: dob, p_status: 'invited', p_observacao: obs,
+          p_dobrada: dob, p_status: 'invited', p_observacao: obs, p_instagram: ig,
         });
       } catch (e) {}
     }
     this.setState({
-      nlBusy: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlParent: '',
+      nlBusy: false, nlNome: '', nlZap: '', nlInstagram: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlParent: '',
       nlLink: (row && row.token) ? this._inviteUrl(row.token) : null, nlLinkNome: nome, nlCopied: false,
       nlMsg: { err: false, txt: 'Líder incluído. Envie o link de convite abaixo para ele entrar.' },
     });
@@ -2907,6 +2913,7 @@ class Component extends DCLogic {
       p_dobrada: (st.edDobrada || '').trim(),
       p_status: st.edStatus,
       p_observacao: (st.edObs || '').trim(),
+      p_instagram: (st.edInstagram || '').trim(), // vazio limpa de propósito (a RPC grava null)
     });
     if (error) { this.setState({ edBusy: false, edMsg: { err: true, txt: 'Não consegui salvar: ' + error.message } }); return; }
     const cidade = st.cidLideresCidade || (st.muni && st.muni.nome);
@@ -4801,6 +4808,7 @@ class Component extends DCLogic {
       nlCopiar: () => copy(st.nlLink, 'nlCopied'), nlCopiarLabel: st.nlCopied ? 'Copiado' : 'Copiar link',
       nlNome: st.nlNome || '', onNlNome: (e) => set({ nlNome: e.target.value }),
       nlZap: st.nlZap || '', onNlZap: (e) => set({ nlZap: e.target.value }),
+      nlInstagram: st.nlInstagram || '', onNlInstagram: (e) => set({ nlInstagram: e.target.value }),
       nlPromessa: st.nlPromessa || '', onNlPromessa: (e) => set({ nlPromessa: e.target.value }),
       nlParent: st.nlParent || '', onNlParent: (e) => set({ nlParent: e.target.value }),
       nlBotao: st.nlBusy ? 'Incluindo…' : 'Incluir e convidar',
@@ -4838,7 +4846,7 @@ class Component extends DCLogic {
       msgEnviar: () => this._msgEnviar(), msgFechar: () => set({ msgId: null, msgOut: null }),
       hasMsgOut: !!st.msgOut, msgOutTxt: st.msgOut ? st.msgOut.txt : '',
       msgPlaceholder: st.msgNome ? `Mensagem para ${String(st.msgNome).split(' ')[0]}…` : 'Escreva a mensagem…',
-      edNome: st.edNome, edZap: st.edZap, edCidades: st.edCidades, edPromessa: st.edPromessa, edDobrada: st.edDobrada, edObs: st.edObs,
+      edNome: st.edNome, edZap: st.edZap, edInstagram: st.edInstagram, edCidades: st.edCidades, edPromessa: st.edPromessa, edDobrada: st.edDobrada, edObs: st.edObs,
       edForm: st.edLoaded, edAtivo: st.edStatus === 'active', edPendente: st.edStatus !== 'active',
       edAtivoBg: st.edStatus === 'active' ? 'var(--color-foreground)' : 'transparent', edAtivoFg: st.edStatus === 'active' ? 'var(--color-background)' : 'var(--color-muted-foreground)',
       edPendBg: st.edStatus !== 'active' ? 'var(--color-foreground)' : 'transparent', edPendFg: st.edStatus !== 'active' ? 'var(--color-background)' : 'var(--color-muted-foreground)',
@@ -4846,6 +4854,7 @@ class Component extends DCLogic {
       onEdNome: (e) => set({ edNome: e.target.value }), onEdZap: (e) => set({ edZap: e.target.value }),
       onEdCidades: (e) => set({ edCidades: e.target.value }), onEdPromessa: (e) => set({ edPromessa: e.target.value }),
       onEdDobrada: (e) => set({ edDobrada: e.target.value }), onEdObs: (e) => set({ edObs: e.target.value }),
+      onEdInstagram: (e) => set({ edInstagram: e.target.value }),
       edSalvar: () => { if (!st.edBusy) this._editLeaderSave(); }, edCancelar: () => set({ edId: null, edLoaded: false, edMsg: null }),
       edSalvarLabel: st.edBusy ? 'Salvando…' : 'Salvar',
       edSalvarOp: st.edBusy ? '.55' : '1',
