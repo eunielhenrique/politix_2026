@@ -3422,13 +3422,12 @@ class Component extends DCLogic {
     const kpis = (AR && _semLidVG) ? (function () {
       const ativos = AR.filter(r => r.status === 'active');
       const promessa = ativos.reduce((a, r) => a + (r.meta || 0), 0);
-      const pend = AR.filter(r => r.status === 'invited').length;
       const cid = new Set(); ativos.forEach(r => (r.cities || []).forEach(c => cid.add(this._normCid(c))));
       const eleitAlc = this._muni ? Object.values(this._muni).reduce((s, m) => s + (cid.has(this._normCid(m.nome)) ? (m.eleitorado || 0) : 0), 0) : 0;
       const eleitTot = this._muni ? Object.values(this._muni).reduce((s, m) => s + (m.eleitorado || 0), 0) : 0;
       const pctEleit = eleitTot ? (eleitAlc / eleitTot * 100) : 0;
       return [
-        { label: 'Líderes ativos', valor: ativos.length.toLocaleString('pt-BR'), sub: `${pend} convite(s) pendente(s)`, subCor: 'var(--color-muted-foreground)' },
+        { label: 'Líderes ativos', valor: ativos.length.toLocaleString('pt-BR'), sub: '', subCor: 'var(--color-muted-foreground)' },
         { label: 'Promessa somada', valor: promessa.toLocaleString('pt-BR') + ' votos', sub: `${ativos.filter(r => (r.meta || 0) > 0).length} líderes com promessa`, subCor: 'var(--color-gray-1000)' },
         { label: 'Cidades com líder', valor: String(cid.size), sub: `de 645 municípios de SP`, subCor: 'var(--color-gray-700)' },
         { label: 'Eleitorado alcançado', valor: eleitAlc.toLocaleString('pt-BR'), sub: `${pctEleit.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% do eleitorado do estado`, subCor: 'var(--color-highlight)' },
