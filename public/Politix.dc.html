@@ -1691,11 +1691,9 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </sc-for>
               </div>
             </div>
-            <sc-if value="{{ mapListHidden }}" hint-placeholder-val="{{ false }}">
-              <button class="px-ctlin px-ctld2" onClick="{{ toggleMapList }}" title="Abrir a lista" style="{{ mapExpandStyle }}">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapExpandIcon }}"></path></svg>
-              </button>
-            </sc-if>
+            <button class="px-ctlin px-ctld2" onClick="{{ toggleMapList }}" title="{{ mapExpandTitle }}" style="{{ mapExpandStyle }}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapExpandIcon }}"></path></svg>
+            </button>
             <div class="px-painel" style="{{ livePanelStyle }}">
               <sc-if value="{{ sheetGrabShow }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0 6px">
@@ -1729,6 +1727,12 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">PAINEL AO VIVO</span>
                   </div>
                   <div style="font-size:11px;color:var(--color-gray-600);margin-bottom:8px">{{ livePanelSub }}</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+                    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.4px;color:var(--color-gray-600)">ORDENAR</span>
+                    <sc-for list="{{ liveSortOpts }}" as="so" hint-placeholder-count="2">
+                      <button onClick="{{ so.onClick }}" style="{{ so.style }}">{{ so.label }}</button>
+                    </sc-for>
+                  </div>
                   <sc-if value="{{ hasRa }}" hint-placeholder-val="{{ false }}">
                     <div style="margin:2px 0 14px">
                       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.6px;color:var(--color-gray-600);margin-bottom:6px">ANÁLISE DE REGIÃO</div>
@@ -2386,7 +2390,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, kbOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, liveSort: 'indice', aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, kbOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -4218,7 +4222,11 @@ class Component extends DCLogic {
       painelKpiCols: isMob ? 'repeat(2,minmax(0,1fr))' : 'repeat(3,minmax(0,1fr))',
       painelKpiFs: isMob ? '17px' : '21px',
       // no desktop a lista mora à DIREITA (setas laterais); no celular, ABAIXO (setas verticais)
-      mapExpandIcon: isMob && !st.mapFull ? 'm7 11 5 5 5-5M7 5l5 5 5-5' : 'm11 17-5-5 5-5M18 17l-5-5 5-5',
+      // o botão não some quando a lista abre: vira o inverso (fechar), apontando de volta
+      mapExpandIcon: isMob && !st.mapFull
+        ? (st.mapListHidden ? 'm7 11 5 5 5-5M7 5l5 5 5-5' : 'm7 13 5-5 5 5M7 19l5-5 5 5')
+        : (st.mapListHidden ? 'm11 17-5-5 5-5M18 17l-5-5 5-5' : 'm13 17 5-5-5-5M6 17l5-5-5-5'),
+      mapExpandTitle: st.mapListHidden ? 'Abrir a lista' : 'Fechar a lista',
       mapRecolherIcon: isMob && !st.mapFull ? 'm5 14 7-7 7 7' : 'm10 5 7 7-7 7',
       livePanelStyle: st.mapListHidden ? 'display:none' : (isMob
         ? (st.mapFull
@@ -4314,7 +4322,26 @@ class Component extends DCLogic {
         : _layerAtual === 'muni2024' ? 'faixas de eleitorado de 2024 · números oficiais do TSE · sem comparação entre eleições'
         : (SEM_LID ? 'cor = líderes ativos no município · cadastro de liderados ainda não iniciado' : 'intensidade e círculos ∝ liderados cadastrados'),
       hasMuni: !!mu, noMuni: !mu, fecharMuni: () => set({ muni: null }),
-      liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).map((t, i) => {
+      // ordenação da lista: por índice (padrão) ou por quantidade de líderes na cidade.
+      // Empate cai no índice, para a lista nunca oscilar entre cidades equivalentes.
+      liveSortOpts: [['indice', 'Índice'], ['lideres', 'Líderes']].map(([k, label]) => {
+        const on = (st.liveSort || 'indice') === k;
+        return {
+          label, onClick: () => set({ liveSort: k }),
+          style: `height:24px;padding:0 10px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;`
+            + `border:1px solid ${on ? 'var(--color-foreground)' : 'var(--color-border)'};`
+            + `background:${on ? 'var(--color-foreground)' : 'transparent'};`
+            + `color:${on ? 'var(--color-background)' : 'var(--color-gray-700)'}`,
+        };
+      }),
+      liveRows: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).slice().sort((a, b) => {
+        const idx = x => (x.indice != null ? x.indice : this.potIdx(x.pot)) || 0;
+        if ((st.liveSort || 'indice') === 'lideres') {
+          const d = (Number(b.lideres) || 0) - (Number(a.lideres) || 0);
+          if (d) return d;
+        }
+        return idx(b) - idx(a);
+      }).map((t, i) => {
         // escolher na lista tem que levar o mapa junto: 'focus' aproxima a cidade E dispara
         // o mesmo politix:muni do clique no mapa, então o painel abre com o detalhe idêntico
         const abrir = () => {
