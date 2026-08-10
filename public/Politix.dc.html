@@ -11,6 +11,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <script src="./support.js"></script>
+<script src="./px-destaque.js"></script>
 </head>
 <body>
 <x-dc>
@@ -812,6 +813,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           </div>
         </sc-for>
       </div>
+      <sc-if value="{{ talentoShow }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;border:1px solid var(--color-border);border-left:3px solid var(--color-accent);padding:{{ vgBannerPad }};background:var(--color-background-100) repeating-linear-gradient(-45deg,var(--color-hairline) 0 1px,transparent 1px 6px);color:var(--color-foreground);margin-bottom:20px">
         <div style="display:flex;align-items:flex-start;gap:14px;flex:1;min-width:min(100%,320px)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:3px"><path d="M12 14.5a5.25 5.25 0 1 0 0-10.5 5.25 5.25 0 0 0 0 10.5Zm-3.2 1.6L7.5 21.5l4.5-2.6 4.5 2.6-1.3-5.4"></path></svg>
@@ -822,6 +824,7 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         </div>
         <button style="height:38px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:var(--color-foreground);color:var(--color-background);font-size:13px;font-weight:500;cursor:pointer;flex-shrink:0;width:{{ vgBannerBtnW }}">Ver o ramo</button>
       </div>
+      </sc-if>
       <div style="display:grid;grid-template-columns:{{ vgGridCols }};gap:16px;align-items:stretch;margin-bottom:16px">
         <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:16px 20px 12px">
           <div style="display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;justify-content:space-between;margin-bottom:10px">
@@ -1727,12 +1730,14 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                     <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--color-gray-600)">PAINEL AO VIVO</span>
                   </div>
                   <div style="font-size:11px;color:var(--color-gray-600);margin-bottom:8px">{{ livePanelSub }}</div>
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-                    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.4px;color:var(--color-gray-600)">ORDENAR</span>
-                    <sc-for list="{{ liveSortOpts }}" as="so" hint-placeholder-count="2">
-                      <button onClick="{{ so.onClick }}" style="{{ so.style }}">{{ so.label }}</button>
-                    </sc-for>
-                  </div>
+                  <sc-if value="{{ liveSortShow }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+                      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.4px;color:var(--color-gray-600)">ORDENAR</span>
+                      <sc-for list="{{ liveSortOpts }}" as="so" hint-placeholder-count="2">
+                        <button onClick="{{ so.onClick }}" style="{{ so.style }}">{{ so.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
                   <sc-if value="{{ hasRa }}" hint-placeholder-val="{{ false }}">
                     <div style="margin:2px 0 14px">
                       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.6px;color:var(--color-gray-600);margin-bottom:6px">ANÁLISE DE REGIÃO</div>
@@ -3848,10 +3853,14 @@ class Component extends DCLogic {
     const vgX = d => 16 + d / vgTotal * 608, vgY = v => 228 - v / vgMaxY * 200;
     const vgPts = vgCum.map((v, i) => `${vgX(i).toFixed(1)},${vgY(v).toFixed(1)}`);
     const vgMaxAdd = Math.max(1, ...vgAdds);
-    const _tal = (AR && AR.length) ? [...AR].sort((a, b) => Number(b.rate_7d || 0) - Number(a.rate_7d || 0))[0] : null;
+    // O destaque tem selo de troféu e botão "Ver o ramo" — peso de recomendação.
+    // Só existe quando alguém se destaca de verdade (ver public/px-destaque.js e
+    // tests/px-destaque.test.js). Rede zerada, empate no topo ou base vazia: some.
+    const _tal = (typeof PXDestaque !== 'undefined') ? PXDestaque.escolherDestaque(AR) : null;
     const vgVals = {
-      talentoTit: _tal ? ('Destaque da rede: ' + _tal.name) : 'Sua rede está começando',
-      talentoTxt: _tal ? (_tal.name + ' está com ' + Math.round(_tal.pct || 0) + '% da meta e o maior ritmo da rede (' + Number(_tal.rate_7d || 0).toFixed(1).replace('.', ',') + '/dia). Considere apoiar o ramo com mais cidades e sub-líderes.') : 'Convide os primeiros líderes pelo painel (Configurações › Convidar líder). Assim que houver cadastros, o destaque da rede aparece aqui automaticamente.',
+      talentoShow: !!_tal,
+      talentoTit: _tal ? ('Destaque da rede: ' + _tal.name) : '',
+      talentoTxt: _tal ? (_tal.name + ' está com ' + Math.round(_tal.pct || 0) + '% da meta e o maior ritmo da rede (' + Number(_tal.rate_7d || 0).toFixed(1).replace('.', ',') + '/dia). Considere apoiar o ramo com mais cidades e sub-líderes.') : '',
       vgMetaLabel: 'Meta ' + vgMeta.toLocaleString('pt-BR'),
       vgLine: 'M' + vgPts.join(' L'),
       vgArea: 'M' + vgPts.join(' L') + ` L${vgX(29).toFixed(1)},228 L16,228 Z`,
@@ -4186,7 +4195,8 @@ class Component extends DCLogic {
       // abrir a lista fica logo ACIMA da pilha de zoom (3 botões de 36 + bordas = 110),
       // na mesma coluna — some junto quando a lista está aberta. Na tela grande em modo
       // cheia o Touch ocupa esse degrau, então ele sobe mais um (36 + 8).
-      mapExpandStyle: `position:absolute;${_vert ? 'left' : 'right'}:12px;bottom:${_vert ? _vBase(48 + _ctlH + _ctlGap) : ((!isMob && st.mapFull) ? _bExpand : _bTouch) + 'px'};z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
+      // acompanha a coluna de controles: com a lista aberta, sai de cima do painel
+      mapExpandStyle: `position:absolute;${_vert ? 'left' : 'right'}:${_vert ? 12 : (st.mapListHidden ? 12 : _painelW + 24)}px;bottom:${_vert ? _vBase(48 + _ctlH + _ctlGap) : ((!isMob && st.mapFull) ? _bExpand : _bTouch) + 'px'};z-index:6;width:36px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);color:var(--color-foreground);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18)`,
       // pilha vertical na BASE; com a lista recolhida ela encosta na direita da tela
       mapCtlStyle: isMob
         ? `position:absolute;${_vert ? 'left' : 'right'}:12px;bottom:${_vBase(48)};z-index:6;display:flex;flex-direction:column;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--overlay);backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.18);overflow:hidden`
@@ -4442,6 +4452,8 @@ class Component extends DCLogic {
         };
       })(),
       liveEmpty: (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).length === 0,
+      // ordenar só faz sentido com a lista à vista: some no detalhe do município e sem linhas
+      liveSortShow: !mu && (ms && ms.top ? ms.top : []).filter(t => this.fltMatch(st.mapFRegiao, this.raDeIbge(t.ibge))).length > 0,
       liveEmptyText: !ms ? 'Carregando o índice de prioridade…' : _layerAtual === 'muni2024' ? 'Nenhum município com dado de 2024 nesta região.' : 'Nenhuma cidade com potencial da família nesta região · a família praticamente não fez voto por aqui em 2022.',
       // Resumo por RA direto de municipio_politico (645 municípios) + líderes ativos por região
       ...(() => {
