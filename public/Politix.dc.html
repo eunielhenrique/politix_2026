@@ -861,13 +861,13 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
         <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);overflow:hidden;display:flex;flex-direction:column">
           <div style="display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;justify-content:space-between;padding:16px 20px 8px">
             <span style="font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-foreground);white-space:nowrap">Cobertura · São Paulo</span>
-            <span style="font-size:11px;color:var(--color-gray-600)">contorno oficial IBGE</span>
+            <span style="font-size:11px;color:var(--color-gray-600)">{{ vgMapaSub }}</span>
           </div>
           <x-import component-from-global-scope="sp-map" from="./sp-map.js" data-cities="{{ citiesJson }}" hint-size="100%,330px" style="display:block;width:100%;flex:1 1 auto;min-height:0;height:{{ vgMapH }}"></x-import>
           <div style="display:flex;gap:12px;flex-wrap:wrap;padding:8px 20px 12px;font-size:11px;color:var(--color-muted-foreground)">
-            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:var(--color-gray-1000)"></span>coberto</span>
-            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:var(--color-gray-700)"></span>parcial</span>
-            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:var(--color-highlight)"></span>priorizar</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:var(--color-gray-1000)"></span>{{ vgMapaLeg1 }}</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:var(--color-gray-700)"></span>{{ vgMapaLeg2 }}</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:var(--radius-sm);background:var(--color-highlight)"></span>{{ vgMapaLeg3 }}</span>
           </div>
         </div>
       </div>
@@ -1722,9 +1722,11 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
                 </sc-for>
               </div>
             </div>
-            <button class="px-ctlin px-ctld2" onClick="{{ toggleMapList }}" title="{{ mapExpandTitle }}" style="{{ mapExpandStyle }}">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapExpandIcon }}"></path></svg>
-            </button>
+            <sc-if value="{{ mapExpandShow }}" hint-placeholder-val="{{ true }}">
+              <button class="px-ctlin px-ctld2" onClick="{{ toggleMapList }}" title="{{ mapExpandTitle }}" style="{{ mapExpandStyle }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{ mapExpandIcon }}"></path></svg>
+              </button>
+            </sc-if>
             <div class="px-painel" style="{{ livePanelStyle }}">
               <sc-if value="{{ sheetGrabShow }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0 6px">
@@ -3857,6 +3859,29 @@ class Component extends DCLogic {
         const status = nl === 0 ? 'priorizar' : cad >= med ? 'coberto' : 'parcial';
         return { nome: c, lng: _COORD[c][0], lat: _COORD[c][1], status, statusLabel: { coberto: 'Coberto', parcial: 'Parcial', priorizar: 'Priorizar · sem líder' }[status], potencial: 0, lideres: nl, cadastros: cad };
       }).sort((a, b) => b.cadastros - a.cadastros);
+    })() : AR ? (function () {
+      // Sem cadastro de liderados o mapa não fica cinza: passa a mostrar ONDE ESTÁ A REDE
+      // — líderes por cidade — e marca como "priorizar" as praças de alto potencial da
+      // família que ainda não têm ninguém. Tudo dado real (rede + TSE), nada estimado.
+      const lpc = {}; AR.forEach(r => (r.cities || []).forEach(c => { lpc[c] = (lpc[c] || 0) + 1; }));
+      const comLider = Object.entries(lpc).filter(([c]) => _COORD[c]).map(([c, nl]) => ({
+        nome: c, lng: _COORD[c][0], lat: _COORD[c][1],
+        status: nl >= 3 ? 'coberto' : 'parcial',
+        statusLabel: nl + (nl > 1 ? ' líderes' : ' líder'),
+        potencial: 0, lideres: nl, cadastros: nl,
+      }));
+      const jaTem = new Set(Object.keys(lpc).map(c => this._normCid(c)));
+      const vazias = (this.anchorsData || [])
+        .filter(a => _COORD[a.nome] && !jaTem.has(this._normCid(a.nome)))
+        .map(a => ({ a, pot: ['candidato', 'irmao', 'pai'].reduce((s, m) => s + a.hist[m].reduce((x, h) => x + h.votos, 0), 0) }))
+        .filter(x => x.pot >= 15000)
+        .sort((x, y) => y.pot - x.pot).slice(0, 12)
+        .map(({ a }) => ({
+          nome: a.nome, lng: _COORD[a.nome][0], lat: _COORD[a.nome][1],
+          status: 'priorizar', statusLabel: 'alto potencial · sem líder',
+          potencial: 0, lideres: 0, cadastros: 0,
+        }));
+      return comLider.concat(vazias).sort((a, b) => b.lideres - a.lideres);
     })() : [];  // sem ranking real ainda: mapa sem pins, nunca cidades/contagens inventadas
     // ---- gráficos da visão geral ----
     const _lids = (AR && st.remote.liderados) || null;
@@ -3893,6 +3918,12 @@ class Component extends DCLogic {
       vgTemEntrega: !(typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS),
       vgSemEntrega: (typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS),
       vgSemEntregaTxt: 'Aguardando a integração do santby — é lá que o liderado é cadastrado. Sem essa fonte, este bloco fica vazio em vez de mostrar zero.',
+      // o mapa não espera o santby: enquanto não há liderados ele mostra a rede que existe
+      vgMapaSub: (typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS)
+        ? 'líderes por cidade · contorno IBGE' : 'contorno oficial IBGE',
+      vgMapaLeg1: (typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS) ? '3+ líderes' : 'coberto',
+      vgMapaLeg2: (typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS) ? '1–2 líderes' : 'parcial',
+      vgMapaLeg3: (typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS) ? 'alto potencial sem líder' : 'priorizar',
       talentoTit: _tal ? ('Destaque da rede: ' + _tal.name) : '',
       talentoTxt: _tal ? (_tal.name + ' está com ' + Math.round(_tal.pct || 0) + '% da meta e o maior ritmo da rede (' + Number(_tal.rate_7d || 0).toFixed(1).replace('.', ',') + '/dia). Considere apoiar o ramo com mais cidades e sub-líderes.') : '',
       vgMetaLabel: 'Meta ' + vgMeta.toLocaleString('pt-BR'),
@@ -4271,6 +4302,9 @@ class Component extends DCLogic {
         ? (st.mapListHidden ? 'm7 11 5 5 5-5M7 5l5 5 5-5' : 'm7 13 5-5 5 5M7 19l5-5 5 5')
         : (st.mapListHidden ? 'm11 17-5-5 5-5M18 17l-5-5 5-5' : 'm13 17 5-5-5-5M6 17l5-5-5-5'),
       mapExpandTitle: st.mapListHidden ? 'Abrir a lista' : 'Fechar a lista',
+      // no celular só existe o abrir: fechar é a alça do próprio painel, um botão
+      // flutuante em cima da lista seria um segundo caminho para a mesma coisa
+      mapExpandShow: st.mapListHidden || !isMob,
       mapRecolherIcon: isMob && !st.mapFull ? 'm5 14 7-7 7 7' : 'm10 5 7 7-7 7',
       livePanelStyle: st.mapListHidden ? 'display:none' : (isMob
         ? (st.mapFull
