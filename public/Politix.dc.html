@@ -828,8 +828,8 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
       <div style="display:grid;grid-template-columns:{{ vgGridCols }};gap:16px;align-items:stretch;margin-bottom:16px">
         <div style="border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-background);padding:16px 20px 12px">
           <div style="display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;justify-content:space-between;margin-bottom:10px">
-            <span style="font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-foreground);white-space:nowrap">Curva da campanha</span>
-            <span style="font-size:11.5px;color:var(--color-gray-600)">cadastros acumulados (dedup) · projeção até 04/10</span>
+            <span style="font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-foreground);white-space:nowrap">{{ vgBloco1Tit }}</span>
+            <span style="font-size:11.5px;color:var(--color-gray-600)">{{ vgBloco1Sub }}</span>
           </div>
           <sc-if value="{{ vgTemEntrega }}" hint-placeholder-val="{{ true }}">
           <div style="position:relative">
@@ -853,8 +853,26 @@ a{color:var(--color-foreground);text-decoration:none}a:hover{color:#ffffff;text-
           </div>
           </sc-if>
           <sc-if value="{{ vgSemEntrega }}" hint-placeholder-val="{{ true }}">
-            <div style="min-height:240px;display:flex;align-items:center">
-              <p style="font-size:12.5px;color:var(--color-gray-600);line-height:1.55;margin:0;max-width:46ch">{{ vgSemEntregaTxt }}</p>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+                <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.4px;color:var(--color-gray-600)">MEDIR POR</span>
+                <sc-for list="{{ vgRaOpts }}" as="ro" hint-placeholder-count="3">
+                  <button onClick="{{ ro.onClick }}" style="{{ ro.style }}">{{ ro.label }}</button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <sc-for list="{{ vgRaLinhas }}" as="rr" hint-placeholder-count="8">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="width:118px;flex-shrink:0;font-size:11.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rr.nome }}</span>
+                    <div style="flex:1;height:14px;background:var(--color-gray-300);border-radius:var(--radius-sm);overflow:hidden">
+                      <div style="height:100%;transition:width 900ms var(--ease-bar);width:{{ rr.pctW }};background:{{ rr.cor }}"></div>
+                    </div>
+                    <span style="width:112px;text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--color-gray-700);white-space:nowrap">{{ rr.detalhe }}</span>
+                    <span style="width:54px;text-align:right;font-family:var(--font-mono);font-size:12px;font-weight:600">{{ rr.valor }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="font-size:11px;color:var(--color-gray-600);line-height:1.5;margin:14px 0 0">{{ vgRaNota }}</p>
             </div>
           </sc-if>
         </div>
@@ -2425,7 +2443,7 @@ class Component extends DCLogic {
     ldrList: null, ldrFilter: 'todos', ldrSearch: '', ldrBusy: false, ldrCopiedId: null,
     wppState: 'off', wppQr: null, wppGroups: [], wppSel: null, wppText: '', wppMsg: null, lgLink: '',
     electionDate: '2026-10-04',
-    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, liveSort: 'indice', aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, kbOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
+    aTab: 'visao', cfgSec: 'perfil', sideCollapsed: false, aSheet: false, fltOpen: false, liveSort: 'indice', vgRaMetrica: 'porMilhao', aiOpenA: false, aiOpenL: false, aiMsgsA: [], aiMsgsL: [], aiInput: '', aiTyping: false, cfgNotif: { parado: true, meta: true, furo: true, talento: true, resumo: false }, cfg2fa: true, eqLista: null, eqNome: '', eqEmail: '', eqPapel: 'assessor', eqBusy: false, eqMsg: null, eqAberto: false, eqErro: false, touchOn: false, iaTexto: null, iaChave: null, iaBusy: false, iaErro: false, mapLayer: 'cobertura', mapMembros: ['candidato', 'irmao', 'pai'], mapAnos: [], muni: null, muniPano: null, muniAba: 'eleitorado', buscaCidade: '', fltMapaOpen: false, mapFiltros: {}, candLista: null, candChave: null, cidLideres: null, cidLideresCidade: null, nlOpen: false, nlNome: '', nlZap: '', nlPromessa: '', nlCidades: '', nlDobrada: '', nlObs: '', nlLink: null, nlLinkNome: '', nlCopied: false, nlBusy: false, nlMsg: null, edId: null, edLoaded: false, edNome: '', edZap: '', edCidades: '', edPromessa: '', edDobrada: '', edStatus: 'active', edObs: '', edBusy: false, edMsg: null, msgId: null, msgNome: '', msgZap: '', msgText: '', msgBusy: false, msgOut: null, mapStats: null, mapFull: false, sheetFull: false, mapPickOpen: false, kbOpen: false, selLeader: null, rankVisible: 20, grpSel: 0, grpInput: '', grpExtra: {}, grpBc: false, grpBcSel: [], grpRec: false, grpRecS: 0, grpNota: null, grpTipo: 'liderados', grpFLider: 'todos', grpFCidade: 'todos', grpFRegiao: 'todos', rankFRegiao: 'todos', cidFRegiao: 'todos', mapFRegiao: 'todos', remote: null,
   };
   // Três modos de interface, escolha explícita de quem opera e guardada no aparelho:
   //   desk  · mouse, alvos compactos (padrão em tela grande)
@@ -2786,6 +2804,58 @@ class Component extends DCLogic {
       this._raList = [...ras].sort((a, b) => a.localeCompare(b, 'pt-BR'));
       this._muniLoading = false; this.setState({ muniV: (this.state.muniV || 0) + 1 });
     }, () => { this._muniLoading = false; });
+  }
+  /**
+   * Agrega a campanha nas 16 Regiões Administrativas.
+   *
+   * Município a município a leitura engana: a rede parece forte porque muitas
+   * cidades têm alguém. Por RA aparece o desequilíbrio — a Metropolitana tem
+   * 40 líderes para 16,5 milhões de eleitores enquanto Rio Preto tem 52 para
+   * 1,2 milhão. Por isso a métrica padrão é cobertura (líderes por milhão de
+   * eleitores) e não a contagem de líderes: contagem premia quem tem muitas
+   * cidades pequenas; cobertura mostra onde o voto está desassistido.
+   *
+   * Índice e potencial NÃO são somados entre municípios — soma-se o voto e o
+   * eleitorado da região, e a normalização acontece depois, entre as 16 RAs.
+   */
+  raAgregado(AR) {
+    const M = this._muni; if (!M) return [];
+    const FI = this._famIdx || {};
+    const porRa = {};
+    const nova = () => ({ municipios: 0, eleitorado: 0, votos: 0, lideres: 0, cidadesComLider: 0 });
+
+    // líderes por cidade (normalizado) → some na RA da cidade
+    const porCidade = {};
+    (AR || []).filter(l => l.status !== 'inactive').forEach(l =>
+      (l.cities || []).forEach(c => { const k = this._normCid(c); porCidade[k] = (porCidade[k] || 0) + 1; }));
+
+    Object.entries(M).forEach(([ibge, m]) => {
+      if (!m.ra) return;
+      const a = porRa[m.ra] || (porRa[m.ra] = nova());
+      a.municipios++;
+      a.eleitorado += m.eleitorado || 0;
+      const f = FI[ibge];
+      a.votos += (f && f.votos) || 0;
+      const nl = porCidade[this._normCid(m.nome)] || 0;
+      if (nl) { a.lideres += nl; a.cidadesComLider++; }
+    });
+
+    const linhas = Object.entries(porRa).map(([ra, a]) => ({
+      ra,
+      raCurto: String(ra).replace(/\s*Reg\s*n[ºª°]?\s*\d+\s*$/i, '').trim(),
+      ...a,
+      // líderes por milhão de eleitores: a régua que compara RMSP com o interior
+      porMilhao: a.eleitorado ? (a.lideres / (a.eleitorado / 1e6)) : 0,
+      pctCidades: a.municipios ? (a.cidadesComLider / a.municipios * 100) : 0,
+    }));
+
+    // normaliza cada métrica entre as RAs (0–100) para virar cor no mapa
+    const escala = (campo) => {
+      const max = Math.max(...linhas.map(l => l[campo]), 0);
+      linhas.forEach(l => { l[campo + 'Idx'] = max > 0 ? Math.round(l[campo] / max * 100) : 0; });
+    };
+    escala('lideres'); escala('votos'); escala('porMilhao');
+    return linhas;
   }
   // Índice de força da família COMBINÁVEL (RPC familia_indice).
   // REGRA: índice NÃO soma — VOTO soma. Toda troca de chip refaz a chamada, que soma os
@@ -3933,6 +4003,48 @@ class Component extends DCLogic {
       vgTemEntrega: !(typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS),
       vgSemEntrega: (typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS),
       vgSemEntregaTxt: 'Aguardando a integração do santby — é lá que o liderado é cadastrado. Sem essa fonte, este bloco fica vazio em vez de mostrar zero.',
+      // No lugar da curva (que espera o santby), o que já dá para ler hoje: como a
+      // campanha se distribui nas 16 regiões administrativas.
+      ...(() => {
+        const semLid = typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS;
+        if (!semLid) return { vgBloco1Tit: 'Curva da campanha', vgBloco1Sub: 'cadastros acumulados (dedup) · projeção até 04/10' };
+        const metrica = st.vgRaMetrica || 'porMilhao';
+        const defs = {
+          porMilhao: { label: 'Cobertura', nota: 'Líderes por milhão de eleitores — compara regiões de tamanhos diferentes. É onde o desequilíbrio aparece: muitas cidades pequenas cobertas não significam voto coberto.' },
+          lideres: { label: 'Líderes', nota: 'Total de líderes ativos na região. Premia quem tem muitas cidades, mesmo que pequenas.' },
+          votos: { label: 'Potencial', nota: 'Votos da família na região (TSE 2022, combinação de membros selecionada no mapa). Referência histórica — nunca soma com a rede.' },
+        };
+        const linhas = this.raAgregado(AR).sort((a, b) => b[metrica] - a[metrica]);
+        const fmtNum = n => Math.round(n).toLocaleString('pt-BR');
+        return {
+          vgBloco1Tit: 'Regiões administrativas',
+          vgBloco1Sub: '16 regiões · ordenado por ' + defs[metrica].label.toLowerCase(),
+          vgRaNota: defs[metrica].nota,
+          vgRaOpts: Object.keys(defs).map(k => {
+            const on = k === metrica;
+            return {
+              label: defs[k].label, onClick: () => set({ vgRaMetrica: k }),
+              style: `height:24px;padding:0 10px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;`
+                + `border:1px solid ${on ? 'var(--color-foreground)' : 'var(--color-border)'};`
+                + `background:${on ? 'var(--color-foreground)' : 'transparent'};`
+                + `color:${on ? 'var(--color-background)' : 'var(--color-gray-700)'}`,
+            };
+          }),
+          vgRaLinhas: linhas.map(l => ({
+            nome: l.raCurto,
+            pctW: (l[metrica + 'Idx'] || 0) + '%',
+            // sem rede na região é o alerta, não o "menor valor": vai de âmbar
+            cor: l.lideres === 0 ? 'var(--color-highlight)' : 'var(--color-foreground)',
+            detalhe: metrica === 'porMilhao'
+              ? `${l.lideres} líder(es) · ${fmtNum(l.eleitorado / 1000)} mil eleit.`
+              : metrica === 'lideres'
+                ? `${l.cidadesComLider}/${l.municipios} cidades`
+                : `${fmtNum(l.eleitorado / 1000)} mil eleitores`,
+            valor: metrica === 'porMilhao' ? l.porMilhao.toFixed(1)
+              : metrica === 'lideres' ? String(l.lideres) : fmtNum(l.votos),
+          })),
+        };
+      })(),
       // o mapa não espera o santby: enquanto não há liderados ele mostra a rede que existe
       vgMapaSub: (typeof window !== 'undefined' && !!window.PX_SEM_LIDERADOS)
         ? 'líderes por cidade · contorno IBGE' : 'contorno oficial IBGE',
