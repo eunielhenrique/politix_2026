@@ -2524,6 +2524,14 @@ class Component extends DCLogic {
     this.setState({ touchOn: on });
   }
   componentDidMount() {
+    // centroides dos 645 municípios (malha oficial do IBGE) — sem isso o mapa da visão
+    // geral só conseguia posicionar as duas dezenas de cidades da lista embutida
+    if (!this._centroides) {
+      fetch('./sp-centroides.json')
+        .then(r => r.ok ? r.json() : null)
+        .then(j => { if (j) { this._centroides = j; this.setState({ centroV: 1 }); } })
+        .catch(() => {});
+    }
     // celular não entra aqui: o layout mobile vem por largura. Numa tela grande,
     // o primeiro acesso adivinha pelo ponteiro e o botão do mapa decide dali em diante.
     let touch = false;
@@ -3849,7 +3857,14 @@ class Component extends DCLogic {
         : `Ritmo saudável, mas a região comporta mais: o potencial da família aqui é ${this.potNivel(dl.potRef)} e a conversão está em ${dl.porMil}/mil. Sub-líderes novos acelerariam o ramo.`,
     };
     const _COORD = { 'São Paulo': [-46.633, -23.55], 'Guarulhos': [-46.533, -23.454], 'Osasco': [-46.792, -23.532], 'Barueri': [-46.876, -23.51], 'Santo André': [-46.538, -23.663], 'São Bernardo do Campo': [-46.565, -23.694], 'São Caetano do Sul': [-46.564, -23.618], 'Diadema': [-46.62, -23.686], 'Mauá': [-46.461, -23.667], 'Campinas': [-47.061, -22.905], 'Sorocaba': [-47.458, -23.501], 'Jundiaí': [-46.884, -23.186], 'Santos': [-46.333, -23.96], 'São José dos Campos': [-45.887, -23.179], 'Ribeirão Preto': [-47.81, -21.177], 'São José do Rio Preto': [-49.379, -20.812], 'Bauru': [-49.06, -22.314], 'Piracicaba': [-47.649, -22.725], 'Presidente Prudente': [-51.388, -22.126], 'Santana de Parnaíba': [-46.918, -23.444], 'Cotia': [-46.919, -23.604], 'Carapicuíba': [-46.836, -23.522], 'Taboão da Serra': [-46.758, -23.626], 'Mogi das Cruzes': [-46.188, -23.522] };
-    const cities = (AR && st.remote.liderados) ? (function () {
+    // A rede está espalhada por cidades pequenas (Jandira, Cândido Mota, Tupi Paulista…) e
+    // a lista acima só cobria 24 municípios — o mapa nascia quase sem pin. sp-centroides.json
+    // traz os 645 centroides calculados da malha oficial do IBGE; as coordenadas acima
+    // continuam valendo por serem o ponto urbano, não o centro geométrico.
+    if (this._centroides) Object.keys(this._centroides).forEach(n => { if (!_COORD[n]) _COORD[n] = this._centroides[n]; });
+    // liderados vem como [] enquanto o santby não integra, e [] é truthy — sem o .length
+    // o mapa entrava no ramo dos liderados, não achava nenhum e ficava cinza.
+    const cities = (AR && st.remote.liderados && st.remote.liderados.length) ? (function () {
       const cc = {}; st.remote.liderados.forEach(l => { const c = l.city || '—'; cc[c] = (cc[c] || 0) + 1; });
       const lpc = {}; AR.forEach(r => (r.cities || []).forEach(c => lpc[c] = (lpc[c] || 0) + 1));
       const cov = Object.entries(cc).filter(([c]) => (lpc[c] || 0) > 0).map(([, n]) => n).sort((a, b) => a - b);
