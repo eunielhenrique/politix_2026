@@ -3874,7 +3874,7 @@ class Component extends DCLogic {
         const status = nl === 0 ? 'priorizar' : cad >= med ? 'coberto' : 'parcial';
         return { nome: c, lng: _COORD[c][0], lat: _COORD[c][1], status, statusLabel: { coberto: 'Coberto', parcial: 'Parcial', priorizar: 'Priorizar · sem líder' }[status], potencial: 0, lideres: nl, cadastros: cad };
       }).sort((a, b) => b.cadastros - a.cadastros);
-    })() : AR ? (function () {
+    })() : AR ? (() => {
       // Sem cadastro de liderados o mapa não fica cinza: passa a mostrar ONDE ESTÁ A REDE
       // — líderes por cidade — e marca como "priorizar" as praças de alto potencial da
       // família que ainda não têm ninguém. Tudo dado real (rede + TSE), nada estimado.
